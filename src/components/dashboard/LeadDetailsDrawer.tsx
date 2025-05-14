@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { Drawer, DrawerContent, DrawerTitle } from '@/components/ui/drawer';
@@ -9,6 +8,7 @@ import LeadStatus from './drawer/LeadStatus';
 import DetailTabsSection from './drawer/DetailTabsSection';
 import { useTimelineItems } from '@/hooks/useTimelineItems';
 import { toast } from "sonner";
+import { Card } from '@/components/ui/card';
 
 type LeadDetailsDrawerProps = {
   isOpen: boolean;
@@ -84,9 +84,16 @@ const LeadDetailsDrawer = ({
         onPotentialChange={handlePotentialChange}
       />
 
-      <div className="flex-1 overflow-y-auto p-4 bg-white px-[25px]">
+      <div className="flex-1 overflow-y-auto p-6 bg-background px-6">
         {/* Lead Status and Pipeline Stage */}
-        <LeadStatus status={lead.status} pipelineStage={lead.pipelineStage} onStatusChange={handleStatusChange} onPipelineStageChange={handlePipelineStageChange} />
+        <Card className="mb-6 p-4 border border-border">
+          <LeadStatus 
+            status={lead.status} 
+            pipelineStage={lead.pipelineStage} 
+            onStatusChange={handleStatusChange} 
+            onPipelineStageChange={handlePipelineStageChange} 
+          />
+        </Card>
 
         {/* Accordion sections - ContactInfoSection and InitialInterestSection are now moved to DetailTabsSection */}
         <div className="space-y-4">

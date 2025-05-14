@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -34,7 +33,6 @@ const LandInformation: React.FC<LandInformationProps> = ({
               value={formState.landRai} 
               onChange={e => onChange('landRai', e.target.value)} 
               placeholder="0" 
-              className="bg-white" 
             />
             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">ไร่</span>
           </div>
@@ -44,7 +42,6 @@ const LandInformation: React.FC<LandInformationProps> = ({
               value={formState.landNgan} 
               onChange={e => onChange('landNgan', e.target.value)} 
               placeholder="0" 
-              className="bg-white" 
             />
             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">งาน</span>
           </div>
@@ -54,7 +51,6 @@ const LandInformation: React.FC<LandInformationProps> = ({
               value={formState.landWah} 
               onChange={e => onChange('landWah', e.target.value)} 
               placeholder="0" 
-              className="bg-white" 
             />
             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">วา</span>
           </div>

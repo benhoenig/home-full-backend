@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { AccordionItem } from '@/components/ui/accordion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -78,15 +77,15 @@ const DetailTabsSection = ({
     <AccordionItem value="details-tabs" className="border-b">
       <div className="py-3">
         <Tabs defaultValue="details">
-          <TabsList className="w-full grid grid-cols-4 py-0 my-0 bg-slate-50">
-            <TabsTrigger value="details" className="bg-inherit">Details</TabsTrigger>
+          <TabsList className="w-full grid grid-cols-4 mb-4">
+            <TabsTrigger value="details">Details</TabsTrigger>
             <TabsTrigger value="activity">Activity</TabsTrigger>
             <TabsTrigger value="matching">Matching</TabsTrigger>
             <TabsTrigger value="closing">Closing</TabsTrigger>
           </TabsList>
           
           {/* Details Tab */}
-          <TabsContent value="details" className="pt-4 space-y-4 py-0">
+          <TabsContent value="details" className="space-y-4">
             <DetailTab 
               rapport={rapport} 
               budget={budget} 
@@ -119,7 +118,7 @@ const DetailTabsSection = ({
           </TabsContent>
           
           {/* Activity Tab */}
-          <TabsContent value="activity" className="pt-4">
+          <TabsContent value="activity">
             <ActivityTab {...timelineData} />
           </TabsContent>
           

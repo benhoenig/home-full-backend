@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -34,7 +33,7 @@ const PriceInformation: React.FC<PriceInformationProps> = ({
               value={formState.priceMin} 
               onChange={e => onChange('priceMin', e.target.value)} 
               placeholder="Min" 
-              className="pl-7 bg-white" 
+              className="pl-7" 
               type="number" 
             />
           </div>
@@ -45,7 +44,7 @@ const PriceInformation: React.FC<PriceInformationProps> = ({
               value={formState.priceMax} 
               onChange={e => onChange('priceMax', e.target.value)} 
               placeholder="Max" 
-              className="pl-7 bg-white" 
+              className="pl-7" 
               type="number" 
             />
           </div>

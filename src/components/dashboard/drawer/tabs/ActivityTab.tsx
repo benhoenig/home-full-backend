@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
-import { Search } from 'lucide-react';
+import { Search, Clock, MessageCircle } from 'lucide-react';
 import TimelineItem from './TimelineItem';
 import { NewCommentInput } from './comment';
 import { TimelineItem as TimelineItemType } from '@/hooks/useTimelineItems';
@@ -74,32 +73,37 @@ const ActivityTab = ({
       )
     : sortedTimelineItems;
   
-  return <div className="space-y-3">
-      {/* Timeline header and controls - moved outside the card */}
-      <div className="flex items-center justify-between mb-1">
-        <h3 className="text-lg font-semibold">Timeline :</h3>
-        <div className="flex items-center space-x-2">
-          <div className="relative">
-            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-gray-500" />
-            <Input 
-              placeholder="Search..." 
-              className="pl-7 h-9 w-30 md:w-32 text-xs py-0" 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+  return (
+    <div className="space-y-6">
+      {/* Timeline Activity Card */}
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center text-base font-medium">
+              <Clock className="mr-2 h-4 w-4" />
+              Timeline Activity
+            </CardTitle>
+            <div className="flex items-center space-x-2">
+              <div className="relative">
+                <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-gray-500" />
+                <Input 
+                  placeholder="Search..." 
+                  className="pl-7 h-9 w-30 md:w-32 text-xs py-0" 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              <CommentFilter 
+                customTags={customTags}
+                activeFilter={activeFilter}
+                onFilterChange={handleFilterChange}
+                timelineItems={timelineItems} // Pass timeline items to filter available options
+              />
+            </div>
           </div>
-          <CommentFilter 
-            customTags={customTags}
-            activeFilter={activeFilter}
-            onFilterChange={handleFilterChange}
-            timelineItems={timelineItems} // Pass timeline items to filter available options
-          />
-        </div>
-      </div>
-      
-      {/* Timeline content card */}
-      <Card className="border rounded-md shadow-sm overflow-hidden mb-6">
-        <CardContent className="p-3 bg-slate-50">
+          <CardDescription>View and manage lead activity timeline</CardDescription>
+        </CardHeader>
+        <CardContent className="pt-0">
           <ScrollArea className="h-[350px] pr-3">
             <div className="space-y-4">
               {filteredItems.length > 0 ? (
@@ -128,8 +132,18 @@ const ActivityTab = ({
               )}
             </div>
           </ScrollArea>
-          
-          {/* Comment Input with enhanced features */}
+        </CardContent>
+      </Card>
+      
+      {/* Add Comment Card */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center text-base font-medium">
+            <MessageCircle className="mr-2 h-4 w-4" />
+            Add Comment
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
           <NewCommentInput 
             newComment={newComment} 
             onNewCommentChange={handleNewCommentChange} 
@@ -137,7 +151,8 @@ const ActivityTab = ({
           />
         </CardContent>
       </Card>
-    </div>;
+    </div>
+  );
 };
 
 export default ActivityTab;

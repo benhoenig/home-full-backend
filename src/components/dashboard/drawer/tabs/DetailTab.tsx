@@ -4,6 +4,9 @@ import ContactInfoSection from '../ContactInfoSection';
 import InitialInterestSection from '../InitialInterestSection';
 import RapportSection from './detail/RapportSection';
 import MainInfoSection from './detail/MainInfoSection';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Users, Building, Info } from 'lucide-react';
+
 type DetailTabProps = {
   rapport: number[];
   budget: string | number;
@@ -37,6 +40,7 @@ type DetailTabProps = {
   onScheduleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onPainPointChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
 };
+
 const DetailTab = ({
   rapport,
   budget,
@@ -66,25 +70,60 @@ const DetailTab = ({
   onScheduleChange,
   onPainPointChange
 }: DetailTabProps) => {
-  return <div className="space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between py-[16px]">
-        <h3 className="text-lg font-semibold">Details :</h3>
-      </div>
+  return (
+    <div className="space-y-6">
+      {/* Rapport Slider Card */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center text-base font-medium">
+            <Info className="mr-2 h-4 w-4" />
+            Rapport & Budget
+          </CardTitle>
+          <CardDescription>Lead rapport level and budget information</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <RapportSection rapport={rapport} onRapportChange={onRapportChange} />
+          <MainInfoSection 
+            budget={budget} 
+            schedule={schedule} 
+            painPoint={painPoint} 
+            onBudgetChange={onBudgetChange} 
+            onScheduleChange={onScheduleChange} 
+            onPainPointChange={onPainPointChange} 
+          />
+        </CardContent>
+      </Card>
       
-      {/* Rapport Slider */}
-      <RapportSection rapport={rapport} onRapportChange={onRapportChange} />
-      
-      {/* Main Info Fields */}
-      <MainInfoSection budget={budget} schedule={schedule} painPoint={painPoint} onBudgetChange={onBudgetChange} onScheduleChange={onScheduleChange} onPainPointChange={onPainPointChange} />
-      
-      {/* Accordion sections */}
-      <div className="mt-6">
+      {/* Contact Information & Initial Interest */}
+      <div className="space-y-6">
         <Accordion type="single" collapsible className="w-full">
-          <ContactInfoSection phone={phone} email={email} additionalPhone={additionalPhone} leadLineId={leadLineId} gender={gender} nationality={nationality} birthday={birthday} occupation={occupation} hobbyInterest={hobbyInterest} estimateIncome={estimateIncome} onUpdate={onUpdateContactInfo} />
-          <InitialInterestSection projectInterest={projectInterest} listingCode={listingCode} listingType={listingType} listingName={listingName} propertyType={propertyType} agentRemark={agentRemark} adminRemark={adminRemark} attachments={attachments} />
+          <ContactInfoSection 
+            phone={phone} 
+            email={email} 
+            additionalPhone={additionalPhone} 
+            leadLineId={leadLineId} 
+            gender={gender} 
+            nationality={nationality} 
+            birthday={birthday} 
+            occupation={occupation} 
+            hobbyInterest={hobbyInterest} 
+            estimateIncome={estimateIncome} 
+            onUpdate={onUpdateContactInfo} 
+          />
+          <InitialInterestSection 
+            projectInterest={projectInterest} 
+            listingCode={listingCode} 
+            listingType={listingType} 
+            listingName={listingName} 
+            propertyType={propertyType} 
+            agentRemark={agentRemark} 
+            adminRemark={adminRemark} 
+            attachments={attachments} 
+          />
         </Accordion>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default DetailTab;

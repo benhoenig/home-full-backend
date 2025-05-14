@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -36,6 +35,7 @@ const CommentEditor = ({
         <Button 
           size="sm" 
           onClick={() => onSaveEdit(itemId)}
+          className="bg-teal-600 hover:bg-teal-700 text-white"
         >
           Save
         </Button>

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -41,7 +40,6 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({
               value={formState.floors} 
               onChange={e => onChange('floors', e.target.value)} 
               placeholder="Total floors in building" 
-              className="bg-white" 
             />
           </div>
         )}
@@ -55,7 +53,6 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({
               value={formState.floorNumber} 
               onChange={e => onChange('floorNumber', e.target.value)} 
               placeholder="Unit floor number" 
-              className="bg-white" 
             />
           </div>
         )}
@@ -64,7 +61,7 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({
           <div className="space-y-2">
             <Label htmlFor="building">Building</Label>
             <Select value={formState.building} onValueChange={value => onChange('building', value)}>
-              <SelectTrigger id="building" className="bg-white">
+              <SelectTrigger id="building">
                 <SelectValue placeholder="Select building" />
               </SelectTrigger>
               <SelectContent>
@@ -82,7 +79,7 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({
           <div className="space-y-2">
             <Label htmlFor="view">View</Label>
             <Select value={formState.view} onValueChange={value => onChange('view', value)}>
-              <SelectTrigger id="view" className="bg-white">
+              <SelectTrigger id="view">
                 <SelectValue placeholder="Select view" />
               </SelectTrigger>
               <SelectContent>
@@ -100,7 +97,7 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({
           <div className="space-y-2">
             <Label htmlFor="direction">Direction</Label>
             <Select value={formState.direction} onValueChange={value => onChange('direction', value)}>
-              <SelectTrigger id="direction" className="bg-white">
+              <SelectTrigger id="direction">
                 <SelectValue placeholder="Select direction" />
               </SelectTrigger>
               <SelectContent>
@@ -123,7 +120,6 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({
               value={formState.parkingSpots} 
               onChange={e => onChange('parkingSpots', e.target.value)} 
               placeholder="No. of parking spots" 
-              className="bg-white" 
             />
           </div>
         )}

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -33,7 +32,7 @@ const BasicInformation: React.FC<BasicInformationProps> = ({
         {isFieldEnabled('projectName') && (
           <div className="space-y-2">
             <Label htmlFor="projectName">Project Name</Label>
-            <Input id="projectName" value={formState.projectName} onChange={e => onChange('projectName', e.target.value)} placeholder="Enter project name" className="bg-white" />
+            <Input id="projectName" value={formState.projectName} onChange={e => onChange('projectName', e.target.value)} placeholder="Enter project name" />
           </div>
         )}
         
@@ -41,7 +40,7 @@ const BasicInformation: React.FC<BasicInformationProps> = ({
           <div className="space-y-2">
             <Label htmlFor="propertyType">Property Type</Label>
             <Select value={formState.propertyType} onValueChange={value => onChange('propertyType', value)}>
-              <SelectTrigger id="propertyType" className="bg-white">
+              <SelectTrigger id="propertyType">
                 <SelectValue placeholder="Select property type" />
               </SelectTrigger>
               <SelectContent>
@@ -59,7 +58,7 @@ const BasicInformation: React.FC<BasicInformationProps> = ({
           <div className="space-y-2">
             <Label htmlFor="zone">Zone / Area</Label>
             <Select value={formState.zone} onValueChange={value => onChange('zone', value)}>
-              <SelectTrigger id="zone" className="bg-white">
+              <SelectTrigger id="zone">
                 <SelectValue placeholder="Select zone" />
               </SelectTrigger>
               <SelectContent>

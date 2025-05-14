@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -89,7 +88,7 @@ const NewCommentInput = ({
         <Button 
           onClick={handleSendComment} 
           disabled={!newComment.trim()} 
-          className="text-white bg-sidebar-light" 
+          className="text-white bg-teal-600 hover:bg-teal-700" 
           size="sm"
         >
           <Send className="h-4 w-4 mr-1" />

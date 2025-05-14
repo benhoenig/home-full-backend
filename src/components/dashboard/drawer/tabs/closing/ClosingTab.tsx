@@ -1,10 +1,11 @@
-
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import ClosingDetailsSection from './ClosingDetailsSection';
 import AgreementSection from './AgreementSection';
 import TransferSection from './TransferSection';
 import { ClosingFormValues } from './types';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { DollarSign, FileText, ArrowUpRight } from 'lucide-react';
 
 const ClosingTab = () => {
   const [isWin, setIsWin] = useState(false);
@@ -40,19 +41,52 @@ const ClosingTab = () => {
   };
 
   return (
-    <div className="pt-4 space-y-6">
-      {/* Closing Section */}
-      <ClosingDetailsSection form={form} linkedUnit={linkedUnit} />
+    <div className="space-y-6">
+      {/* Closing Details Card */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center text-base font-medium">
+            <DollarSign className="mr-2 h-4 w-4" />
+            Closing Details
+          </CardTitle>
+          <CardDescription>Enter financial and closing information</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ClosingDetailsSection form={form} linkedUnit={linkedUnit} />
+        </CardContent>
+      </Card>
       
-      {/* Agreement Section */}
-      <AgreementSection onGenerateAgreement={handleGenerateAgreement} />
+      {/* Agreement Card */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center text-base font-medium">
+            <FileText className="mr-2 h-4 w-4" />
+            Agreement Generation
+          </CardTitle>
+          <CardDescription>Generate and manage agreements</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <AgreementSection onGenerateAgreement={handleGenerateAgreement} />
+        </CardContent>
+      </Card>
       
-      {/* Transfer Section */}
-      <TransferSection 
-        form={form} 
-        isWin={isWin} 
-        onToggleWin={handleToggleWin} 
-      />
+      {/* Transfer Card */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center text-base font-medium">
+            <ArrowUpRight className="mr-2 h-4 w-4" />
+            Transfer Status
+          </CardTitle>
+          <CardDescription>Update property transfer status</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <TransferSection 
+            form={form} 
+            isWin={isWin} 
+            onToggleWin={handleToggleWin} 
+          />
+        </CardContent>
+      </Card>
     </div>
   );
 };

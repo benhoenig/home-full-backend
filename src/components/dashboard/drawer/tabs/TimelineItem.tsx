@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -91,7 +90,7 @@ const TimelineItem = ({
             {item.user.avatarUrl && (
               <AvatarImage src={item.user.avatarUrl} alt={item.user.name} />
             )}
-            <AvatarFallback className="bg-purple-100 text-purple-800">
+            <AvatarFallback className="bg-teal-100 text-teal-800">
               {item.user.initials}
             </AvatarFallback>
           </Avatar>

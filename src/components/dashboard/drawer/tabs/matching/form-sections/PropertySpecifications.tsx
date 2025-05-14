@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -37,7 +36,6 @@ const PropertySpecifications: React.FC<PropertySpecificationsProps> = ({
               value={formState.bedrooms} 
               onChange={e => onChange('bedrooms', e.target.value)} 
               placeholder="No. of bedrooms" 
-              className="bg-white" 
             />
           </div>
         )}
@@ -51,7 +49,6 @@ const PropertySpecifications: React.FC<PropertySpecificationsProps> = ({
               value={formState.bathrooms} 
               onChange={e => onChange('bathrooms', e.target.value)} 
               placeholder="No. of bathrooms" 
-              className="bg-white" 
             />
           </div>
         )}
@@ -65,7 +62,6 @@ const PropertySpecifications: React.FC<PropertySpecificationsProps> = ({
               value={formState.usableArea} 
               onChange={e => onChange('usableArea', e.target.value)} 
               placeholder="Area in square meters" 
-              className="bg-white" 
             />
           </div>
         )}

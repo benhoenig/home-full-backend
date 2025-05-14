@@ -1,6 +1,4 @@
-
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import { MatchingFormState, MatchingField } from './MatchingTypes';
 import { createEnabledFieldsMap, isFieldEnabled, isGroupEnabled } from './utils/form-helpers';
 import { 
@@ -36,43 +34,39 @@ const MatchingForm: React.FC<MatchingFormProps> = ({
   };
 
   return (
-    <Card className="rounded-lg border shadow-sm overflow-hidden">
-      <CardContent className="p-6 pt-6 bg-slate-50">
-        <div className="space-y-6">
-          <BasicInformation 
-            formState={formState}
-            onChange={onChange}
-            isFieldEnabled={checkFieldEnabled}
-          />
-          
-          <PriceInformation 
-            formState={formState}
-            onChange={onChange}
-            isFieldEnabled={checkFieldEnabled}
-          />
-          
-          <PropertySpecifications 
-            formState={formState}
-            onChange={onChange}
-            isGroupEnabled={checkGroupEnabled}
-            isFieldEnabled={checkFieldEnabled}
-          />
-          
-          <LandInformation 
-            formState={formState}
-            onChange={onChange}
-            isFieldEnabled={checkFieldEnabled}
-          />
-          
-          <AdditionalDetails 
-            formState={formState}
-            onChange={onChange}
-            isGroupEnabled={checkGroupEnabled}
-            isFieldEnabled={checkFieldEnabled}
-          />
-        </div>
-      </CardContent>
-    </Card>
+    <div className="space-y-6">
+      <BasicInformation 
+        formState={formState}
+        onChange={onChange}
+        isFieldEnabled={checkFieldEnabled}
+      />
+      
+      <PriceInformation 
+        formState={formState}
+        onChange={onChange}
+        isFieldEnabled={checkFieldEnabled}
+      />
+      
+      <PropertySpecifications 
+        formState={formState}
+        onChange={onChange}
+        isGroupEnabled={checkGroupEnabled}
+        isFieldEnabled={checkFieldEnabled}
+      />
+      
+      <LandInformation 
+        formState={formState}
+        onChange={onChange}
+        isFieldEnabled={checkFieldEnabled}
+      />
+      
+      <AdditionalDetails 
+        formState={formState}
+        onChange={onChange}
+        isGroupEnabled={checkGroupEnabled}
+        isFieldEnabled={checkFieldEnabled}
+      />
+    </div>
   );
 };
 
