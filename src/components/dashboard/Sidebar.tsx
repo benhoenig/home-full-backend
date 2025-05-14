@@ -72,6 +72,7 @@ export function Sidebar() {
       { label: 'Dashboard', to: '/', icon: <LayoutDashboard className="h-5 w-5" /> },
       { label: 'Inbox', to: '/inbox', icon: <Inbox className="h-5 w-5" /> },
       { label: 'Lead Manager', to: '/lead-manager', icon: <Users className="h-5 w-5" /> },
+      { label: 'Lead Submission', to: '/lead-submission', icon: <FileText className="h-5 w-5" /> },
       { label: 'Contacts', to: '/contacts', icon: <Users className="h-5 w-5" /> },
       { label: 'Settings', to: '/settings', icon: <Settings className="h-5 w-5" /> },
     ],

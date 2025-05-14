@@ -9,6 +9,7 @@ import ClientProcess from "./pages/ClientProcess";
 import NotFound from "./pages/NotFound";
 import Settings from "./pages/Settings";
 import LeadManager from "./pages/LeadManager";
+import LeadSubmissionPage from "./pages/LeadSubmissionPage";
 
 const App = () => {
   // Create a new QueryClient instance inside the component
@@ -25,6 +26,7 @@ const App = () => {
             <Route path="/inbox" element={<Index />} /> 
             <Route path="/client-process" element={<ClientProcess />} />
             <Route path="/lead-manager" element={<LeadManager />} />
+            <Route path="/lead-submission" element={<LeadSubmissionPage />} />
             <Route path="/settings" element={<Settings />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
