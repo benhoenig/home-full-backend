@@ -3,14 +3,22 @@ import Sidebar from '@/components/dashboard/Sidebar';
 import { useIsMobile } from '@/hooks/use-mobile';
 import NotificationButton from './notifications/NotificationButton';
 import { Separator } from '@/components/ui/separator';
+import ActionTrackerFAB from './ActionTrackerFAB';
 
 type DashboardLayoutProps = {
   children: React.ReactNode;
   title: string;
   headerControls?: React.ReactNode;
+  // Allow disabling the action tracker if needed on certain pages
+  hideActionTracker?: boolean;
 };
 
-export function DashboardLayout({ children, title, headerControls }: DashboardLayoutProps) {
+export function DashboardLayout({ 
+  children, 
+  title, 
+  headerControls,
+  hideActionTracker = false 
+}: DashboardLayoutProps) {
   const isMobile = useIsMobile();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   
@@ -62,6 +70,9 @@ export function DashboardLayout({ children, title, headerControls }: DashboardLa
           </div>
         </div>
       </div>
+      
+      {/* Action Tracker FAB - shown on all pages unless explicitly disabled */}
+      {!hideActionTracker && <ActionTrackerFAB />}
     </div>
   );
 }

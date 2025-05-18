@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Revenue from '@/components/dashboard/Revenue';
 import RevenueToggleButtons from '@/components/dashboard/RevenueToggleButtons';
@@ -80,7 +79,7 @@ export function RevenueSection() {
 
   return (
     <div className="mb-0">
-      <Card>
+      <Card className="data-card">
         <CardHeader className="relative pb-2">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold">Revenue :</h3>
