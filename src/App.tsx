@@ -10,6 +10,11 @@ import NotFound from "./pages/NotFound";
 import Settings from "./pages/Settings";
 import LeadManager from "./pages/LeadManager";
 import LeadSubmissionPage from "./pages/LeadSubmissionPage";
+import Dashboard from "./pages/Dashboard";
+import Goals from "./pages/Goals";
+import Leaderboard from "./pages/Leaderboard";
+import Mentoring from "./pages/Mentoring";
+import ActionTrackerDemo from "./pages/ActionTrackerDemo";
 
 const App = () => {
   // Create a new QueryClient instance inside the component
@@ -27,7 +32,12 @@ const App = () => {
             <Route path="/client-process" element={<ClientProcess />} />
             <Route path="/lead-manager" element={<LeadManager />} />
             <Route path="/lead-submission" element={<LeadSubmissionPage />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/goals" element={<Goals />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/mentoring" element={<Mentoring />} />
+            <Route path="/action-tracker-demo" element={<ActionTrackerDemo />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
