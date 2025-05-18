@@ -12,7 +12,8 @@ import {
   Menu,
   X,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Users2
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
@@ -92,34 +93,13 @@ export function Sidebar() {
     <>
       <div className={`p-4 flex justify-between items-center ${isCollapsed ? 'px-3' : 'px-4'}`}>
         {!isCollapsed && (
-          <>
-            <div className="flex items-center justify-start w-full">
-              {/* Using the HOME REAL ESTATE logo image with SVG fallback */}
-              <img 
-                src="/images/home-logo.png" 
-                alt="HOME REAL ESTATE" 
-                width="100" 
-                height="50" 
-                className="object-contain ml-1" 
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  // If image fails to load, replace with SVG
-                  target.onerror = null;
-                  const svgElement = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-                  svgElement.setAttribute("width", "100");
-                  svgElement.setAttribute("height", "50");
-                  svgElement.setAttribute("viewBox", "0 0 200 100");
-                  svgElement.setAttribute("fill", "none");
-                  svgElement.innerHTML = `
-                    <rect x="10" y="10" width="30" height="80" rx="5" fill="#FFB800"/>
-                    <circle cx="40" cy="50" r="20" fill="#FFB800"/>
-                    <rect x="70" y="10" width="30" height="80" rx="5" fill="#FFB800"/>
-                  `;
-                  target.parentNode?.replaceChild(svgElement, target);
-                }}
-              />
-            </div>
-          </>
+          <div className="flex items-center justify-start w-full">
+            <img 
+              src="/images/home-logo.png" 
+              alt="HOME REAL ESTATE" 
+              className="h-8 object-contain" 
+            />
+          </div>
         )}
         
         {!isMobile && (
@@ -127,7 +107,7 @@ export function Sidebar() {
             variant="ghost" 
             size="icon" 
             onClick={toggleCollapse} 
-            className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+            className={`text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${isCollapsed ? 'ml-auto' : ''}`}
           >
             {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
           </Button>
@@ -149,7 +129,7 @@ export function Sidebar() {
         ) : (
           <>
             <div className="space-y-1">
-              <NavLink to="/" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+              <NavLink to="/dashboard" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
                 <LayoutDashboard className="h-5 w-5" />
                 {!isCollapsed && <span>Dashboard</span>}
               </NavLink>
@@ -185,6 +165,10 @@ export function Sidebar() {
                     <FileText className="h-5 w-5" />
                     <span>UCP (Client Process)</span>
                   </NavLink>
+                  <NavLink to="/mentoring" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                    <Users2 className="h-5 w-5" />
+                    <span>Mentoring</span>
+                  </NavLink>
                 </div>
               </div>
             )}
@@ -199,6 +183,9 @@ export function Sidebar() {
                 </NavLink>
                 <NavLink to="/client-process" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
                   <FileText className="h-5 w-5" />
+                </NavLink>
+                <NavLink to="/mentoring" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                  <Users2 className="h-5 w-5" />
                 </NavLink>
               </div>
             )}

@@ -71,7 +71,7 @@ const MatchingTab = () => {
               </Button>
             </div>
           </div>
-          <CardDescription>Search for properties that match this lead's criteria</CardDescription>
+          <CardDescription className="mt-1.5">Search for properties that match this lead's criteria</CardDescription>
         </CardHeader>
         <CardContent>
           {matchCount > 0 && (

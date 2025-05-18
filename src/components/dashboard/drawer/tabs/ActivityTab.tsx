@@ -77,8 +77,8 @@ const ActivityTab = ({
     <div className="space-y-6">
       {/* Timeline Activity Card */}
       <Card>
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
+        <CardHeader className="p-6 pb-3 space-y-0">
+          <div className="flex items-center justify-between mb-1.5">
             <CardTitle className="flex items-center text-base font-medium">
               <Clock className="mr-2 h-4 w-4" />
               Timeline Activity
