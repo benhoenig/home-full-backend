@@ -175,7 +175,7 @@ const ListingDetailsDrawer = ({ isOpen, onClose, listing }: ListingDetailsDrawer
               </TabsList>
             </div>
           
-            <div className="flex-1 overflow-y-auto h-full" style={{ maxHeight: 'calc(100% - 120px)' }}>
+            <div className="flex-1 overflow-y-auto h-full" style={{ maxHeight: 'calc(100% - 76px)' }}>
               <TabsContent value="details" className="m-0 h-full overflow-y-auto">
                 <div className="p-6 space-y-6">
                   {/* Thumbnail Image */}
@@ -374,7 +374,7 @@ const ListingDetailsDrawer = ({ isOpen, onClose, listing }: ListingDetailsDrawer
               </TabsContent>
               
               <TabsContent value="activity" className="m-0 h-full overflow-y-auto">
-                <div className="p-6 space-y-6">
+                <div className="px-6 pt-6 pb-0 space-y-6">
                   {/* Timeline Activity Card */}
                   <Card>
                     <CardHeader className="p-6 pb-3 space-y-0">
@@ -404,7 +404,7 @@ const ListingDetailsDrawer = ({ isOpen, onClose, listing }: ListingDetailsDrawer
                       <CardDescription>View and manage listing activity timeline</CardDescription>
                     </CardHeader>
                     <CardContent className="pt-0">
-                      <ScrollArea className="h-[350px] pr-3">
+                      <ScrollArea className="h-[450px] pr-3">
                         <div className="space-y-4">
                           {filteredItems.length > 0 ? (
                             filteredItems.map(item => 
@@ -440,7 +440,7 @@ const ListingDetailsDrawer = ({ isOpen, onClose, listing }: ListingDetailsDrawer
                   </Card>
                   
                   {/* Add Comment Card */}
-                  <Card>
+                  <Card className="mb-6">
                     <CardHeader className="pb-3">
                       <CardTitle className="flex items-center text-base font-medium">
                         <MessageCircle className="mr-2 h-4 w-4" />
