@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { format } from 'date-fns';
 import { X, Star, StarOff, User, MapPin, Home, Bed, Bath, Square, Ruler, Car, Calendar, DollarSign } from 'lucide-react';
 import { Listing } from '@/hooks/useListingsTableData';
@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { formatCurrency } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 type ListingDetailsDrawerProps = {
   isOpen: boolean;
@@ -16,6 +17,8 @@ type ListingDetailsDrawerProps = {
 };
 
 const ListingDetailsDrawer = ({ isOpen, onClose, listing }: ListingDetailsDrawerProps) => {
+  const isMobile = useIsMobile();
+  
   if (!listing) return null;
 
   const handleStarToggle = () => {
@@ -25,7 +28,10 @@ const ListingDetailsDrawer = ({ isOpen, onClose, listing }: ListingDetailsDrawer
   
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent className="w-full sm:max-w-md overflow-y-auto p-0">
+      <SheetContent 
+        className={`p-0 overflow-hidden ${isMobile ? 'h-[85vh] rounded-t-xl' : 'w-full sm:max-w-md'}`}
+        side={isMobile ? 'bottom' : 'right'}
+      >
         <div className="flex flex-col h-full">
           <SheetHeader className="px-6 py-4 border-b">
             <div className="flex items-center justify-between">
