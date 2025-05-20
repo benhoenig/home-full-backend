@@ -100,7 +100,7 @@ const ListingDetailsDrawer = ({ isOpen, onClose, listing }: ListingDetailsDrawer
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent 
-        className={`p-0 ${isMobile ? 'h-[85vh] rounded-t-xl' : 'w-full sm:max-w-md'}`}
+        className={`p-0 ${isMobile ? 'h-[85vh] rounded-t-xl' : 'w-full sm:w-[90%] md:w-[50%] lg:w-[40%] xl:w-[35%] overflow-y-auto bg-background border-l border-border shadow-lg'}`}
         side={isMobile ? 'bottom' : 'right'}
       >
         <div className="flex flex-col h-full">
@@ -155,24 +155,44 @@ const ListingDetailsDrawer = ({ isOpen, onClose, listing }: ListingDetailsDrawer
             onValueChange={(value) => setActiveTab(value as TabType)}
             className="flex-1 flex flex-col overflow-hidden"
           >
-            <div className="px-6 pt-2.5 pb-3 border-b overflow-x-auto sticky top-0 bg-background z-10">
-              <TabsList className="inline-flex w-auto">
-                <TabsTrigger value="details" className="px-4">
-                  Details
-                </TabsTrigger>
-                <TabsTrigger value="photo" className="px-4">
-                  Photo
-                </TabsTrigger>
-                <TabsTrigger value="location" className="px-4">
-                  Location
-                </TabsTrigger>
-                <TabsTrigger value="aexclusive" className="px-4">
-                  A & Exclusive
-                </TabsTrigger>
-                <TabsTrigger value="activity" className="px-4">
-                  Activity
-                </TabsTrigger>
-              </TabsList>
+            <div className={`px-6 pt-2.5 pb-3 border-b sticky top-0 bg-background z-10 ${!isMobile ? 'flex justify-center' : 'overflow-x-auto'}`}>
+              {isMobile ? (
+                <TabsList className="inline-flex w-auto">
+                  <TabsTrigger value="details" className="px-4">
+                    Details
+                  </TabsTrigger>
+                  <TabsTrigger value="photo" className="px-4">
+                    Photo
+                  </TabsTrigger>
+                  <TabsTrigger value="location" className="px-4">
+                    Location
+                  </TabsTrigger>
+                  <TabsTrigger value="aexclusive" className="px-4">
+                    A & Exclusive
+                  </TabsTrigger>
+                  <TabsTrigger value="activity" className="px-4">
+                    Activity
+                  </TabsTrigger>
+                </TabsList>
+              ) : (
+                <TabsList className="w-full md:w-full flex justify-between">
+                  <TabsTrigger value="details" className="flex-1">
+                    Details
+                  </TabsTrigger>
+                  <TabsTrigger value="photo" className="flex-1">
+                    Photo
+                  </TabsTrigger>
+                  <TabsTrigger value="location" className="flex-1">
+                    Location
+                  </TabsTrigger>
+                  <TabsTrigger value="aexclusive" className="flex-1">
+                    A & Exclusive
+                  </TabsTrigger>
+                  <TabsTrigger value="activity" className="flex-1">
+                    Activity
+                  </TabsTrigger>
+                </TabsList>
+              )}
             </div>
           
             <div className="flex-1 overflow-y-auto h-full" style={{ maxHeight: 'calc(100% - 76px)' }}>
@@ -452,6 +472,7 @@ const ListingDetailsDrawer = ({ isOpen, onClose, listing }: ListingDetailsDrawer
                         newComment={newComment} 
                         onNewCommentChange={handleNewCommentChange} 
                         onSendComment={handleSendComment} 
+                        showLeadSelector={true}
                       />
                     </CardContent>
                   </Card>
