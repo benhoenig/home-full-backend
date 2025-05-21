@@ -1,22 +1,23 @@
-
 import React from 'react';
-import { PipelineBadge, TagBadge, PersonBadge, ListingBadge } from './';
+import { PipelineBadge, TagBadge, PersonBadge, ListingBadge, LeadBadge } from './';
 import { CustomTag } from '../types';
 
 type MetadataBadgesProps = {
   selectedPipeline: string | null;
   selectedTag: CustomTag | null;
   taggedPerson: { name: string; initials: string; } | null;
-  taggedListing: { id: string; name: string; } | null;
+  taggedListing?: { id: string; name: string; } | null;
+  taggedLead?: { id: string; name: string; } | null;
 };
 
 const MetadataBadges = ({
   selectedPipeline,
   selectedTag,
   taggedPerson,
-  taggedListing
+  taggedListing,
+  taggedLead
 }: MetadataBadgesProps) => {
-  if (!selectedPipeline && !selectedTag && !taggedPerson && !taggedListing) {
+  if (!selectedPipeline && !selectedTag && !taggedPerson && !taggedListing && !taggedLead) {
     return null;
   }
   
@@ -33,6 +34,9 @@ const MetadataBadges = ({
       )}
       {taggedListing && (
         <ListingBadge listing={taggedListing} />
+      )}
+      {taggedLead && (
+        <LeadBadge lead={taggedLead} />
       )}
     </div>
   );

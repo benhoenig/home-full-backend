@@ -142,9 +142,9 @@ const NewSalesTab: React.FC<NewSalesTabProps> = ({ timeframe, setTimeframe }) =>
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   
   // Helper function to get the appropriate new sales metric value
-  const getNewSalesMetricValue = (data: any, type: string) => {
+  const getNewSalesMetricValue = (data: NewSalesData, type: string) => {
     switch(type) {
-      case 'Probation Progress':
+      case 'Probation Progress': {
         // Calculate probation progress based on position in timeframe
         // For demo, we'll use a formula based on existing metrics
         const progressScore = Math.floor((
@@ -155,6 +155,7 @@ const NewSalesTab: React.FC<NewSalesTabProps> = ({ timeframe, setTimeframe }) =>
           (data.realCase / 3) * 15
         ));
         return `${Math.min(progressScore, 100)}%`;
+      }
       case 'New List (Count)':
         return data.newList;
       case 'Owner Visit (Count)':
@@ -295,41 +296,50 @@ const NewSalesTab: React.FC<NewSalesTabProps> = ({ timeframe, setTimeframe }) =>
               let progressPercentage = 0;
               let target = 0;
               
-                              if (newSalesMetric === 'Probation Progress' || newSalesMetric.includes('Percentage')) {
-                progressPercentage = parseInt(metricValue);
+              if (newSalesMetric === 'Probation Progress' || newSalesMetric.includes('Percentage')) {
+                progressPercentage = parseInt(metricValue.toString());
                 target = 100;
               } else {
                 // Different targets based on metric type
                 switch(newSalesMetric) {
-                  case 'New List (Count)':
+                  case 'New List (Count)': {
                     target = 15;
                     break;
-                  case 'Owner Visit (Count)':
+                  }
+                  case 'Owner Visit (Count)': {
                     target = 10;
                     break;
+                  }
                   case 'Consult 2% (Count)':
-                  case 'Consult 5% (Count)':
+                  case 'Consult 5% (Count)': {
                     target = 8;
                     break;
-                  case 'Survey (Count)':
+                  }
+                  case 'Survey (Count)': {
                     target = 6;
                     break;
-                  case 'Present Project (Count)':
+                  }
+                  case 'Present Project (Count)': {
                     target = 10;
                     break;
-                  case 'A List (Count)':
+                  }
+                  case 'A List (Count)': {
                     target = 5;
                     break;
-                  case 'HOME Academy Video Watched (Count)':
+                  }
+                  case 'HOME Academy Video Watched (Count)': {
                     target = 15;
                     break;
-                  case 'Real Case with Senior (Count)':
+                  }
+                  case 'Real Case with Senior (Count)': {
                     target = 3;
                     break;
-                  default:
+                  }
+                  default: {
                     target = 10;
+                  }
                 }
-                progressPercentage = (parseInt(metricValue) / target) * 100;
+                progressPercentage = (parseInt(metricValue.toString()) / target) * 100;
               }
               
               return (
@@ -387,7 +397,7 @@ const NewSalesTab: React.FC<NewSalesTabProps> = ({ timeframe, setTimeframe }) =>
                           ></div>
                         </div>
                         <span className="ml-2 min-w-[50px] text-right text-sm">
-                          {parseInt(metricValue)}/{target}
+                          {parseInt(metricValue.toString())}/{target}
                         </span>
                       </div>
                       <div className="flex justify-between text-xs text-gray-400 mt-1">
@@ -409,7 +419,7 @@ const NewSalesTab: React.FC<NewSalesTabProps> = ({ timeframe, setTimeframe }) =>
                           }`}
                         ></div>
                         <span className="text-xs whitespace-nowrap">
-                          {parseInt(metricValue)}/{target}
+                          {parseInt(metricValue.toString())}/{target}
                         </span>
                       </div>
                     </div>

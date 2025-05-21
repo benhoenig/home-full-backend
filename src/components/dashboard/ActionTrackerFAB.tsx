@@ -13,6 +13,7 @@ import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import ProgressBar from './drawer/SalesProgressBar';
 import { useIsMobile } from '@/hooks/use-mobile';
+import AddListingModal from './listings-table/AddListingModal';
 
 // Define action metadata
 export type ActionType = {
@@ -81,14 +82,15 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'log' | 'history'>('log');
-  const [noteText, setNoteText] = useState('');
-  const [selectedAction, setSelectedAction] = useState<ActionType | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<'product' | 'owner' | 'buyer' | 'marketing' | null>(null);
   
   // State for favorite actions
   const [favoriteActions, setFavoriteActions] = useState<string[]>([
     'appointment', 'newList', 'sign' // Default favorites
   ]);
+  
+  // Add state for AddListingModal
+  const [isAddListingModalOpen, setIsAddListingModalOpen] = useState(false);
   
   // Calculate progress percentage
   const progressPercentage = Math.min(100, (currentMonthPoints / targetMonthPoints) * 100);
@@ -117,18 +119,6 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
     setSelectedCategory(null);
   };
   
-  // Function to prepare log action
-  const prepareLogAction = (actionType: ActionType) => {
-    setSelectedAction(actionType);
-    setNoteText('');
-  };
-  
-  // Function to cancel action logging
-  const cancelLogAction = () => {
-    setSelectedAction(null);
-    setNoteText('');
-  };
-  
   // Function to toggle favorite status of an action
   const toggleFavorite = (actionId: string, event: React.MouseEvent) => {
     event.stopPropagation(); // Prevent triggering the parent onClick
@@ -152,33 +142,53 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
     });
   };
   
-  // Function to log a new action
-  const logAction = () => {
-    if (!selectedAction) return;
+  // Function to handle listing submission from modal
+  const handleSubmitListing = (data: any) => {
+    console.log('New listing data:', data);
+    setIsAddListingModalOpen(false);
     
-    // In a real app, this would call an API to log the action
-    console.log(`Logging action: ${selectedAction.name}`, noteText);
+    // Get the newList action
+    const newListAction = actionTypes.find(action => action.id === 'newList');
+    
+    if (newListAction) {
+      // Notify the user
+      toast({
+        title: "Action Logged",
+        description: `${newListAction.name} (+${newListAction.points} points)`,
+      });
+      
+      // Call the callback if provided
+      if (onActionLogged) {
+        onActionLogged(newListAction);
+      }
+    }
+  };
+  
+  // Modified function to handle action clicks
+  const handleActionClick = (action: ActionType) => {
+    // Special case for 'newList' action - open the AddListingModal
+    if (action.id === 'newList') {
+      setIsAddListingModalOpen(true);
+      setIsOpen(false); // Close the FAB panel
+      return;
+    }
+    
+    // For all other actions, log them directly without confirmation
+    console.log(`Logging action: ${action.name}`);
     
     // Notify the user
     toast({
       title: "Action Logged",
-      description: `${selectedAction.name} (+${selectedAction.points} points)`,
+      description: `${action.name} (+${action.points} points)`,
     });
-    
-    // Close the panel if no special callback
-    if (!onActionLogged) {
-      setIsOpen(false);
-    }
     
     // Call the callback if provided
     if (onActionLogged) {
-      onActionLogged(selectedAction);
+      onActionLogged(action);
     }
     
-    // Reset state
-    setSelectedAction(null);
-    setNoteText('');
-    setSelectedCategory(null);
+    // Close the panel
+    setIsOpen(false);
   };
   
   // Helper function to get category icon
@@ -272,265 +282,224 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
           </div>
         </div>
         
-        {/* Content */}
-        {selectedAction ? (
-          <div className="p-6 flex-1 flex flex-col">
-            <h3 className="text-lg font-medium mb-4">Log {selectedAction.name}</h3>
-            <div className="mb-4">
-              <Badge className="mb-2 bg-primary/10 text-primary hover:bg-primary/20 border-none">
-                +{selectedAction.points} points
-              </Badge>
-              <p className="text-sm text-muted-foreground">{selectedAction.description}</p>
-            </div>
-            
-            <div className="mb-4">
-              <label htmlFor="notes" className="block text-sm font-medium mb-1">
-                Notes (optional)
-              </label>
-              <Textarea
-                id="notes"
-                placeholder="Add any relevant details about this action..."
-                value={noteText}
-                onChange={(e) => setNoteText(e.target.value)}
-                className="min-h-24"
-              />
-            </div>
-            
-            <div className="mt-auto flex gap-2">
-              <Button
-                variant="outline"
-                className="flex-1"
-                onClick={cancelLogAction}
+        {/* Content - Remove the selectedAction conditional rendering and always show the tabs */}
+        <Tabs defaultValue="log" className="flex-1 flex flex-col">
+          <div className="px-6 pt-4 pb-2">
+            <TabsList className="w-full grid grid-cols-2">
+              <TabsTrigger 
+                value="log" 
+                onClick={() => setActiveTab('log')}
               >
-                Cancel
-              </Button>
-              <Button
-                className="flex-1 bg-primary hover:bg-primary/90"
-                onClick={logAction}
+                <ClipboardCheckIcon className="h-4 w-4 mr-2" />
+                Action
+              </TabsTrigger>
+              <TabsTrigger 
+                value="history" 
+                onClick={() => setActiveTab('history')}
               >
-                Log Action
-              </Button>
-            </div>
+                <HistoryIcon className="h-4 w-4 mr-2" />
+                History
+              </TabsTrigger>
+            </TabsList>
           </div>
-        ) : (
-          <Tabs defaultValue="log" className="flex-1 flex flex-col">
-            <div className="px-6 pt-4 pb-2">
-              <TabsList className="w-full grid grid-cols-2">
-                <TabsTrigger 
-                  value="log" 
-                  onClick={() => setActiveTab('log')}
-                >
-                  <ClipboardCheckIcon className="h-4 w-4 mr-2" />
-                  Action
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="history" 
-                  onClick={() => setActiveTab('history')}
-                >
-                  <HistoryIcon className="h-4 w-4 mr-2" />
-                  History
-                </TabsTrigger>
-              </TabsList>
-            </div>
-            
-            {/* Action Tab Content */}
-            <TabsContent value="log" className="flex-1 px-6 pt-2 pb-4 flex flex-col">
-              {selectedCategory ? (
-                <>
-                  {/* Category View */}
-                  <div className="flex-1 flex flex-col">
-                    <div className="flex items-center mb-3">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 px-2"
-                        onClick={backToCategories}
-                      >
-                        <ChevronUp className="h-4 w-4 mr-1" />
-                        Back
-                      </Button>
-                      <h4 className="font-medium flex items-center">
-                        {getCategoryIcon(selectedCategory)}
-                        <span className="ml-2">{selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)} Actions</span>
-                      </h4>
-                    </div>
-                    
-                    <div>
-                      <div className="space-y-3 pb-6">
-                        {actionTypes
-                          .filter(action => action.category === selectedCategory)
-                          .map(action => (
-                            <div 
-                              key={action.id} 
-                              className={`flex items-center justify-between p-3 rounded-md border ${
-                                action.category === 'product' ? 'border-blue-200 bg-blue-50/50' :
-                                action.category === 'owner' ? 'border-green-200 bg-green-50/50' :
-                                action.category === 'buyer' ? 'border-purple-200 bg-purple-50/50' :
-                                action.category === 'marketing' ? 'border-rose-200 bg-rose-50/50' :
-                                'border-primary/30 bg-primary/5'
-                              } hover:bg-opacity-70 cursor-pointer`}
-                              onClick={() => prepareLogAction(action)}
-                            >
-                              <div className="flex items-center">
-                                <button 
-                                  className="p-1.5 mr-2 rounded-full hover:bg-muted/20"
-                                  onClick={(e) => toggleFavorite(action.id, e)}
-                                  aria-label={favoriteActions.includes(action.id) ? "Remove from favorites" : "Add to favorites"}
-                                >
-                                  <Star className={`h-4 w-4 ${favoriteActions.includes(action.id) ? 'text-amber-500 fill-amber-500' : 'text-muted-foreground'}`} />
-                                </button>
-                                <div className={`p-1.5 rounded-full ${
-                                  action.category === 'product' ? 'bg-blue-100' :
-                                  action.category === 'owner' ? 'bg-green-100' :
-                                  action.category === 'buyer' ? 'bg-purple-100' :
-                                  action.category === 'marketing' ? 'bg-rose-100' :
-                                  'bg-primary/20'
-                                } mr-2`}>
-                                  {getCategoryIcon(action.category)}
-                                </div>
-                                <div>
-                                  <div className="font-medium">{action.name}</div>
-                                  <div className="text-muted-foreground text-sm">{action.description}</div>
-                                </div>
-                              </div>
-                              <Badge className={`${
-                                action.category === 'product' ? 'bg-blue-100 text-blue-800 hover:bg-blue-200' :
-                                action.category === 'owner' ? 'bg-green-100 text-green-800 hover:bg-green-200' :
-                                action.category === 'buyer' ? 'bg-purple-100 text-purple-800 hover:bg-purple-200' :
-                                action.category === 'marketing' ? 'bg-rose-100 text-rose-800 hover:bg-rose-200' :
-                                'bg-primary/20 text-primary hover:bg-primary/30'
-                              } border-none`}>
-                                +{action.points} pts
-                              </Badge>
-                            </div>
-                          ))
-                        }
-                      </div>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <div className="space-y-5">
-                  {/* Action Categories Section - moved to top */}
-                  <div>
-                    <h4 className="font-medium mb-3 text-foreground">Action Categories</h4>
-                    <div className="flex flex-wrap gap-2">
-                      <Button 
-                        variant="outline"
-                        size="sm"
-                        className="rounded-full border-green-200 hover:bg-green-50"
-                        onClick={() => selectCategory('owner')}
-                      >
-                        <UserIcon className="h-3.5 w-3.5 mr-1.5" />
-                        <span>Owner</span>
-                      </Button>
-                      
-                      <Button 
-                        variant="outline"
-                        size="sm"
-                        className="rounded-full border-purple-200 hover:bg-purple-50"
-                        onClick={() => selectCategory('buyer')}
-                      >
-                        <ShoppingCartIcon className="h-3.5 w-3.5 mr-1.5" />
-                        <span>Buyer</span>
-                      </Button>
-                      
-                      <Button 
-                        variant="outline"
-                        size="sm"
-                        className="rounded-full border-blue-200 hover:bg-blue-50"
-                        onClick={() => selectCategory('product')}
-                      >
-                        <HomeIcon className="h-3.5 w-3.5 mr-1.5" />
-                        <span>Product</span>
-                      </Button>
-                      
-                      <Button 
-                        variant="outline"
-                        size="sm"
-                        className="rounded-full border-rose-200 hover:bg-rose-50"
-                        onClick={() => selectCategory('marketing')}
-                      >
-                        <MegaphoneIcon className="h-3.5 w-3.5 mr-1.5" />
-                        <span>Marketing</span>
-                      </Button>
-                    </div>
+          
+          {/* Action Tab Content */}
+          <TabsContent value="log" className="flex-1 px-6 pt-2 pb-4 flex flex-col">
+            {selectedCategory ? (
+              <>
+                {/* Category View */}
+                <div className="flex-1 flex flex-col">
+                  <div className="flex items-center mb-3">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 px-2"
+                      onClick={backToCategories}
+                    >
+                      <ChevronUp className="h-4 w-4 mr-1" />
+                      Back
+                    </Button>
+                    <h4 className="font-medium flex items-center">
+                      {getCategoryIcon(selectedCategory)}
+                      <span className="ml-2">{selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)} Actions</span>
+                    </h4>
                   </div>
                   
-                  {/* Favorite Actions Section - renamed to Starred */}
                   <div>
-                    <h4 className="font-medium mb-3 text-foreground">Starred</h4>
-                    <div className="space-y-2">
-                      {/* Dynamically show favorite actions */}
-                      {favoriteActions.length > 0 ? (
-                        favoriteActions.map(actionId => {
-                          const action = actionTypes.find(a => a.id === actionId);
-                          if (!action) return null;
-                          
-                          return (
-                            <div 
-                              key={action.id}
-                              className={`flex items-center justify-between p-3 rounded-md border ${
-                                action.category === 'product' ? 'border-blue-200 bg-blue-50/50' :
-                                action.category === 'owner' ? 'border-green-200 bg-green-50/50' :
-                                action.category === 'buyer' ? 'border-purple-200 bg-purple-50/50' :
-                                action.category === 'marketing' ? 'border-rose-200 bg-rose-50/50' :
-                                'border-primary/30 bg-primary/5'
-                              } hover:bg-opacity-70 cursor-pointer`}
-                              onClick={() => prepareLogAction(action)}
-                            >
-                              <div className="flex items-center">
-                                <button 
-                                  className="p-1.5 mr-2 rounded-full hover:bg-muted/20"
-                                  onClick={(e) => toggleFavorite(action.id, e)}
-                                  aria-label={favoriteActions.includes(action.id) ? "Remove from favorites" : "Add to favorites"}
-                                >
-                                  <Star className={`h-4 w-4 ${favoriteActions.includes(action.id) ? 'text-amber-500 fill-amber-500' : 'text-muted-foreground'}`} />
-                                </button>
-                                <div className={`p-1.5 rounded-full ${
-                                  action.category === 'product' ? 'bg-blue-100' :
-                                  action.category === 'owner' ? 'bg-green-100' :
-                                  action.category === 'buyer' ? 'bg-purple-100' :
-                                  action.category === 'marketing' ? 'bg-rose-100' :
-                                  'bg-primary/20'
-                                } mr-2`}>
-                                  {getCategoryIcon(action.category)}
-                                </div>
-                                <div>
-                                  <div className="font-medium">{action.name}</div>
-                                  <div className="text-muted-foreground text-sm">{action.description}</div>
-                                </div>
+                    <div className="space-y-3 pb-6">
+                      {actionTypes
+                        .filter(action => action.category === selectedCategory)
+                        .map(action => (
+                          <div 
+                            key={action.id} 
+                            className={`flex items-center justify-between p-3 rounded-md border ${
+                              action.category === 'product' ? 'border-blue-200 bg-blue-50/50' :
+                              action.category === 'owner' ? 'border-green-200 bg-green-50/50' :
+                              action.category === 'buyer' ? 'border-purple-200 bg-purple-50/50' :
+                              action.category === 'marketing' ? 'border-rose-200 bg-rose-50/50' :
+                              'border-primary/30 bg-primary/5'
+                            } hover:bg-opacity-70 cursor-pointer`}
+                            onClick={() => handleActionClick(action)}
+                          >
+                            <div className="flex items-center">
+                              <button 
+                                className="p-1.5 mr-2 rounded-full hover:bg-muted/20"
+                                onClick={(e) => toggleFavorite(action.id, e)}
+                                aria-label={favoriteActions.includes(action.id) ? "Remove from favorites" : "Add to favorites"}
+                              >
+                                <Star className={`h-4 w-4 ${favoriteActions.includes(action.id) ? 'text-amber-500 fill-amber-500' : 'text-muted-foreground'}`} />
+                              </button>
+                              <div className={`p-1.5 rounded-full ${
+                                action.category === 'product' ? 'bg-blue-100' :
+                                action.category === 'owner' ? 'bg-green-100' :
+                                action.category === 'buyer' ? 'bg-purple-100' :
+                                action.category === 'marketing' ? 'bg-rose-100' :
+                                'bg-primary/20'
+                              } mr-2`}>
+                                {getCategoryIcon(action.category)}
                               </div>
-                              <Badge className={`${
-                                action.category === 'product' ? 'bg-blue-100 text-blue-800 hover:bg-blue-200' :
-                                action.category === 'owner' ? 'bg-green-100 text-green-800 hover:bg-green-200' :
-                                action.category === 'buyer' ? 'bg-purple-100 text-purple-800 hover:bg-purple-200' :
-                                action.category === 'marketing' ? 'bg-rose-100 text-rose-800 hover:bg-rose-200' :
-                                'bg-primary/20 text-primary hover:bg-primary/30'
-                              } border-none`}>
-                                +{action.points} pts
-                              </Badge>
+                              <div>
+                                <div className="font-medium">{action.name}</div>
+                                <div className="text-muted-foreground text-sm">{action.description}</div>
+                              </div>
                             </div>
-                          );
-                        })
-                      ) : (
-                        <div className="text-center p-4 text-muted-foreground border rounded-md">
-                          <p>No starred actions yet</p>
-                          <p className="text-sm mt-1">Click the star icon on any action to add it to starred</p>
-                        </div>
-                      )}
+                            <Badge className={`${
+                              action.category === 'product' ? 'bg-blue-100 text-blue-800 hover:bg-blue-200' :
+                              action.category === 'owner' ? 'bg-green-100 text-green-800 hover:bg-green-200' :
+                              action.category === 'buyer' ? 'bg-purple-100 text-purple-800 hover:bg-purple-200' :
+                              action.category === 'marketing' ? 'bg-rose-100 text-rose-800 hover:bg-rose-200' :
+                              'bg-primary/20 text-primary hover:bg-primary/30'
+                            } border-none`}>
+                              +{action.points} pts
+                            </Badge>
+                          </div>
+                        ))
+                      }
                     </div>
                   </div>
                 </div>
-              )}
-            </TabsContent>
-            
-            {/* History Tab Content */}
-            <TabsContent value="history" className="flex-1 px-6 pt-2 pb-4 flex flex-col">
-              {/* Content removed for redesign */}
-            </TabsContent>
-          </Tabs>
-        )}
+              </>
+            ) : (
+              <div className="space-y-5">
+                {/* Action Categories Section - moved to top */}
+                <div>
+                  <h4 className="font-medium mb-3 text-foreground">Action Categories</h4>
+                  <div className="flex flex-wrap gap-2">
+                    <Button 
+                      variant="outline"
+                      size="sm"
+                      className="rounded-full border-green-200 hover:bg-green-50"
+                      onClick={() => selectCategory('owner')}
+                    >
+                      <UserIcon className="h-3.5 w-3.5 mr-1.5" />
+                      <span>Owner</span>
+                    </Button>
+                    
+                    <Button 
+                      variant="outline"
+                      size="sm"
+                      className="rounded-full border-purple-200 hover:bg-purple-50"
+                      onClick={() => selectCategory('buyer')}
+                    >
+                      <ShoppingCartIcon className="h-3.5 w-3.5 mr-1.5" />
+                      <span>Buyer</span>
+                    </Button>
+                    
+                    <Button 
+                      variant="outline"
+                      size="sm"
+                      className="rounded-full border-blue-200 hover:bg-blue-50"
+                      onClick={() => selectCategory('product')}
+                    >
+                      <HomeIcon className="h-3.5 w-3.5 mr-1.5" />
+                      <span>Product</span>
+                    </Button>
+                    
+                    <Button 
+                      variant="outline"
+                      size="sm"
+                      className="rounded-full border-rose-200 hover:bg-rose-50"
+                      onClick={() => selectCategory('marketing')}
+                    >
+                      <MegaphoneIcon className="h-3.5 w-3.5 mr-1.5" />
+                      <span>Marketing</span>
+                    </Button>
+                  </div>
+                </div>
+                
+                {/* Favorite Actions Section - renamed to Starred */}
+                <div>
+                  <h4 className="font-medium mb-3 text-foreground">Starred</h4>
+                  <div className="space-y-2">
+                    {/* Dynamically show favorite actions */}
+                    {favoriteActions.length > 0 ? (
+                      favoriteActions.map(actionId => {
+                        const action = actionTypes.find(a => a.id === actionId);
+                        if (!action) return null;
+                        
+                        return (
+                          <div 
+                            key={action.id}
+                            className={`flex items-center justify-between p-3 rounded-md border ${
+                              action.category === 'product' ? 'border-blue-200 bg-blue-50/50' :
+                              action.category === 'owner' ? 'border-green-200 bg-green-50/50' :
+                              action.category === 'buyer' ? 'border-purple-200 bg-purple-50/50' :
+                              action.category === 'marketing' ? 'border-rose-200 bg-rose-50/50' :
+                              'border-primary/30 bg-primary/5'
+                            } hover:bg-opacity-70 cursor-pointer`}
+                            onClick={() => handleActionClick(action)}
+                          >
+                            <div className="flex items-center">
+                              <button 
+                                className="p-1.5 mr-2 rounded-full hover:bg-muted/20"
+                                onClick={(e) => toggleFavorite(action.id, e)}
+                                aria-label={favoriteActions.includes(action.id) ? "Remove from favorites" : "Add to favorites"}
+                              >
+                                <Star className={`h-4 w-4 ${favoriteActions.includes(action.id) ? 'text-amber-500 fill-amber-500' : 'text-muted-foreground'}`} />
+                              </button>
+                              <div className={`p-1.5 rounded-full ${
+                                action.category === 'product' ? 'bg-blue-100' :
+                                action.category === 'owner' ? 'bg-green-100' :
+                                action.category === 'buyer' ? 'bg-purple-100' :
+                                action.category === 'marketing' ? 'bg-rose-100' :
+                                'bg-primary/20'
+                              } mr-2`}>
+                                {getCategoryIcon(action.category)}
+                              </div>
+                              <div>
+                                <div className="font-medium">{action.name}</div>
+                                <div className="text-muted-foreground text-sm">{action.description}</div>
+                              </div>
+                            </div>
+                            <Badge className={`${
+                              action.category === 'product' ? 'bg-blue-100 text-blue-800 hover:bg-blue-200' :
+                              action.category === 'owner' ? 'bg-green-100 text-green-800 hover:bg-green-200' :
+                              action.category === 'buyer' ? 'bg-purple-100 text-purple-800 hover:bg-purple-200' :
+                              action.category === 'marketing' ? 'bg-rose-100 text-rose-800 hover:bg-rose-200' :
+                              'bg-primary/20 text-primary hover:bg-primary/30'
+                            } border-none`}>
+                              +{action.points} pts
+                            </Badge>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <div className="text-center p-4 text-muted-foreground border rounded-md">
+                        <p>No starred actions yet</p>
+                        <p className="text-sm mt-1">Click the star icon on any action to add it to starred</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+          </TabsContent>
+          
+          {/* History Tab Content */}
+          <TabsContent value="history" className="flex-1 px-6 pt-2 pb-4 flex flex-col">
+            {/* Content removed for redesign */}
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
@@ -550,28 +519,46 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
   // Use Drawer for mobile and Sheet for desktop
   if (isMobile) {
     return (
-      <Drawer open={isOpen} onOpenChange={setIsOpen}>
-        <DrawerTrigger asChild>
-          {fabButton}
-        </DrawerTrigger>
-        <DrawerContent className="max-h-[90vh] h-[90vh] p-0 bg-background flex flex-col">
-          <DrawerTitle className="sr-only">Action Tracker</DrawerTitle>
-          {actionTrackerContent}
-        </DrawerContent>
-      </Drawer>
+      <>
+        <Drawer open={isOpen} onOpenChange={setIsOpen}>
+          <DrawerTrigger asChild>
+            {fabButton}
+          </DrawerTrigger>
+          <DrawerContent className="max-h-[90vh] h-[90vh] p-0 bg-background flex flex-col">
+            <DrawerTitle className="sr-only">Action Tracker</DrawerTitle>
+            {actionTrackerContent}
+          </DrawerContent>
+        </Drawer>
+        
+        {/* Add Listing Modal */}
+        <AddListingModal 
+          isOpen={isAddListingModalOpen}
+          onClose={() => setIsAddListingModalOpen(false)}
+          onSubmit={handleSubmitListing}
+        />
+      </>
     );
   }
   
   return (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetTrigger asChild>
-        {fabButton}
-      </SheetTrigger>
-      <SheetContent side="right" className="w-full sm:max-w-md p-0 border-l">
-        <SheetTitle className="sr-only">Action Tracker</SheetTitle>
-        {actionTrackerContent}
-      </SheetContent>
-    </Sheet>
+    <>
+      <Sheet open={isOpen} onOpenChange={setIsOpen}>
+        <SheetTrigger asChild>
+          {fabButton}
+        </SheetTrigger>
+        <SheetContent side="right" className="w-full sm:max-w-md p-0 border-l">
+          <SheetTitle className="sr-only">Action Tracker</SheetTitle>
+          {actionTrackerContent}
+        </SheetContent>
+      </Sheet>
+      
+      {/* Add Listing Modal */}
+      <AddListingModal 
+        isOpen={isAddListingModalOpen}
+        onClose={() => setIsAddListingModalOpen(false)}
+        onSubmit={handleSubmitListing}
+      />
+    </>
   );
 };
 

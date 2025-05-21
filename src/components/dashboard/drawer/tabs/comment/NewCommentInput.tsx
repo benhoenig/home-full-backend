@@ -20,17 +20,20 @@ type NewCommentInputProps = {
   newComment: string;
   onNewCommentChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   onSendComment: (metadata?: any) => void;
+  showLeadSelector?: boolean; // Flag to determine which selector to show
 };
 
 const NewCommentInput = ({
   newComment,
   onNewCommentChange,
-  onSendComment
+  onSendComment,
+  showLeadSelector = false // Default to false (show listing selector)
 }: NewCommentInputProps) => {
   const [selectedPipeline, setSelectedPipeline] = useState<string | null>(null);
   const [selectedTag, setSelectedTag] = useState<CustomTag | null>(null);
   const [taggedPerson, setTaggedPerson] = useState<{name: string, initials: string} | null>(null);
   const [taggedListing, setTaggedListing] = useState<{id: string, name: string} | null>(null);
+  const [taggedLead, setTaggedLead] = useState<{id: string, name: string} | null>(null);
   
   // State for managing custom tags
   const [customTags, setCustomTags] = useState<CustomTag[]>(defaultCustomTags);
@@ -43,7 +46,9 @@ const NewCommentInput = ({
       ...(selectedPipeline && { pipelineStage: selectedPipeline }),
       ...(selectedTag && { customTag: selectedTag }),
       ...(taggedPerson && { taggedPerson }),
-      ...(taggedListing && { taggedListing }),
+      ...(showLeadSelector 
+          ? (taggedLead && { taggedLead }) 
+          : (taggedListing && { taggedListing })),
     };
 
     // Send comment with metadata
@@ -54,6 +59,7 @@ const NewCommentInput = ({
     setSelectedTag(null);
     setTaggedPerson(null);
     setTaggedListing(null);
+    setTaggedLead(null);
   };
 
   return (
@@ -70,7 +76,8 @@ const NewCommentInput = ({
         selectedPipeline={selectedPipeline}
         selectedTag={selectedTag}
         taggedPerson={taggedPerson}
-        taggedListing={taggedListing}
+        taggedListing={!showLeadSelector ? taggedListing : undefined}
+        taggedLead={showLeadSelector ? taggedLead : undefined}
       />
       
       <div className="flex justify-between items-center mt-2 px-2">
@@ -81,8 +88,10 @@ const NewCommentInput = ({
           setSelectedTag={setSelectedTag}
           setTaggedPerson={setTaggedPerson}
           setTaggedListing={setTaggedListing}
+          setTaggedLead={setTaggedLead}
           setTagToDelete={setTagToDelete}
           setShowDeleteConfirm={setShowDeleteConfirm}
+          showLeadSelector={showLeadSelector}
         />
         
         <Button 

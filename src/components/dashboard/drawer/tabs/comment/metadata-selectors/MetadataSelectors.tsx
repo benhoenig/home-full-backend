@@ -1,10 +1,10 @@
-
 import React from 'react';
 import { CustomTag } from '../types';
 import { PipelineSelector } from './';
 import { TagSelector } from './';
 import { PersonSelector } from './';
 import { ListingSelector } from './';
+import { LeadSelector } from './';
 
 type MetadataSelectorsProps = {
   setSelectedPipeline: (pipeline: string | null) => void;
@@ -13,8 +13,10 @@ type MetadataSelectorsProps = {
   setSelectedTag: (tag: CustomTag | null) => void;
   setTaggedPerson: (person: { name: string; initials: string; } | null) => void;
   setTaggedListing: (listing: { id: string; name: string; } | null) => void;
+  setTaggedLead?: (lead: { id: string; name: string; } | null) => void;
   setTagToDelete: (tag: CustomTag | null) => void;
   setShowDeleteConfirm: (show: boolean) => void;
+  showLeadSelector?: boolean;
 };
 
 const MetadataSelectors = ({
@@ -24,8 +26,10 @@ const MetadataSelectors = ({
   setSelectedTag,
   setTaggedPerson,
   setTaggedListing,
+  setTaggedLead,
   setTagToDelete,
-  setShowDeleteConfirm
+  setShowDeleteConfirm,
+  showLeadSelector = false
 }: MetadataSelectorsProps) => {
   return (
     <div className="flex space-x-1">
@@ -41,7 +45,11 @@ const MetadataSelectors = ({
       
       <PersonSelector setTaggedPerson={setTaggedPerson} />
       
-      <ListingSelector setTaggedListing={setTaggedListing} />
+      {showLeadSelector && setTaggedLead ? (
+        <LeadSelector setTaggedLead={setTaggedLead} />
+      ) : (
+        <ListingSelector setTaggedListing={setTaggedListing} />
+      )}
     </div>
   );
 };

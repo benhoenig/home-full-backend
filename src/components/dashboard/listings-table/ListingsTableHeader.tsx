@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PlusIcon } from "lucide-react";
 import ListingsFilter, { ListingFilterOptions } from './ListingsFilter';
+import AddListingModal from './AddListingModal';
 
 type ListingsTableHeaderProps = {
   isCustomizeDialogOpen: boolean;
@@ -19,11 +20,19 @@ const ListingsTableHeader = ({
   setSelectedListingType,
   onFilterChange
 }: ListingsTableHeaderProps) => {
+  // Add state for the AddListingModal
+  const [isAddListingModalOpen, setIsAddListingModalOpen] = useState(false);
   
   const handleFilterChange = (filters: ListingFilterOptions) => {
     if (onFilterChange) {
       onFilterChange(filters);
     }
+  };
+  
+  const handleSubmitListing = (data: any) => {
+    console.log('New listing data:', data);
+    // Handle the submission data
+    setIsAddListingModalOpen(false);
   };
   
   return (
@@ -53,11 +62,18 @@ const ListingsTableHeader = ({
           Customize
         </Button>
         
-        <Button size="sm">
+        <Button size="sm" onClick={() => setIsAddListingModalOpen(true)}>
           <PlusIcon className="h-4 w-4 mr-2" />
           New Listing
         </Button>
       </div>
+      
+      {/* Add Listing Modal */}
+      <AddListingModal 
+        isOpen={isAddListingModalOpen}
+        onClose={() => setIsAddListingModalOpen(false)}
+        onSubmit={handleSubmitListing}
+      />
     </div>
   );
 };
