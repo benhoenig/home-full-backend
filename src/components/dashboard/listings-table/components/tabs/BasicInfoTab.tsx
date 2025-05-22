@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import ProjectSearch from '../ProjectSearch';
 import OwnerSearch from '../OwnerSearch';
 import { Project, Owner } from '../../types';
+import { Separator } from "@/components/ui/separator";
 
 interface BasicInfoTabProps {
   projectStatus: string | null;
@@ -60,18 +61,34 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
   };
 
   return (
-    <Card>
+    <Card className="shadow-sm">
       <CardContent className="pt-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Main Form Layout */}
+        <div className="grid grid-cols-1 gap-8">
+          
+          {/* Section 1: Property Details */}
           <div className="space-y-4">
-            {/* Essential Info Group */}
-            <div className="space-y-2">
-              <h3 className="text-sm font-medium text-muted-foreground mb-2">Essential Information</h3>
-              
+            <div className="pb-2">
+              <h3 className="text-lg font-medium mb-2">Property Information</h3>
+              <Separator className="w-full" />
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Left Column */}
               <div className="space-y-4">
-                {/* Project Type Selection */}
+                {/* Listing Name */}
                 <div className="space-y-2">
-                  <Label htmlFor="in-project-status">Property Location</Label>
+                  <Label htmlFor="listing-name" className="font-medium">Listing Name*</Label>
+                  <Input 
+                    id="listing-name" 
+                    placeholder="Enter a name for the listing" 
+                    className="h-10"
+                  />
+                </div>
+                
+                {/* Property Location Type */}
+                <div className="space-y-2">
+                  <Label htmlFor="in-project-status" className="font-medium">Property Location</Label>
                   <Select 
                     value={projectStatus || undefined}
                     onValueChange={(value) => {
@@ -80,7 +97,6 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                       // Auto-update listing name based on project status
                       if (value === "in-project") {
                         // When "ในโครงการ" is selected
-                        // Auto-fill listing name if a project is selected
                         if (selectedProjectId) {
                           const selectedProject = projects.find(p => p.id === selectedProjectId);
                           if (selectedProject) {
@@ -92,8 +108,6 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                         }
                       } else if (value === "outside-project") {
                         // When "นอกโครงการ" is selected
-                        // Auto-fill listing name based on property type and street/soi will happen 
-                        // when the user enters values in those fields
                         const listingNameInput = document.getElementById("listing-name") as HTMLInputElement;
                         if (listingNameInput && listingNameInput.value) {
                           // Clear the listing name if it was set by a project
@@ -104,7 +118,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                       }
                     }}
                   >
-                    <SelectTrigger id="in-project-status">
+                    <SelectTrigger id="in-project-status" className="h-10">
                       <SelectValue placeholder="Select location type" />
                     </SelectTrigger>
                     <SelectContent>
@@ -132,10 +146,11 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                 {/* Conditionally show Street/Soi field in Basic Info tab when นอกโครงการ is selected */}
                 {projectStatus === "outside-project" && (
                   <div className="space-y-2">
-                    <Label htmlFor="street-soi">Street/Soi</Label>
+                    <Label htmlFor="street-soi" className="font-medium">Street/Soi</Label>
                     <Input 
                       id="street-soi" 
                       placeholder="Enter street or soi" 
+                      className="h-10"
                       onChange={(e) => {
                         // Auto-update listing name
                         const propertyTypeSelect = document.getElementById("property-type") as HTMLSelectElement;
@@ -153,14 +168,13 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                     />
                   </div>
                 )}
-                
+              </div>
+              
+              {/* Right Column */}
+              <div className="space-y-4">
+                {/* Property Type */}
                 <div className="space-y-2">
-                  <Label htmlFor="listing-name">Listing Name*</Label>
-                  <Input id="listing-name" placeholder="Enter a name for the listing" />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="property-type">Property Type*</Label>
+                  <Label htmlFor="property-type" className="font-medium">Property Type*</Label>
                   <Select onValueChange={(value) => {
                     // If นอกโครงการ is selected, auto-update listing name based on property type and street/soi
                     if (projectStatus === "outside-project") {
@@ -179,7 +193,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                       }
                     }
                   }}>
-                    <SelectTrigger id="property-type">
+                    <SelectTrigger id="property-type" className="h-10">
                       <SelectValue placeholder="Select property type" />
                     </SelectTrigger>
                     <SelectContent>
@@ -192,10 +206,11 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                   </Select>
                 </div>
                 
+                {/* Listing Status */}
                 <div className="space-y-2">
-                  <Label htmlFor="listing-status">Listing Status*</Label>
+                  <Label htmlFor="listing-status" className="font-medium">Listing Status*</Label>
                   <Select>
-                    <SelectTrigger id="listing-status">
+                    <SelectTrigger id="listing-status" className="h-10">
                       <SelectValue placeholder="Select listing status" />
                     </SelectTrigger>
                     <SelectContent>
@@ -208,10 +223,11 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                   </Select>
                 </div>
                 
+                {/* Marketing Status */}
                 <div className="space-y-2">
-                  <Label htmlFor="marketing-status">Marketing Status*</Label>
+                  <Label htmlFor="marketing-status" className="font-medium">Marketing Status*</Label>
                   <Select>
-                    <SelectTrigger id="marketing-status">
+                    <SelectTrigger id="marketing-status" className="h-10">
                       <SelectValue placeholder="Select marketing status" />
                     </SelectTrigger>
                     <SelectContent>
@@ -226,7 +242,13 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
             </div>
           </div>
           
+          {/* Section 2: Owner Information */}
           <div className="space-y-4">
+            <div className="pb-2">
+              <h3 className="text-lg font-medium mb-2">Owner Information</h3>
+              <Separator className="w-full" />
+            </div>
+            
             <OwnerSearch
               ownerSearchTerm={ownerSearchTerm}
               selectedOwnerId={selectedOwnerId}
