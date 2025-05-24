@@ -1,12 +1,63 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { Gift, Building2 } from "lucide-react";
+import MultiSelectSearch, { SelectItem as MultiSelectItem } from '../MultiSelectSearch';
 
 const PropertyDetailsTab: React.FC = () => {
+  // Sample data for giveaways and common areas
+  const [giveaways, setGiveaways] = useState<MultiSelectItem[]>([
+    { id: 'furniture', name: 'Furniture' },
+    { id: 'appliances', name: 'Appliances' },
+    { id: 'fixtures', name: 'Fixtures' },
+    { id: 'renovations', name: 'Renovations' }
+  ]);
+  const [selectedGiveaways, setSelectedGiveaways] = useState<string[]>([]);
+
+  const [commonAreas, setCommonAreas] = useState<MultiSelectItem[]>([
+    { id: 'gym', name: 'Gym' },
+    { id: 'pool', name: 'Pool' },
+    { id: 'garden', name: 'Garden' },
+    { id: 'playground', name: 'Playground' },
+    { id: 'lobby', name: 'Lobby' },
+    { id: 'parking', name: 'Parking' }
+  ]);
+  const [selectedCommonAreas, setSelectedCommonAreas] = useState<string[]>([]);
+
+  const handleSelectGiveaway = (id: string) => {
+    setSelectedGiveaways(prev => [...prev, id]);
+  };
+
+  const handleRemoveGiveaway = (id: string) => {
+    setSelectedGiveaways(prev => prev.filter(giveawayId => giveawayId !== id));
+  };
+
+  const handleAddNewGiveaway = (name: string) => {
+    const newId = `giveaway-${Date.now()}`;
+    const newGiveaway = { id: newId, name };
+    setGiveaways(prev => [...prev, newGiveaway]);
+    setSelectedGiveaways(prev => [...prev, newId]);
+  };
+
+  const handleSelectCommonArea = (id: string) => {
+    setSelectedCommonAreas(prev => [...prev, id]);
+  };
+
+  const handleRemoveCommonArea = (id: string) => {
+    setSelectedCommonAreas(prev => prev.filter(areaId => areaId !== id));
+  };
+
+  const handleAddNewCommonArea = (name: string) => {
+    const newId = `area-${Date.now()}`;
+    const newArea = { id: newId, name };
+    setCommonAreas(prev => [...prev, newArea]);
+    setSelectedCommonAreas(prev => [...prev, newId]);
+  };
+
   return (
     <Card className="shadow-sm">
       <CardContent className="pt-6">
@@ -138,6 +189,46 @@ const PropertyDetailsTab: React.FC = () => {
                   <Label htmlFor="remark" className="font-medium">Remark</Label>
                   <Textarea id="remark" placeholder="Enter any additional notes" className="resize-none min-h-[80px]" />
                 </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Property Features Section */}
+          <div className="space-y-4">
+            <div className="pb-2">
+              <h3 className="text-lg font-medium mb-2">Property Features</h3>
+              <Separator className="w-full" />
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <MultiSelectSearch
+                  label="Giveaways"
+                  searchPlaceholder="Search giveaways..."
+                  emptyMessage="No giveaways found"
+                  items={giveaways}
+                  selectedItems={selectedGiveaways}
+                  onSelect={handleSelectGiveaway}
+                  onRemove={handleRemoveGiveaway}
+                  onAddNew={handleAddNewGiveaway}
+                  icon={<Gift className="h-10 w-10 text-muted-foreground mb-2" />}
+                  badgeLabel="Giveaway"
+                />
+              </div>
+              
+              <div className="space-y-4">
+                <MultiSelectSearch
+                  label="Common Areas"
+                  searchPlaceholder="Search common areas..."
+                  emptyMessage="No common areas found"
+                  items={commonAreas}
+                  selectedItems={selectedCommonAreas}
+                  onSelect={handleSelectCommonArea}
+                  onRemove={handleRemoveCommonArea}
+                  onAddNew={handleAddNewCommonArea}
+                  icon={<Building2 className="h-10 w-10 text-muted-foreground mb-2" />}
+                  badgeLabel="Common Area"
+                />
               </div>
             </div>
           </div>
