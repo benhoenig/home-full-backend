@@ -33,8 +33,7 @@ const actionTypes: ActionType[] = [
   
   // Owner
   { id: 'newList', name: 'New List', points: 5, description: 'New property listing', category: 'owner', isAutomated: true },
-  { id: 'consult2', name: 'Consult (2%)', points: 15, description: 'Consultation with 2% price reduction', category: 'owner', isAutomated: true },
-  { id: 'consult5', name: 'Consult (5%)', points: 20, description: 'Consultation with 5% price reduction', category: 'owner', isAutomated: true },
+  { id: 'consult2', name: 'Consult', points: 15, description: 'Consultation with owner', category: 'owner', isAutomated: true },
   { id: 'consultRent', name: 'Consult (Rent Case)', points: 10, description: 'Rental consultation', category: 'owner', isAutomated: true },
   { id: 'ownerVisit', name: 'Owner Visit', points: 15, description: 'Property owner visit', category: 'owner', isAutomated: true },
   
@@ -91,6 +90,8 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
   
   // Add state for AddListingModal
   const [isAddListingModalOpen, setIsAddListingModalOpen] = useState(false);
+  // Add state to track which tab should be active in the modal
+  const [activeModalTab, setActiveModalTab] = useState<string>('basic-info');
   
   // Calculate progress percentage
   const progressPercentage = Math.min(100, (currentMonthPoints / targetMonthPoints) * 100);
@@ -168,6 +169,15 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
   const handleActionClick = (action: ActionType) => {
     // Special case for 'newList' action - open the AddListingModal
     if (action.id === 'newList') {
+      setActiveModalTab('basic-info');
+      setIsAddListingModalOpen(true);
+      setIsOpen(false); // Close the FAB panel
+      return;
+    }
+    
+    // Special case for 'consult2' action - open the AddListingModal with Price tab
+    if (action.id === 'consult2') {
+      setActiveModalTab('price');
       setIsAddListingModalOpen(true);
       setIsOpen(false); // Close the FAB panel
       return;
@@ -535,6 +545,7 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
           isOpen={isAddListingModalOpen}
           onClose={() => setIsAddListingModalOpen(false)}
           onSubmit={handleSubmitListing}
+          initialTab={activeModalTab}
         />
       </>
     );
@@ -557,6 +568,7 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
         isOpen={isAddListingModalOpen}
         onClose={() => setIsAddListingModalOpen(false)}
         onSubmit={handleSubmitListing}
+        initialTab={activeModalTab}
       />
     </>
   );

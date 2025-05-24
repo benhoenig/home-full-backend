@@ -64,6 +64,7 @@ export interface ModalProps {
 
 export interface AddListingModalProps extends ModalProps {
   onSubmit: (data: ListingData) => void;
+  initialTab?: string; // Optional initial tab to show
 }
 
 export interface AddProjectModalProps extends ModalProps {

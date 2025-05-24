@@ -17,10 +17,15 @@ import AExclusiveTab from './components/tabs/AExclusiveTab';
 import AddProjectModal from './components/modals/AddProjectModal';
 import { AddOwnerModal } from './components/modals/AddOwnerModal';
 
-const AddListingModal = ({ isOpen, onClose, onSubmit }: AddListingModalProps) => {
-  const [activeTab, setActiveTab] = useState('basic-info');
+const AddListingModal = ({ isOpen, onClose, onSubmit, initialTab = 'basic-info' }: AddListingModalProps) => {
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [showAddProjectModal, setShowAddProjectModal] = useState(false);
   const [showAddOwnerModal, setShowAddOwnerModal] = useState(false);
+  
+  // Update activeTab when initialTab changes
+  useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab]);
   
   // Owner search state
   const [selectedOwnerId, setSelectedOwnerId] = useState<string | null>(null);
