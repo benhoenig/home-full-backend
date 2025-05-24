@@ -1,12 +1,39 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { DollarSign } from "lucide-react";
+import { DollarSign, Briefcase } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import MultiSelectSearch, { SelectItem as MultiSelectItem } from '../MultiSelectSearch';
 
 const PriceTab: React.FC = () => {
+  // Investor Features state
+  const [investorFeatures, setInvestorFeatures] = useState<MultiSelectItem[]>([
+    { id: 'high-yield', name: 'High Yield' },
+    { id: 'rental-guarantee', name: 'Rental Guarantee' },
+    { id: 'long-term-tenants', name: 'Long-term Tenants' },
+    { id: 'capital-appreciation', name: 'Capital Appreciation' },
+    { id: 'low-maintenance', name: 'Low Maintenance' }
+  ]);
+  const [selectedInvestorFeatures, setSelectedInvestorFeatures] = useState<string[]>([]);
+
+  // Handler functions for Investor Features
+  const handleSelectInvestorFeature = (id: string) => {
+    setSelectedInvestorFeatures(prev => [...prev, id]);
+  };
+
+  const handleRemoveInvestorFeature = (id: string) => {
+    setSelectedInvestorFeatures(prev => prev.filter(featureId => featureId !== id));
+  };
+
+  const handleAddNewInvestorFeature = (name: string) => {
+    const newId = `investor-feature-${Date.now()}`;
+    const newFeature = { id: newId, name };
+    setInvestorFeatures(prev => [...prev, newFeature]);
+    setSelectedInvestorFeatures(prev => [...prev, newId]);
+  };
+
   return (
     <Card className="shadow-sm">
       <CardContent className="pt-6">
@@ -88,6 +115,29 @@ const PriceTab: React.FC = () => {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+          
+          {/* Investment Features */}
+          <div className="space-y-4">
+            <div className="pb-2">
+              <h3 className="text-lg font-medium mb-2">Investment Features</h3>
+              <Separator className="w-full" />
+            </div>
+            
+            <div className="grid grid-cols-1 gap-6">
+              <MultiSelectSearch
+                label="Investor Features"
+                searchPlaceholder="Search investor features..."
+                emptyMessage="No investor features found"
+                items={investorFeatures}
+                selectedItems={selectedInvestorFeatures}
+                onSelect={handleSelectInvestorFeature}
+                onRemove={handleRemoveInvestorFeature}
+                onAddNew={handleAddNewInvestorFeature}
+                icon={<Briefcase className="h-10 w-10 text-muted-foreground mb-2" />}
+                badgeLabel="Investor Feature"
+              />
             </div>
           </div>
         </div>

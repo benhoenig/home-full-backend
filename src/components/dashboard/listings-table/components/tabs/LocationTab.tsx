@@ -1,11 +1,39 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { MapPin } from "lucide-react";
+import MultiSelectSearch, { SelectItem as MultiSelectItem } from '../MultiSelectSearch';
 
 const LocationTab: React.FC = () => {
+  // Location options
+  const [locations, setLocations] = useState<MultiSelectItem[]>([
+    { id: 'cbd', name: 'CBD' },
+    { id: 'business-district', name: 'Business District' },
+    { id: 'residential', name: 'Residential Area' },
+    { id: 'shopping-area', name: 'Shopping Area' },
+    { id: 'educational-zone', name: 'Educational Zone' }
+  ]);
+  const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
+
+  // Location handlers
+  const handleSelectLocation = (id: string) => {
+    setSelectedLocations(prev => [...prev, id]);
+  };
+
+  const handleRemoveLocation = (id: string) => {
+    setSelectedLocations(prev => prev.filter(locId => locId !== id));
+  };
+
+  const handleAddNewLocation = (name: string) => {
+    const newId = `loc-${Date.now()}`;
+    const newLocation = { id: newId, name };
+    setLocations(prev => [...prev, newLocation]);
+    setSelectedLocations(prev => [...prev, newId]);
+  };
+
   return (
     <Card className="shadow-sm">
       <CardContent className="pt-6">
@@ -51,6 +79,19 @@ const LocationTab: React.FC = () => {
                     </SelectContent>
                   </Select>
                 </div>
+                
+                <MultiSelectSearch
+                  label="Location"
+                  searchPlaceholder="Search locations..."
+                  emptyMessage="No locations found"
+                  items={locations}
+                  selectedItems={selectedLocations}
+                  onSelect={handleSelectLocation}
+                  onRemove={handleRemoveLocation}
+                  onAddNew={handleAddNewLocation}
+                  icon={<MapPin className="h-10 w-10 text-muted-foreground mb-2" />}
+                  badgeLabel="Location"
+                />
               </div>
               
               <div className="space-y-4">
