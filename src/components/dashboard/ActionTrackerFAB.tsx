@@ -18,6 +18,8 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import AddListingModal from './listings-table/AddListingModal';
 import { useListingsTableData, Listing } from '@/hooks/useListingsTableData';
 import ListingDetailsDrawer from './ListingDetailsDrawer';
+import { useLeadsTableData, Lead } from '@/hooks/useLeadsTableData';
+import LeadDetailsDrawer from './LeadDetailsDrawer';
 
 // Define action metadata
 export type ActionType = {
@@ -103,12 +105,22 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
   const [selectedActionType, setSelectedActionType] = useState<ActionType | null>(null);
   const [listingSearchTerm, setListingSearchTerm] = useState('');
   
+  // State for LeadDetailsDrawer
+  const [isLeadDetailsDrawerOpen, setIsLeadDetailsDrawerOpen] = useState(false);
+  const [selectedLeadDetailsTab, setSelectedLeadDetailsTab] = useState<'details' | 'activity'>('details');
+  
+  // State for lead selection view
+  const [isLeadSelectionView, setIsLeadSelectionView] = useState(false);
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [leadSearchTerm, setLeadSearchTerm] = useState('');
+  
   // State for ListingDetailsDrawer
   const [isListingDetailsDrawerOpen, setIsListingDetailsDrawerOpen] = useState(false);
   const [listingDetailsDrawerActiveTab, setListingDetailsDrawerActiveTab] = useState<'details' | 'photo' | 'location' | 'aexclusive' | 'activity'>('details');
   
-  // Move the hook call to the top level of the component
+  // Move the hook calls to the top level of the component
   const listingsData = useListingsTableData();
+  const leadsData = useLeadsTableData();
   
   // Calculate progress percentage
   const progressPercentage = Math.min(100, (currentMonthPoints / targetMonthPoints) * 100);
@@ -219,6 +231,40 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
       return;
     }
     
+    // Special cases for Buyer category actions - show lead selection
+    if (
+      action.id === 'clientData' || 
+      action.id === 'following' || 
+      action.id === 'appointment' || 
+      action.id === 'showing' || 
+      action.id === 'negotiate' || 
+      action.id === 'closedRent' || 
+      action.id === 'closedSell5M' || 
+      action.id === 'closedSell10M' || 
+      action.id === 'closedSell10M+' || 
+      action.id === 'giftReview'
+    ) {
+      setSelectedActionType(action);
+      setIsLeadSelectionView(true);
+      setSelectedLead(null); // Reset selected lead
+      setLeadSearchTerm(''); // Reset search term
+      return;
+    }
+    
+    // Special cases for Marketing category actions - show listing selection
+    if (
+      action.id === 'sign' || 
+      action.id === 'reel' || 
+      action.id === 'hometour' || 
+      action.id === 'exclusive'
+    ) {
+      setSelectedActionType(action);
+      setIsListingSelectionView(true);
+      setSelectedListing(null); // Reset selected listing
+      setListingSearchTerm(''); // Reset search term
+      return;
+    }
+    
     // For all other actions, log them directly without confirmation
     console.log(`Logging action: ${action.name}`);
     
@@ -241,7 +287,7 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
   const handleProceedWithListing = () => {
     if (!selectedListing || !selectedActionType) return;
     
-    // Different behavior based on action type
+    // Different behavior based on action category
     if (selectedActionType.id === 'ownerVisit') {
       // For Owner Visit, open the ListingDetailsDrawer with activity tab
       setIsListingSelectionView(false);
@@ -270,6 +316,24 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
       if (onActionLogged) {
         onActionLogged(selectedActionType);
       }
+    } else if (selectedActionType.category === 'marketing') {
+      // For Marketing actions, just log the action directly
+      setIsListingSelectionView(false);
+      setIsOpen(false); // Close the FAB panel
+      
+      // Log the action
+      console.log(`Logging ${selectedActionType.name} action for listing ${selectedListing.listingCode}`);
+      
+      // Notify the user
+      toast({
+        title: "Marketing Action Logged",
+        description: `${selectedActionType.name} for ${selectedListing.listingName} (+${selectedActionType.points} points)`,
+      });
+      
+      // Call the callback if provided
+      if (onActionLogged) {
+        onActionLogged(selectedActionType);
+      }
     } else {
       // For other actions (like consult2, consultRent), open the edit modal
       setIsListingSelectionView(false);
@@ -290,11 +354,63 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
     }
   };
   
+  // New function to handle proceeding with the selected lead
+  const handleProceedWithLead = () => {
+    if (!selectedLead || !selectedActionType) return;
+    
+    // Close the lead selection view and FAB panel
+    setIsLeadSelectionView(false);
+    setIsOpen(false);
+    
+    // Determine which tab to open based on the action type
+    if (selectedActionType.id === 'clientData') {
+      // For Client Data action, open details tab
+      setSelectedLeadDetailsTab('details');
+    } else {
+      // For all other buyer actions, open activity tab
+      setSelectedLeadDetailsTab('activity');
+    }
+    
+    // Open the lead details drawer
+    setIsLeadDetailsDrawerOpen(true);
+    
+    // Log the action
+    console.log(`Navigating to ${selectedLeadDetailsTab} tab for ${selectedActionType.name} on lead ${selectedLead.name}`);
+    
+    // Notify the user with guidance
+    toast({
+      title: `${selectedActionType.name} Selected`,
+      description: `Working with lead: ${selectedLead.name}`,
+    });
+    
+    // For activity tab actions, add a second toast with more detailed instructions
+    if (selectedActionType.id !== 'clientData') {
+      setTimeout(() => {
+        toast({
+          title: "Action Logging Instructions",
+          description: `Please add a comment about this ${selectedActionType.name} action in the comment box below the timeline.`,
+        });
+      }, 1500);
+    }
+    
+    // Call the callback if provided
+    if (onActionLogged) {
+      onActionLogged(selectedActionType);
+    }
+  };
+  
   // Function to go back from listing selection to categories
   const backFromListingSelection = () => {
     setIsListingSelectionView(false);
     setSelectedActionType(null);
     setSelectedListing(null);
+  };
+  
+  // Function to go back from lead selection to categories
+  const backFromLeadSelection = () => {
+    setIsLeadSelectionView(false);
+    setSelectedActionType(null);
+    setSelectedLead(null);
   };
   
   // Helper function to get category icon
@@ -388,7 +504,7 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
           </div>
         </div>
         
-        {/* Content - either listing selection or normal action tabs */}
+        {/* Content - either listing/lead selection or normal action tabs */}
         {isListingSelectionView ? (
           <div className="flex-1 flex flex-col px-6 pt-4 pb-6">
             <div className="flex items-center mb-4">
@@ -403,7 +519,11 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
               </Button>
               <h4 className="font-medium flex items-center">
                 <ClipboardCheckIcon className="h-5 w-5 mr-2 text-primary" />
-                {selectedActionType ? `Select Listing for ${selectedActionType.name}` : 'Select Listing'}
+                {selectedActionType ? 
+                  selectedActionType.category === 'marketing' 
+                    ? `Select Listing for "${selectedActionType.name}" Action` 
+                    : `Select Listing for ${selectedActionType.name}` 
+                  : 'Select Listing'}
               </h4>
             </div>
             
@@ -420,6 +540,11 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
               <p className="text-sm text-muted-foreground mt-2">
                 Please select which listing you want to perform this action on
               </p>
+              {selectedActionType && selectedActionType.category === 'marketing' && (
+                <p className="text-sm text-primary/80 mt-1">
+                  This action will be completed immediately after selecting a listing
+                </p>
+              )}
             </div>
             
             <div className="flex-1 overflow-y-auto border rounded-md">
@@ -510,7 +635,116 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
                 disabled={!selectedListing}
                 className="w-full"
               >
-                Proceed with Selected Listing
+                {selectedActionType && selectedActionType.category === 'marketing' 
+                  ? `Complete ${selectedActionType.name} Action` 
+                  : 'Proceed with Selected Listing'}
+              </Button>
+            </div>
+          </div>
+        ) : isLeadSelectionView ? (
+          <div className="flex-1 flex flex-col px-6 pt-4 pb-6">
+            <div className="flex items-center mb-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 px-2"
+                onClick={backFromLeadSelection}
+              >
+                <ChevronUp className="h-4 w-4 mr-1" />
+                Back
+              </Button>
+              <h4 className="font-medium flex items-center">
+                <UserIcon className="h-5 w-5 mr-2 text-primary" />
+                {selectedActionType ? `Select Lead for ${selectedActionType.name}` : 'Select Lead'}
+              </h4>
+            </div>
+            
+            <div className="mb-4">
+              <div className="relative">
+                <Input
+                  placeholder="Search leads by name, phone, or email..."
+                  value={leadSearchTerm}
+                  onChange={(e) => setLeadSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+              </div>
+              <p className="text-sm text-muted-foreground mt-2">
+                Please select which lead you want to perform this action on
+              </p>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto border rounded-md">
+              {(() => {
+                const filteredLeads = leadSearchTerm.trim() === ''
+                  ? leadsData
+                  : leadsData.filter(lead => 
+                      lead.name.toLowerCase().includes(leadSearchTerm.toLowerCase()) ||
+                      lead.phone.toLowerCase().includes(leadSearchTerm.toLowerCase()) ||
+                      (lead.email && lead.email.toLowerCase().includes(leadSearchTerm.toLowerCase()))
+                    );
+                
+                return filteredLeads.length > 0 ? (
+                  <div className="divide-y">
+                    {filteredLeads.map((lead) => (
+                      <div
+                        key={lead.phone}
+                        className={`p-3 hover:bg-muted/50 cursor-pointer transition-colors ${
+                          selectedLead?.phone === lead.phone ? 'bg-primary/10 border-l-4 border-primary' : ''
+                        }`}
+                        onClick={() => setSelectedLead(lead)}
+                      >
+                        <div className="flex justify-between">
+                          <div>
+                            <div className="flex items-center">
+                              <UserIcon className="h-4 w-4 mr-2 text-primary" />
+                              <span className="font-medium">{lead.name}</span>
+                            </div>
+                            <div className="text-sm text-muted-foreground mt-1">
+                              {lead.phone} • {lead.email}
+                            </div>
+                          </div>
+                          <Badge 
+                            variant="outline"
+                            className={`text-xs px-2 py-0.5 h-5 ${
+                              lead.potential === 'A' ? 'bg-green-100 text-green-800 border-green-200' :
+                              lead.potential === 'B' ? 'bg-blue-100 text-blue-800 border-blue-200' :
+                              lead.potential === 'C' ? 'bg-amber-100 text-amber-800 border-amber-200' :
+                              'bg-gray-100 text-gray-800 border-gray-200'
+                            }`}
+                          >
+                            {lead.potential || 'C'}
+                          </Badge>
+                        </div>
+                        <div className="flex justify-between mt-2 text-sm">
+                          <div>
+                            <span className="text-muted-foreground">Project Interest: </span>
+                            {lead.projectInterest}
+                          </div>
+                          <div>
+                            <span className="font-medium">{new Intl.NumberFormat('th-TH').format(lead.budget)} ฿</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-8 text-center text-muted-foreground">
+                    <UserIcon className="h-10 w-10 mx-auto mb-2 opacity-20" />
+                    <p>No matching leads found</p>
+                    <p className="text-sm mt-1">Try a different search term</p>
+                  </div>
+                );
+              })()}
+            </div>
+            
+            <div className="flex justify-end space-x-2 mt-4">
+              <Button 
+                onClick={handleProceedWithLead}
+                disabled={!selectedLead}
+                className="w-full"
+              >
+                Proceed with Selected Lead
               </Button>
             </div>
           </div>
@@ -778,6 +1012,14 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
           listing={selectedListing}
           initialTab={listingDetailsDrawerActiveTab}
         />
+        
+        {/* Lead Details Drawer for Buyer Actions */}
+        <LeadDetailsDrawer 
+          isOpen={isLeadDetailsDrawerOpen}
+          onClose={() => setIsLeadDetailsDrawerOpen(false)}
+          lead={selectedLead}
+          initialTab={selectedLeadDetailsTab}
+        />
       </>
     );
   }
@@ -808,6 +1050,14 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
         onClose={() => setIsListingDetailsDrawerOpen(false)}
         listing={selectedListing}
         initialTab={listingDetailsDrawerActiveTab}
+      />
+      
+      {/* Lead Details Drawer for Buyer Actions */}
+      <LeadDetailsDrawer 
+        isOpen={isLeadDetailsDrawerOpen}
+        onClose={() => setIsLeadDetailsDrawerOpen(false)}
+        lead={selectedLead}
+        initialTab={selectedLeadDetailsTab}
       />
     </>
   );

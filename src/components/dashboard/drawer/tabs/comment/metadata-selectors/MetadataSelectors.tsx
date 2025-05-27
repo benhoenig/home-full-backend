@@ -48,7 +48,7 @@ const MetadataSelectors = ({
       {showLeadSelector && setTaggedLead ? (
         <LeadSelector setTaggedLead={setTaggedLead} />
       ) : (
-        <ListingSelector setTaggedListing={setTaggedListing} />
+      <ListingSelector setTaggedListing={setTaggedListing} />
       )}
     </div>
   );

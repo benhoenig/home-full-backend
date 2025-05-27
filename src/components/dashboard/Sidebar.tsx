@@ -13,7 +13,8 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
-  Users2
+  Users2,
+  Database
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
@@ -82,6 +83,7 @@ export function Sidebar() {
       { label: 'Inbox', to: '/inbox', icon: <Inbox className="h-5 w-5" /> },
       { label: 'Listing Manager', to: '/listing-manager', icon: <LayoutList className="h-5 w-5" /> },
       { label: 'All Listings', to: '/all-listings', icon: <LayoutList className="h-5 w-5" /> },
+      { label: 'Master Data', to: '/master-data', icon: <Database className="h-5 w-5" /> },
       { label: 'Settings', to: '/settings', icon: <Settings className="h-5 w-5" /> },
     ],
   };

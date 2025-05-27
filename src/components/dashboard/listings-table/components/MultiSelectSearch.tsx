@@ -19,7 +19,7 @@ interface MultiSelectSearchProps {
   selectedItems: string[];
   onSelect: (id: string) => void;
   onRemove: (id: string) => void;
-  onAddNew: (name: string) => void;
+  onAddNew: ((name: string) => void) | null;
   icon?: React.ReactNode;
   badgeLabel: string;
 }
@@ -49,7 +49,7 @@ const MultiSelectSearch: React.FC<MultiSelectSearchProps> = ({
   const selectedItemsData = items.filter(item => selectedItems.includes(item.id));
 
   const handleAddNew = () => {
-    if (newItemName.trim()) {
+    if (newItemName.trim() && onAddNew) {
       onAddNew(newItemName);
       setNewItemName('');
       setShowAddNew(false);
@@ -85,7 +85,7 @@ const MultiSelectSearch: React.FC<MultiSelectSearchProps> = ({
                     <div className="flex flex-col items-center justify-center py-6 text-center">
                       {icon}
                       <p className="text-sm text-muted-foreground mb-1">{emptyMessage}</p>
-                      <p className="text-xs text-muted-foreground">Add a new item instead</p>
+                      {onAddNew && <p className="text-xs text-muted-foreground">Add a new item instead</p>}
                     </div>
                   </CommandEmpty>
                   <CommandGroup heading={label}>
@@ -135,42 +135,46 @@ const MultiSelectSearch: React.FC<MultiSelectSearchProps> = ({
           </div>
         )}
         
-        {showAddNew ? (
-          <div className="flex items-center gap-2 mt-2">
-            <Input
-              placeholder="Enter new item name..."
-              value={newItemName}
-              onChange={(e) => setNewItemName(e.target.value)}
-              className="h-10"
-            />
-            <Button 
-              size="sm" 
-              onClick={handleAddNew}
-              disabled={!newItemName.trim()}
-            >
-              Add
-            </Button>
-            <Button 
-              size="sm" 
-              variant="ghost" 
-              onClick={() => {
-                setShowAddNew(false);
-                setNewItemName('');
-              }}
-            >
-              Cancel
-            </Button>
-          </div>
-        ) : (
-          <Button 
-            type="button" 
-            variant="outline" 
-            className="flex items-center mt-2"
-            onClick={() => setShowAddNew(true)}
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Add New {badgeLabel}
-          </Button>
+        {onAddNew && (
+          <>
+            {showAddNew ? (
+              <div className="flex items-center gap-2 mt-2">
+                <Input
+                  placeholder="Enter new item name..."
+                  value={newItemName}
+                  onChange={(e) => setNewItemName(e.target.value)}
+                  className="h-10"
+                />
+                <Button 
+                  size="sm" 
+                  onClick={handleAddNew}
+                  disabled={!newItemName.trim()}
+                >
+                  Add
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="ghost" 
+                  onClick={() => {
+                    setShowAddNew(false);
+                    setNewItemName('');
+                  }}
+                >
+                  Cancel
+                </Button>
+              </div>
+            ) : (
+              <Button 
+                type="button" 
+                variant="outline" 
+                className="flex items-center mt-2"
+                onClick={() => setShowAddNew(true)}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Add New {badgeLabel}
+              </Button>
+            )}
+          </>
         )}
       </div>
     </div>

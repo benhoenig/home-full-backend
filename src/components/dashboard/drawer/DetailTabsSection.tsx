@@ -32,6 +32,7 @@ type DetailTabsProps = {
   }[];
   timelineProps?: ReturnType<typeof useTimelineItems>;
   onUpdateContactInfo?: (data: any) => void;
+  initialTab?: 'details' | 'activity' | 'matching' | 'closing';
 };
 
 const DetailTabsSection = ({
@@ -56,7 +57,8 @@ const DetailTabsSection = ({
   adminRemark,
   attachments,
   timelineProps,
-  onUpdateContactInfo
+  onUpdateContactInfo,
+  initialTab = 'details'
 }: DetailTabsProps) => {
   // State for Detail tab
   const [rapport, setRapport] = useState([80]); // Default value of 80%
@@ -76,7 +78,7 @@ const DetailTabsSection = ({
   return (
     <AccordionItem value="details-tabs" className="border-b">
       <div className="py-3">
-        <Tabs defaultValue="details">
+        <Tabs defaultValue={initialTab}>
           <TabsList className="w-full grid grid-cols-4 mb-4">
             <TabsTrigger value="details">Details</TabsTrigger>
             <TabsTrigger value="activity">Activity</TabsTrigger>

@@ -296,7 +296,7 @@ const NewSalesTab: React.FC<NewSalesTabProps> = ({ timeframe, setTimeframe }) =>
               let progressPercentage = 0;
               let target = 0;
               
-              if (newSalesMetric === 'Probation Progress' || newSalesMetric.includes('Percentage')) {
+                              if (newSalesMetric === 'Probation Progress' || newSalesMetric.includes('Percentage')) {
                 progressPercentage = parseInt(metricValue.toString());
                 target = 100;
               } else {

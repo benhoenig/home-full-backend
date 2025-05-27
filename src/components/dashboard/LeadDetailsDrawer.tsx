@@ -14,12 +14,14 @@ type LeadDetailsDrawerProps = {
   isOpen: boolean;
   onClose: () => void;
   lead: Record<string, any> | null;
+  initialTab?: 'details' | 'activity' | 'matching' | 'closing';
 };
 
 const LeadDetailsDrawer = ({
   isOpen,
   onClose,
-  lead
+  lead,
+  initialTab = 'details'
 }: LeadDetailsDrawerProps) => {
   const isMobile = useIsMobile();
   
@@ -120,6 +122,7 @@ const LeadDetailsDrawer = ({
               attachments={sampleAttachments} 
               timelineProps={timelineProps}
               onUpdateContactInfo={data => handleUpdateLeadInfo('contactInfo', data)} 
+              initialTab={initialTab}
             />
           </Accordion>
         </div>
