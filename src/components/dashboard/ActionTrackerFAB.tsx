@@ -159,6 +159,67 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
   const [caseType, setCaseType] = useState('Survey');
   const [caseLesson, setCaseLesson] = useState('');
   
+  // State for Present Project
+  const [isPresentProjectView, setIsPresentProjectView] = useState(false);
+  const [selectedProject, setSelectedProject] = useState('');
+  const [newProjectName, setNewProjectName] = useState('');
+  const [isAddingNewProject, setIsAddingNewProject] = useState(false);
+  const [presentationDateTime, setPresentationDateTime] = useState('');
+  const [presentationNotes, setPresentationNotes] = useState('');
+  
+  // State for Survey
+  const [isSurveyView, setIsSurveyView] = useState(false);
+  const [surveyPropertyType, setSurveyPropertyType] = useState<'Condo' | 'House'>('Condo');
+  const [surveyFormData, setSurveyFormData] = useState<Record<string, string>>({});
+  
+  // Condo Survey Form Fields
+  const condoSurveyFields = [
+    { id: 'projectName', label: 'ชื่อโครงการ', required: true },
+    { id: 'developer', label: 'Developer', required: true },
+    { id: 'unitCount', label: 'จำนวนยูนิต', required: true },
+    { id: 'floorCount', label: 'จำนวนชั้น', required: true },
+    { id: 'propertyType', label: 'ประเภท Type', required: true },
+    { id: 'projectAge', label: 'อายุโครงการกี่ปี', required: true },
+    { id: 'commonAreas', label: 'ส่วนกลางมีอะไรบ้าง', required: true },
+    { id: 'commonFee', label: 'ค่าส่วนกลาง / จ่ายยังไง', required: true },
+    { id: 'juristic', label: 'นิติบุคคล', required: true },
+    { id: 'juristicFeePercent', label: 'นิติบุคคลเก็บส่วนกลางได้กี่%', required: true },
+    { id: 'parkingPercent', label: 'ที่จอดรถกี่ %', required: true },
+    { id: 'extraParkingFee', label: 'หากมีมากกว่าสิทธิ์จอดรถของตนเอง คันต่อไปค่าเช่าที่จอดรถเดือนละเท่าไหร่', required: false },
+    { id: 'parkingIssue', label: 'มีปัญหาที่จอดรถไม่เพียงพอไหม', required: false },
+    { id: 'parkingSolution', label: 'ถ้ามีแก้ปัญหาอย่างไร', required: false },
+    { id: 'finalPrice', label: 'ราคาจบของโครงการ', required: true },
+    { id: 'rentalPrice', label: 'ราคาปล่อยเช่าในโครงการ', required: true },
+    { id: 'tenantNationality', label: 'ผู้เช่าเป็นประเทศอะไร', required: false },
+    { id: 'occupancyRate', label: 'คนพักอาศัยเกิน 80% ไหม', required: false },
+    { id: 'foreignQuotaRemaining', label: 'มีโควต้าต่างชาติเหลืออีกกี่ %', required: false },
+    { id: 'residentOccupation', label: 'อาชีพลูกบ้าน', required: false },
+    { id: 'debtClearanceCertFrequency', label: 'การขอใบปลอดหนี้ มีเยอะไหม', required: false },
+    { id: 'debtClearanceCertTime', label: 'ในการขอใบปลอดหนี้ ใช้เวลาเท่าไหร่', required: false },
+    { id: 'pros', label: 'ข้อดี', required: true, textArea: true },
+    { id: 'cons', label: 'ข้อเสีย', required: true, textArea: true }
+  ];
+  
+  // House Survey Form Fields
+  const houseSurveyFields = [
+    { id: 'projectName', label: 'ชื่อโครงการ', required: true },
+    { id: 'unitCount', label: 'จำนวนยูนิต', required: true },
+    { id: 'propertyType', label: 'ประเภท Type', required: true },
+    { id: 'projectAge', label: 'อายุโครงการกี่ปี', required: true },
+    { id: 'commonAreas', label: 'ส่วนกลางมีอะไรบ้าง', required: true },
+    { id: 'commonFee', label: 'ค่าส่วนกลาง / จ่ายยังไง', required: true },
+    { id: 'juristic', label: 'นิติบุคคล', required: true },
+    { id: 'juristicFeePercent', label: 'นิติบุคคลเก็บส่วนกลางได้กี่%', required: true },
+    { id: 'parkingInfo', label: 'เจอดได้กี่คัน ถ้าเกินต้องเสียคันละเท่าไหร่', required: true },
+    { id: 'finalPrice', label: 'ราคาจบของโครงการ', required: true },
+    { id: 'rentalPrice', label: 'ราคาปล่อยเช่าในโครงการ', required: true },
+    { id: 'renovatedHomes', label: 'มีบ้านรีโนเวทขายไหม', required: false },
+    { id: 'flooding', label: 'น้ำท่วมขังไหม', required: false },
+    { id: 'residentOccupation', label: 'อาชีพลูกบ้าน', required: false },
+    { id: 'pros', label: 'ข้อดี', required: true, textArea: true },
+    { id: 'cons', label: 'ข้อเสีย', required: true, textArea: true }
+  ];
+  
   // Sample data for senior agents (would come from API/database in real app)
   const seniorAgents = [
     { id: '1', name: 'Sarah Johnson' },
@@ -168,6 +229,17 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
     { id: '5', name: 'James Wilson' },
     { id: '6', name: 'Olivia Parker' },
     { id: '7', name: 'William Lee' },
+  ];
+  
+  // Sample data for projects (would come from API/database in real app)
+  const projectsData = [
+    { id: '1', name: 'Downtown Lofts' },
+    { id: '2', name: 'Riverside Condos' },
+    { id: '3', name: 'Parkview Heights' },
+    { id: '4', name: 'Mountain View' },
+    { id: '5', name: 'Ocean Breeze' },
+    { id: '6', name: 'Golden Hills' },
+    { id: '7', name: 'Silver Lake' },
   ];
   
   // Script evaluation form state
@@ -208,6 +280,21 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
     setCaseDateTime('');
     setCaseType('Survey');
     setCaseLesson('');
+  };
+  
+  // Reset Present Project form
+  const resetPresentProjectForm = () => {
+    setSelectedProject('');
+    setNewProjectName('');
+    setIsAddingNewProject(false);
+    setPresentationDateTime('');
+    setPresentationNotes('');
+  };
+  
+  // Reset Survey form
+  const resetSurveyForm = () => {
+    setSurveyPropertyType('Condo');
+    setSurveyFormData({});
   };
   
   // Move the hook calls to the top level of the component
@@ -334,6 +421,39 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
       
       // Open the academy learning view
       setIsAcademyLearningView(true);
+      setSelectedActionType(action);
+      
+      return;
+    }
+    
+    // Special case for Present Project action
+    if (action.id === 'presentProject') {
+      // Reset the form
+      resetPresentProjectForm();
+      
+      // Set current date/time as default
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      setPresentationDateTime(`${year}-${month}-${day}T${hours}:${minutes}`);
+      
+      // Open the present project view
+      setIsPresentProjectView(true);
+      setSelectedActionType(action);
+      
+      return;
+    }
+    
+    // Special case for Survey action
+    if (action.id === 'survey') {
+      // Reset the form
+      resetSurveyForm();
+      
+      // Open the survey view
+      setIsSurveyView(true);
       setSelectedActionType(action);
       
       return;
@@ -749,7 +869,89 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
     setIsRealCaseView(false);
     setIsOpen(false);
   };
-
+  
+  // Function to handle present project form submission
+  const handlePresentProjectSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Determine the final project name (either selected from dropdown or new entry)
+    const finalProjectName = isAddingNewProject ? newProjectName : selectedProject;
+    
+    const projectData = {
+      projectName: finalProjectName,
+      presentationDateTime,
+      presentationNotes
+    };
+    
+    console.log('Project presentation submitted:', projectData);
+    
+    // Show success message
+    toast({
+      title: "Project Presentation Recorded",
+      description: `Presentation for "${finalProjectName}" has been logged`,
+    });
+    
+    // Call the callback if provided
+    if (onActionLogged && selectedActionType) {
+      onActionLogged(selectedActionType);
+    }
+    
+    // Reset form and close panel
+    resetPresentProjectForm();
+    setIsPresentProjectView(false);
+    setIsOpen(false);
+  };
+  
+  // Function to handle survey form submission
+  const handleSurveySubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const surveyData = {
+      propertyType: surveyPropertyType,
+      ...surveyFormData
+    };
+    
+    console.log('Survey submitted:', surveyData);
+    
+    // Show success message
+    toast({
+      title: "Survey Recorded",
+      description: `Survey for ${surveyFormData.projectName || 'project'} (${surveyPropertyType}) has been logged`,
+    });
+    
+    // Call the callback if provided
+    if (onActionLogged && selectedActionType) {
+      onActionLogged(selectedActionType);
+    }
+    
+    // Reset form and close panel
+    resetSurveyForm();
+    setIsSurveyView(false);
+    setIsOpen(false);
+  };
+  
+  // Function to go back from present project to categories
+  const backFromPresentProject = () => {
+    setIsPresentProjectView(false);
+    setSelectedActionType(null);
+    resetPresentProjectForm();
+  };
+  
+  // Function to go back from survey to categories
+  const backFromSurvey = () => {
+    setIsSurveyView(false);
+    setSelectedActionType(null);
+    resetSurveyForm();
+  };
+  
+  // Function to handle survey form field changes
+  const handleSurveyFieldChange = (fieldId: string, value: string) => {
+    setSurveyFormData(prev => ({
+      ...prev,
+      [fieldId]: value
+    }));
+  };
+  
   // Shared content for both mobile and desktop
   const actionTrackerContent = (
     <div className="flex flex-col h-full">
@@ -1436,6 +1638,227 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
               </form>
             </div>
           </div>
+        ) : isPresentProjectView ? (
+          <div className="flex-1 flex flex-col px-6 pt-4 pb-6">
+            <div className="flex items-center mb-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 px-2"
+                onClick={backFromPresentProject}
+              >
+                <ChevronUp className="h-4 w-4 mr-1" />
+                Back
+              </Button>
+              <h4 className="font-medium flex items-center">
+                <HeartIcon className="h-5 w-5 mr-2 text-primary" />
+                Present Project
+              </h4>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto pr-2">
+              <form onSubmit={handlePresentProjectSubmit}>
+                <div className="space-y-6">
+                  {/* Project Selection */}
+                  <div className="space-y-2">
+                    <Label htmlFor="projectSelect">Project</Label>
+                    {!isAddingNewProject ? (
+                      <>
+                        <div className="relative">
+                          <Select
+                            value={selectedProject}
+                            onValueChange={(value) => setSelectedProject(value)}
+                            disabled={isAddingNewProject}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select a project" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {projectsData.map((project) => (
+                                <SelectItem key={project.id} value={project.name}>
+                                  {project.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="flex justify-end mt-2">
+                          <Button 
+                            type="button" 
+                            variant="link" 
+                            size="sm"
+                            className="h-auto p-0 text-xs"
+                            onClick={() => {
+                              setIsAddingNewProject(true);
+                              setSelectedProject('');
+                            }}
+                          >
+                            Project not listed? Add new project
+                          </Button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="space-y-2">
+                          <Input
+                            id="newProjectName"
+                            placeholder="Enter new project name"
+                            value={newProjectName}
+                            onChange={(e) => setNewProjectName(e.target.value)}
+                            required
+                          />
+                          <div className="flex justify-end">
+                            <Button
+                              type="button"
+                              variant="link"
+                              size="sm"
+                              className="h-auto p-0 text-xs"
+                              onClick={() => {
+                                setIsAddingNewProject(false);
+                                setNewProjectName('');
+                              }}
+                            >
+                              Back to existing projects
+                            </Button>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                  
+                  {/* Date and Time */}
+                  <div className="space-y-2">
+                    <Label htmlFor="presentationDateTime">Date & Time</Label>
+                    <Input
+                      id="presentationDateTime"
+                      type="datetime-local"
+                      value={presentationDateTime}
+                      onChange={(e) => setPresentationDateTime(e.target.value)}
+                      required
+                    />
+                  </div>
+                  
+                  {/* Presentation Notes */}
+                  <div className="space-y-2">
+                    <Label htmlFor="presentationNotes">Presentation Notes</Label>
+                    <Textarea 
+                      id="presentationNotes" 
+                      placeholder="Enter any notes or feedback from the presentation"
+                      rows={6}
+                      value={presentationNotes}
+                      onChange={(e) => setPresentationNotes(e.target.value)}
+                      required
+                    />
+                  </div>
+                  
+                  {/* Form Actions */}
+                  <div className="flex justify-end space-x-2 pt-4">
+                    <Button 
+                      type="submit"
+                      disabled={
+                        (isAddingNewProject ? !newProjectName : !selectedProject) || 
+                        !presentationDateTime || 
+                        !presentationNotes
+                      }
+                      className="w-full"
+                    >
+                      <Check className="h-4 w-4 mr-1" />
+                      Record Presentation
+                    </Button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        ) : isSurveyView ? (
+          <div className="flex-1 flex flex-col px-6 pt-4 pb-6">
+            <div className="flex items-center mb-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 px-2"
+                onClick={backFromSurvey}
+              >
+                <ChevronUp className="h-4 w-4 mr-1" />
+                Back
+              </Button>
+              <h4 className="font-medium flex items-center">
+                <HomeIcon className="h-5 w-5 mr-2 text-primary" />
+                Property Survey
+              </h4>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto pr-2">
+              <form onSubmit={handleSurveySubmit}>
+                <div className="space-y-6">
+                  {/* Property Type Selection */}
+                  <div className="space-y-2">
+                    <Label htmlFor="propertyType">Property Type</Label>
+                    <div className="flex space-x-2">
+                      <Button
+                        type="button"
+                        variant={surveyPropertyType === 'Condo' ? 'default' : 'outline'}
+                        className="flex-1"
+                        onClick={() => setSurveyPropertyType('Condo')}
+                      >
+                        Condo
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={surveyPropertyType === 'House' ? 'default' : 'outline'}
+                        className="flex-1"
+                        onClick={() => setSurveyPropertyType('House')}
+                      >
+                        House/Other
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  {/* Dynamic Form Fields Based on Property Type */}
+                  <div className="space-y-6">
+                    <ScrollArea className="h-[60vh] pr-4">
+                      {(surveyPropertyType === 'Condo' ? condoSurveyFields : houseSurveyFields).map((field) => (
+                        <div key={field.id} className="mb-4">
+                          <Label htmlFor={field.id} className="mb-1 block">
+                            {field.label} {field.required && <span className="text-red-500">*</span>}
+                          </Label>
+                          {field.textArea ? (
+                            <Textarea
+                              id={field.id}
+                              placeholder={field.label}
+                              value={surveyFormData[field.id] || ''}
+                              onChange={(e) => handleSurveyFieldChange(field.id, e.target.value)}
+                              required={field.required}
+                              rows={4}
+                            />
+                          ) : (
+                            <Input
+                              id={field.id}
+                              placeholder={field.label}
+                              value={surveyFormData[field.id] || ''}
+                              onChange={(e) => handleSurveyFieldChange(field.id, e.target.value)}
+                              required={field.required}
+                            />
+                          )}
+                        </div>
+                      ))}
+                    </ScrollArea>
+                  </div>
+                  
+                  {/* Form Actions */}
+                  <div className="flex justify-end space-x-2 pt-4 sticky bottom-0 bg-background pb-2">
+                    <Button 
+                      type="submit"
+                      className="w-full"
+                    >
+                      <Check className="h-4 w-4 mr-1" />
+                      Submit Survey
+                    </Button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
         ) : (
           <Tabs defaultValue="log" className="flex-1 flex flex-col">
             <div className="px-6 pt-4 pb-2">
@@ -1522,7 +1945,6 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
                                 action.category === 'owner' ? 'bg-green-100 text-green-800 hover:bg-green-200' :
                                 action.category === 'buyer' ? 'bg-purple-100 text-purple-800 hover:bg-purple-200' :
                                 action.category === 'marketing' ? 'bg-rose-100 text-rose-800 hover:bg-rose-200' :
-                                action.category === 'personal' ? 'bg-pink-100 text-pink-800 hover:bg-pink-200' :
                                 'bg-primary/20 text-primary hover:bg-primary/30'
                               } border-none`}>
                                 {action.category === 'personal' ? 'Self-Improvement' : `+${action.points} pts`}
