@@ -27,7 +27,7 @@ export type ActionType = {
   name: string;
   points: number;
   description: string;
-  category: 'product' | 'owner' | 'buyer' | 'marketing';
+  category: 'product' | 'owner' | 'buyer' | 'marketing' | 'personal';
   isAutomated: boolean;
   isFavorite?: boolean; // Track if action is favorited
 };
@@ -60,6 +60,16 @@ const actionTypes: ActionType[] = [
   { id: 'reel', name: 'Reel', points: 50, description: 'Social media reel created', category: 'marketing', isAutomated: false },
   { id: 'hometour', name: 'Hometour', points: 120, description: 'Home tour video created', category: 'marketing', isAutomated: false },
   { id: 'exclusive', name: 'Exclusive', points: 200, description: 'Exclusive listing agreement', category: 'marketing', isAutomated: false },
+  
+  // Personal
+  { id: 'presentProject', name: 'Present Project', points: 10, description: 'Practice presentation skills', category: 'personal', isAutomated: false },
+  { id: 'ownerScript', name: 'Owner Script', points: 15, description: 'Improve owner communication', category: 'personal', isAutomated: false },
+  { id: 'consultingScript', name: 'Consulting Script', points: 15, description: 'Develop consulting expertise', category: 'personal', isAutomated: false },
+  { id: 'buyerScript', name: 'Buyer Script', points: 15, description: 'Enhance buyer interactions', category: 'personal', isAutomated: false },
+  { id: 'homeAcademyLive', name: 'HOME Academy (Live)', points: 30, description: 'Attend in-person training', category: 'personal', isAutomated: false },
+  { id: 'homeAcademyOnline', name: 'HOME Academy (Online)', points: 20, description: 'Complete online training course', category: 'personal', isAutomated: false },
+  { id: 'homeAcademyVideo', name: 'HOME Academy (Video)', points: 15, description: 'Watch training video', category: 'personal', isAutomated: false },
+  { id: 'realCaseSenior', name: 'Real Case with Senior', points: 40, description: 'Learn from experienced agent', category: 'personal', isAutomated: false },
 ];
 
 // Mock data for the currently logged actions
@@ -87,7 +97,7 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'log' | 'history'>('log');
-  const [selectedCategory, setSelectedCategory] = useState<'product' | 'owner' | 'buyer' | 'marketing' | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<'product' | 'owner' | 'buyer' | 'marketing' | 'personal' | null>(null);
   
   // State for favorite actions
   const [favoriteActions, setFavoriteActions] = useState<string[]>([
@@ -140,7 +150,7 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
   const isAheadOfPace = pointsDifference >= 0;
   
   // Function to select a category
-  const selectCategory = (category: 'product' | 'owner' | 'buyer' | 'marketing') => {
+  const selectCategory = (category: 'product' | 'owner' | 'buyer' | 'marketing' | 'personal') => {
     setSelectedCategory(category);
   };
   
@@ -420,6 +430,7 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
       case 'owner': return <UserIcon className="h-5 w-5" />;
       case 'buyer': return <ShoppingCartIcon className="h-5 w-5" />;
       case 'marketing': return <MegaphoneIcon className="h-5 w-5" />;
+      case 'personal': return <HeartIcon className="h-5 w-5" />;
       default: return <ActivityIcon className="h-5 w-5" />;
     }
   };
@@ -431,6 +442,7 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
       case 'owner': return 'bg-green-100 text-green-800 border-green-200';
       case 'buyer': return 'bg-purple-100 text-purple-800 border-purple-200';
       case 'marketing': return 'bg-rose-100 text-rose-800 border-rose-200';
+      case 'personal': return 'bg-pink-100 text-pink-800 border-pink-200';
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
@@ -834,9 +846,10 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
                                 action.category === 'owner' ? 'bg-green-100 text-green-800 hover:bg-green-200' :
                                 action.category === 'buyer' ? 'bg-purple-100 text-purple-800 hover:bg-purple-200' :
                                 action.category === 'marketing' ? 'bg-rose-100 text-rose-800 hover:bg-rose-200' :
+                                action.category === 'personal' ? 'bg-pink-100 text-pink-800 hover:bg-pink-200' :
                                 'bg-primary/20 text-primary hover:bg-primary/30'
                               } border-none`}>
-                              +{action.points} pts
+                                {action.category === 'personal' ? 'Self-Improvement' : `+${action.points} pts`}
                               </Badge>
                           </div>
                         ))
@@ -889,7 +902,17 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
                       >
                         <MegaphoneIcon className="h-3.5 w-3.5 mr-1.5" />
                         <span>Marketing</span>
-                    </Button>
+                      </Button>
+                      
+                      <Button 
+                        variant="outline"
+                        size="sm"
+                        className="rounded-full border-pink-200 hover:bg-pink-50"
+                        onClick={() => selectCategory('personal')}
+                      >
+                        <HeartIcon className="h-3.5 w-3.5 mr-1.5" />
+                        <span>Personal</span>
+                      </Button>
                     </div>
                   </div>
                   
@@ -944,7 +967,7 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
                                   action.category === 'marketing' ? 'bg-rose-100 text-rose-800 hover:bg-rose-200' :
                                   'bg-primary/20 text-primary hover:bg-primary/30'
                                 } border-none`}>
-                                  +{action.points} pts
+                                  {action.category === 'personal' ? 'Self-Improvement' : `+${action.points} pts`}
                                 </Badge>
                         </div>
                       );
