@@ -36,6 +36,7 @@ export type ActionType = {
 const actionTypes: ActionType[] = [
   // Product
   { id: 'survey', name: 'Survey', points: 20, description: 'Property survey completed', category: 'product', isAutomated: true },
+  { id: 'lastMatch', name: 'Last Match', points: 25, description: 'Final property matching', category: 'product', isAutomated: true },
   
   // Owner
   { id: 'newList', name: 'New List', points: 5, description: 'New property listing', category: 'owner', isAutomated: true },
