@@ -21,6 +21,7 @@ import ListingDetailsDrawer from './ListingDetailsDrawer';
 import { useLeadsTableData, Lead } from '@/hooks/useLeadsTableData';
 import LeadDetailsDrawer from './LeadDetailsDrawer';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 // Define action metadata
 export type ActionType = {
@@ -151,6 +152,24 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
   const [lessonDateTime, setLessonDateTime] = useState('');
   const [lessonsLearned, setLessonsLearned] = useState('');
   
+  // State for Real Case with Senior
+  const [isRealCaseView, setIsRealCaseView] = useState(false);
+  const [seniorName, setSeniorName] = useState('');
+  const [caseDateTime, setCaseDateTime] = useState('');
+  const [caseType, setCaseType] = useState('Survey');
+  const [caseLesson, setCaseLesson] = useState('');
+  
+  // Sample data for senior agents (would come from API/database in real app)
+  const seniorAgents = [
+    { id: '1', name: 'Sarah Johnson' },
+    { id: '2', name: 'Michael Chen' },
+    { id: '3', name: 'David Rodriguez' },
+    { id: '4', name: 'Emma Thompson' },
+    { id: '5', name: 'James Wilson' },
+    { id: '6', name: 'Olivia Parker' },
+    { id: '7', name: 'William Lee' },
+  ];
+  
   // Script evaluation form state
   const [wording, setWording] = useState<number>(0);
   const [tonality, setTonality] = useState<number>(0);
@@ -181,6 +200,14 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
     setLessonName('');
     setLessonDateTime('');
     setLessonsLearned('');
+  };
+  
+  // Reset Real Case form
+  const resetRealCaseForm = () => {
+    setSeniorName('');
+    setCaseDateTime('');
+    setCaseType('Survey');
+    setCaseLesson('');
   };
   
   // Move the hook calls to the top level of the component
@@ -307,6 +334,27 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
       
       // Open the academy learning view
       setIsAcademyLearningView(true);
+      setSelectedActionType(action);
+      
+      return;
+    }
+    
+    // Special case for Real Case with Senior action
+    if (action.id === 'realCaseSenior') {
+      // Reset the form
+      resetRealCaseForm();
+      
+      // Set current date/time as default
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      setCaseDateTime(`${year}-${month}-${day}T${hours}:${minutes}`);
+      
+      // Open the real case view
+      setIsRealCaseView(true);
       setSelectedActionType(action);
       
       return;
@@ -663,6 +711,43 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
     setIsAcademyLearningView(false);
     setSelectedActionType(null);
     resetAcademyForm();
+  };
+  
+  // Function to go back from real case to categories
+  const backFromRealCase = () => {
+    setIsRealCaseView(false);
+    setSelectedActionType(null);
+    resetRealCaseForm();
+  };
+  
+  // Function to handle real case form submission
+  const handleRealCaseSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const realCaseData = {
+      seniorName,
+      caseDateTime,
+      caseType,
+      caseLesson
+    };
+    
+    console.log('Real case with senior submitted:', realCaseData);
+    
+    // Show success message
+    toast({
+      title: "Case Experience Recorded",
+      description: `${caseType} case with ${seniorName} has been logged`,
+    });
+    
+    // Call the callback if provided
+    if (onActionLogged && selectedActionType) {
+      onActionLogged(selectedActionType);
+    }
+    
+    // Reset form and close panel
+    resetRealCaseForm();
+    setIsRealCaseView(false);
+    setIsOpen(false);
   };
 
   // Shared content for both mobile and desktop
@@ -1243,6 +1328,108 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
                     >
                       <Check className="h-4 w-4 mr-1" />
                       Record Learning
+                    </Button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        ) : isRealCaseView ? (
+          <div className="flex-1 flex flex-col px-6 pt-4 pb-6">
+            <div className="flex items-center mb-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 px-2"
+                onClick={backFromRealCase}
+              >
+                <ChevronUp className="h-4 w-4 mr-1" />
+                Back
+              </Button>
+              <h4 className="font-medium flex items-center">
+                <HeartIcon className="h-5 w-5 mr-2 text-primary" />
+                Real Case with Senior
+              </h4>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto pr-2">
+              <form onSubmit={handleRealCaseSubmit}>
+                <div className="space-y-6">
+                  {/* Senior Name */}
+                  <div className="space-y-2">
+                    <Label htmlFor="seniorName">Senior Name</Label>
+                    <Select
+                      value={seniorName}
+                      onValueChange={(value) => setSeniorName(value)}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select senior agent" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {seniorAgents.map((agent) => (
+                          <SelectItem key={agent.id} value={agent.name}>
+                            {agent.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  {/* Date and Time */}
+                  <div className="space-y-2">
+                    <Label htmlFor="caseDateTime">Date & Time</Label>
+                    <Input
+                      id="caseDateTime"
+                      type="datetime-local"
+                      value={caseDateTime}
+                      onChange={(e) => setCaseDateTime(e.target.value)}
+                      required
+                    />
+                  </div>
+                  
+                  {/* Case Type */}
+                  <div className="space-y-2">
+                    <Label htmlFor="caseType">Case Type</Label>
+                    <Select
+                      value={caseType}
+                      onValueChange={(value) => setCaseType(value)}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select case type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Survey">Survey</SelectItem>
+                        <SelectItem value="Owner Visit">Owner Visit</SelectItem>
+                        <SelectItem value="Showing">Showing</SelectItem>
+                        <SelectItem value="Agreement">Agreement</SelectItem>
+                        <SelectItem value="Transfer">Transfer</SelectItem>
+                        <SelectItem value="Other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  {/* Case Lesson */}
+                  <div className="space-y-2">
+                    <Label htmlFor="caseLesson">Case Lesson</Label>
+                    <Textarea 
+                      id="caseLesson" 
+                      placeholder="Enter the case lesson"
+                      rows={6}
+                      value={caseLesson}
+                      onChange={(e) => setCaseLesson(e.target.value)}
+                      required
+                    />
+                  </div>
+                  
+                  {/* Form Actions */}
+                  <div className="flex justify-end space-x-2 pt-4">
+                    <Button 
+                      type="submit"
+                      disabled={!seniorName || !caseDateTime || !caseType || !caseLesson}
+                      className="w-full"
+                    >
+                      <Check className="h-4 w-4 mr-1" />
+                      Record Case
                     </Button>
                   </div>
                 </div>
