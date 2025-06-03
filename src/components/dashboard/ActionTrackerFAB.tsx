@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { PlusIcon, TargetIcon, XIcon, ClipboardCheckIcon, CheckIcon, InfoIcon, CalendarIcon, HistoryIcon, ActivityIcon, HomeIcon, UserIcon, ShoppingCartIcon, MegaphoneIcon, ChevronUp, HeartIcon, Star, Search } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { PlusIcon, TargetIcon, XIcon, ClipboardCheckIcon, CheckIcon, InfoIcon, CalendarIcon, HistoryIcon, ActivityIcon, HomeIcon, UserIcon, ShoppingCartIcon, MegaphoneIcon, ChevronUp, HeartIcon, Star, Search, UploadCloud, X, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
@@ -20,6 +20,7 @@ import { useListingsTableData, Listing } from '@/hooks/useListingsTableData';
 import ListingDetailsDrawer from './ListingDetailsDrawer';
 import { useLeadsTableData, Lead } from '@/hooks/useLeadsTableData';
 import LeadDetailsDrawer from './LeadDetailsDrawer';
+import { Label } from '@/components/ui/label';
 
 // Define action metadata
 export type ActionType = {
@@ -89,6 +90,16 @@ type ActionTrackerFABProps = {
   targetMonthPoints?: number;
 };
 
+// Define the script evaluation data type
+type ScriptEvaluationData = {
+  wording: number;
+  tonality: number;
+  rapport: number;
+  averageScore: number;
+  attachment?: File | null;
+  remark: string;
+};
+
 const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({ 
   onActionLogged,
   currentMonthPoints = 1250,
@@ -128,6 +139,49 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
   // State for ListingDetailsDrawer
   const [isListingDetailsDrawerOpen, setIsListingDetailsDrawerOpen] = useState(false);
   const [listingDetailsDrawerActiveTab, setListingDetailsDrawerActiveTab] = useState<'details' | 'photo' | 'location' | 'aexclusive' | 'activity'>('details');
+  
+  // State for Script Evaluation
+  const [isScriptEvaluationView, setIsScriptEvaluationView] = useState(false);
+  const [selectedScriptType, setSelectedScriptType] = useState<'Owner Script' | 'Consulting Script' | 'Buyer Script'>('Owner Script');
+  
+  // State for Academy Learning
+  const [isAcademyLearningView, setIsAcademyLearningView] = useState(false);
+  const [selectedAcademyType, setSelectedAcademyType] = useState<'HOME Academy (Live)' | 'HOME Academy (Online)' | 'HOME Academy (Video)'>('HOME Academy (Live)');
+  const [lessonName, setLessonName] = useState('');
+  const [lessonDateTime, setLessonDateTime] = useState('');
+  const [lessonsLearned, setLessonsLearned] = useState('');
+  
+  // Script evaluation form state
+  const [wording, setWording] = useState<number>(0);
+  const [tonality, setTonality] = useState<number>(0);
+  const [rapport, setRapport] = useState<number>(0);
+  const [averageScore, setAverageScore] = useState<number>(0);
+  const [attachment, setAttachment] = useState<File | null>(null);
+  const [remark, setRemark] = useState<string>('');
+  const [attachmentName, setAttachmentName] = useState<string>('');
+  
+  // Calculate average score whenever individual scores change
+  useEffect(() => {
+    const newAverage = (wording + tonality + rapport) / 3;
+    setAverageScore(Math.round(newAverage));
+  }, [wording, tonality, rapport]);
+  
+  // Reset script evaluation form
+  const resetScriptEvaluationForm = () => {
+    setWording(0);
+    setTonality(0);
+    setRapport(0);
+    setAttachment(null);
+    setAttachmentName('');
+    setRemark('');
+  };
+  
+  // Reset Academy form
+  const resetAcademyForm = () => {
+    setLessonName('');
+    setLessonDateTime('');
+    setLessonsLearned('');
+  };
   
   // Move the hook calls to the top level of the component
   const listingsData = useListingsTableData();
@@ -207,6 +261,57 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
   
   // Modified function to handle action clicks
   const handleActionClick = (action: ActionType) => {
+    // Special case for script evaluation actions
+    if (action.id === 'ownerScript' || action.id === 'consultingScript' || action.id === 'buyerScript') {
+      // Set the script type based on the action ID
+      if (action.id === 'ownerScript') {
+        setSelectedScriptType('Owner Script');
+      } else if (action.id === 'consultingScript') {
+        setSelectedScriptType('Consulting Script');
+      } else {
+        setSelectedScriptType('Buyer Script');
+      }
+      
+      // Reset the form
+      resetScriptEvaluationForm();
+      
+      // Open the script evaluation view
+      setIsScriptEvaluationView(true);
+      setSelectedActionType(action);
+      
+      return;
+    }
+    
+    // Special case for HOME Academy actions
+    if (action.id === 'homeAcademyLive' || action.id === 'homeAcademyOnline' || action.id === 'homeAcademyVideo') {
+      // Set the academy type based on the action ID
+      if (action.id === 'homeAcademyLive') {
+        setSelectedAcademyType('HOME Academy (Live)');
+      } else if (action.id === 'homeAcademyOnline') {
+        setSelectedAcademyType('HOME Academy (Online)');
+      } else {
+        setSelectedAcademyType('HOME Academy (Video)');
+      }
+      
+      // Reset the form
+      resetAcademyForm();
+      
+      // Set current date/time as default
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      setLessonDateTime(`${year}-${month}-${day}T${hours}:${minutes}`);
+      
+      // Open the academy learning view
+      setIsAcademyLearningView(true);
+      setSelectedActionType(action);
+      
+      return;
+    }
+    
     // Special case for 'newList' action - open the AddListingModal
     if (action.id === 'newList') {
       setActiveModalTab('basic-info');
@@ -282,7 +387,7 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
     // Notify the user
     toast({
       title: "Action Logged",
-      description: `${action.name} (+${action.points} points)`,
+      description: `${action.name} (+${action.points} pts)`,
     });
     
     // Call the callback if provided
@@ -448,6 +553,118 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
     }
   };
 
+  // Script evaluation form handlers
+  const handleWordingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = Math.min(100, Math.max(0, parseInt(e.target.value) || 0));
+    setWording(value);
+  };
+  
+  const handleTonalityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = Math.min(100, Math.max(0, parseInt(e.target.value) || 0));
+    setTonality(value);
+  };
+  
+  const handleRapportChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = Math.min(100, Math.max(0, parseInt(e.target.value) || 0));
+    setRapport(value);
+  };
+  
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setAttachment(file);
+      setAttachmentName(file.name);
+    }
+  };
+  
+  const handleRemoveFile = () => {
+    setAttachment(null);
+    setAttachmentName('');
+  };
+  
+  const handleScriptEvaluationSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const scriptData: ScriptEvaluationData = {
+      wording,
+      tonality,
+      rapport,
+      averageScore,
+      attachment,
+      remark
+    };
+    
+    console.log('Script evaluation submitted:', scriptData);
+    
+    // Show success message
+    toast({
+      title: "Evaluation Submitted",
+      description: `${selectedScriptType} evaluation recorded with score: ${averageScore}%`,
+    });
+    
+    // Call the callback if provided
+    if (onActionLogged && selectedActionType) {
+      onActionLogged(selectedActionType);
+    }
+    
+    // Reset form and close panel
+    resetScriptEvaluationForm();
+    setIsScriptEvaluationView(false);
+    setIsOpen(false);
+  };
+  
+  // Function to go back from script evaluation to categories
+  const backFromScriptEvaluation = () => {
+    setIsScriptEvaluationView(false);
+    setSelectedActionType(null);
+    resetScriptEvaluationForm();
+  };
+  
+  // Helper function to get score color class
+  const getScoreColorClass = (score: number) => {
+    if (score >= 80) return 'bg-green-500';
+    if (score >= 60) return 'bg-yellow-500';
+    if (score >= 40) return 'bg-orange-500';
+    return 'bg-red-500';
+  };
+
+  // Function to handle academy learning form submission
+  const handleAcademySubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const academyData = {
+      type: selectedAcademyType,
+      lessonName,
+      lessonDateTime,
+      lessonsLearned
+    };
+    
+    console.log('Academy learning submitted:', academyData);
+    
+    // Show success message
+    toast({
+      title: "Learning Recorded",
+      description: `${selectedAcademyType} session "${lessonName}" has been logged`,
+    });
+    
+    // Call the callback if provided
+    if (onActionLogged && selectedActionType) {
+      onActionLogged(selectedActionType);
+    }
+    
+    // Reset form and close panel
+    resetAcademyForm();
+    setIsAcademyLearningView(false);
+    setIsOpen(false);
+  };
+  
+  // Function to go back from academy learning to categories
+  const backFromAcademy = () => {
+    setIsAcademyLearningView(false);
+    setSelectedActionType(null);
+    resetAcademyForm();
+  };
+
   // Shared content for both mobile and desktop
   const actionTrackerContent = (
     <div className="flex flex-col h-full">
@@ -517,7 +734,7 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
           </div>
         </div>
         
-        {/* Content - either listing/lead selection or normal action tabs */}
+        {/* Content - either listing/lead selection, script evaluation, or normal action tabs */}
         {isListingSelectionView ? (
           <div className="flex-1 flex flex-col px-6 pt-4 pb-6">
             <div className="flex items-center mb-4">
@@ -759,6 +976,277 @@ const ActionTrackerFAB: React.FC<ActionTrackerFABProps> = ({
               >
                 Proceed with Selected Lead
               </Button>
+            </div>
+          </div>
+        ) : isScriptEvaluationView ? (
+          <div className="flex-1 flex flex-col px-6 pt-4 pb-6">
+            <div className="flex items-center mb-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 px-2"
+                onClick={backFromScriptEvaluation}
+              >
+                <ChevronUp className="h-4 w-4 mr-1" />
+                Back
+              </Button>
+              <h4 className="font-medium flex items-center">
+                <HeartIcon className="h-5 w-5 mr-2 text-primary" />
+                {selectedScriptType} Evaluation
+              </h4>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto pr-2">
+              <form onSubmit={handleScriptEvaluationSubmit}>
+                <div className="space-y-6">
+                  {/* Score Metrics */}
+                  <div className="space-y-4">
+                    <h3 className="text-base font-medium">Performance Metrics</h3>
+                    
+                    {/* Wording */}
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <Label htmlFor="wording">Wording</Label>
+                        <span className="text-sm font-medium">{wording}%</span>
+                      </div>
+                      <div className="flex space-x-3 items-center">
+                        <Input
+                          id="wording"
+                          type="number"
+                          min="0"
+                          max="100"
+                          value={wording}
+                          onChange={handleWordingChange}
+                          className="w-24"
+                        />
+                        <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div 
+                            className={`h-full ${getScoreColorClass(wording)}`} 
+                            style={{ width: `${wording}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Tonality */}
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <Label htmlFor="tonality">Tonality</Label>
+                        <span className="text-sm font-medium">{tonality}%</span>
+                      </div>
+                      <div className="flex space-x-3 items-center">
+                        <Input
+                          id="tonality"
+                          type="number"
+                          min="0"
+                          max="100"
+                          value={tonality}
+                          onChange={handleTonalityChange}
+                          className="w-24"
+                        />
+                        <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div 
+                            className={`h-full ${getScoreColorClass(tonality)}`} 
+                            style={{ width: `${tonality}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Rapport */}
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <Label htmlFor="rapport">Rapport</Label>
+                        <span className="text-sm font-medium">{rapport}%</span>
+                      </div>
+                      <div className="flex space-x-3 items-center">
+                        <Input
+                          id="rapport"
+                          type="number"
+                          min="0"
+                          max="100"
+                          value={rapport}
+                          onChange={handleRapportChange}
+                          className="w-24"
+                        />
+                        <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div 
+                            className={`h-full ${getScoreColorClass(rapport)}`} 
+                            style={{ width: `${rapport}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Average Score */}
+                    <Card className="p-4 mt-4">
+                      <div className="flex justify-between items-center mb-2">
+                        <h4 className="font-semibold">Average Score</h4>
+                        <span className={`text-lg font-bold ${
+                          averageScore >= 80 ? 'text-green-600' :
+                          averageScore >= 60 ? 'text-yellow-600' :
+                          averageScore >= 40 ? 'text-orange-600' :
+                          'text-red-600'
+                        }`}>{averageScore}%</span>
+                      </div>
+                      <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full ${getScoreColorClass(averageScore)}`} 
+                          style={{ width: `${averageScore}%` }}
+                        ></div>
+                      </div>
+                    </Card>
+                  </div>
+                  
+                  {/* File Attachment */}
+                  <div className="space-y-2">
+                    <Label htmlFor="attachment">Recording Attachment</Label>
+                    <div className="border-2 border-dashed rounded-md p-4 text-center">
+                      {!attachment ? (
+                        <>
+                          <UploadCloud className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                          <p className="text-sm text-muted-foreground">
+                            Drag & drop or click to attach an audio recording
+                          </p>
+                          <Input 
+                            id="attachment" 
+                            type="file" 
+                            accept="audio/*,.mp3,.wav,.m4a"
+                            className="hidden" 
+                            onChange={handleFileChange}
+                          />
+                          <Button 
+                            type="button" 
+                            variant="outline" 
+                            size="sm" 
+                            className="mt-2"
+                            onClick={() => document.getElementById('attachment')?.click()}
+                          >
+                            Select File
+                          </Button>
+                        </>
+                      ) : (
+                        <div className="flex items-center justify-between bg-muted/30 p-2 rounded">
+                          <div className="flex items-center">
+                            <div className="bg-primary/10 p-2 rounded mr-2">
+                              <UploadCloud className="h-4 w-4 text-primary" />
+                            </div>
+                            <span className="text-sm font-medium truncate max-w-[200px]">
+                              {attachmentName}
+                            </span>
+                          </div>
+                          <Button 
+                            type="button" 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={handleRemoveFile}
+                            className="h-8 w-8 p-0"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Remarks */}
+                  <div className="space-y-2">
+                    <Label htmlFor="remark">Remarks from Mentor/Leader</Label>
+                    <Textarea 
+                      id="remark" 
+                      placeholder="Add feedback or comments from your mentor..."
+                      rows={4}
+                      value={remark}
+                      onChange={(e) => setRemark(e.target.value)}
+                    />
+                  </div>
+                  
+                  {/* Form Actions */}
+                  <div className="flex justify-end space-x-2 pt-4">
+                    <Button 
+                      type="submit"
+                      disabled={wording === 0 && tonality === 0 && rapport === 0}
+                      className="w-full"
+                    >
+                      <Check className="h-4 w-4 mr-1" />
+                      Submit Evaluation
+                    </Button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        ) : isAcademyLearningView ? (
+          <div className="flex-1 flex flex-col px-6 pt-4 pb-6">
+            <div className="flex items-center mb-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 px-2"
+                onClick={backFromAcademy}
+              >
+                <ChevronUp className="h-4 w-4 mr-1" />
+                Back
+              </Button>
+              <h4 className="font-medium flex items-center">
+                <HeartIcon className="h-5 w-5 mr-2 text-primary" />
+                {selectedAcademyType}
+              </h4>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto pr-2">
+              <form onSubmit={handleAcademySubmit}>
+                <div className="space-y-6">
+                  {/* Lesson Name */}
+                  <div className="space-y-2">
+                    <Label htmlFor="lessonName">Lesson Name</Label>
+                    <Input
+                      id="lessonName"
+                      placeholder="Enter the name of the lesson or course"
+                      value={lessonName}
+                      onChange={(e) => setLessonName(e.target.value)}
+                      required
+                    />
+                  </div>
+                  
+                  {/* Date and Time */}
+                  <div className="space-y-2">
+                    <Label htmlFor="lessonDateTime">Date & Time</Label>
+                    <Input
+                      id="lessonDateTime"
+                      type="datetime-local"
+                      value={lessonDateTime}
+                      onChange={(e) => setLessonDateTime(e.target.value)}
+                      required
+                    />
+                  </div>
+                  
+                  {/* Lessons Learned */}
+                  <div className="space-y-2">
+                    <Label htmlFor="lessonsLearned">Lessons Learned</Label>
+                    <Textarea 
+                      id="lessonsLearned" 
+                      placeholder="What did you learn from this session? What are the key takeaways?"
+                      rows={6}
+                      value={lessonsLearned}
+                      onChange={(e) => setLessonsLearned(e.target.value)}
+                      required
+                    />
+                  </div>
+                  
+                  {/* Form Actions */}
+                  <div className="flex justify-end pt-4">
+                    <Button 
+                      type="submit"
+                      disabled={!lessonName || !lessonDateTime || !lessonsLearned}
+                      className="w-full"
+                    >
+                      <Check className="h-4 w-4 mr-1" />
+                      Record Learning
+                    </Button>
+                  </div>
+                </div>
+              </form>
             </div>
           </div>
         ) : (
