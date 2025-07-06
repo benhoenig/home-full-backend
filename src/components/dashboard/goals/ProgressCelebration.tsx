@@ -5,7 +5,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import confetti from 'canvas-confetti';
 
 // Define milestone types
 export type Milestone = {
@@ -22,7 +21,6 @@ type ProgressCelebrationProps = {
   previousProgress?: number;
   milestones: Milestone[];
   onClose?: () => void;
-  showConfetti?: boolean;
 };
 
 const ProgressCelebration: React.FC<ProgressCelebrationProps> = ({
@@ -32,7 +30,6 @@ const ProgressCelebration: React.FC<ProgressCelebrationProps> = ({
   previousProgress = 0,
   milestones,
   onClose,
-  showConfetti = true,
 }) => {
   const [animatedProgress, setAnimatedProgress] = useState(previousProgress);
   const [celebratingMilestone, setCelebratingMilestone] = useState<Milestone | null>(null);
@@ -47,37 +44,8 @@ const ProgressCelebration: React.FC<ProgressCelebrationProps> = ({
     if (reachedMilestones.length > 0) {
       setCelebratingMilestone(reachedMilestones[0]);
       setShowCelebration(true);
-      
-      // Show confetti if enabled
-      if (showConfetti) {
-        const duration = 3 * 1000;
-        const end = Date.now() + duration;
-        
-        const frame = () => {
-          confetti({
-            particleCount: 2,
-            angle: 60,
-            spread: 55,
-            origin: { x: 0 },
-            colors: ['#26ccff', '#a25afd', '#ff5e7e', '#88ff5a', '#fcff42', '#ffa62d', '#ff36ff']
-          });
-          confetti({
-            particleCount: 2,
-            angle: 120,
-            spread: 55,
-            origin: { x: 1 },
-            colors: ['#26ccff', '#a25afd', '#ff5e7e', '#88ff5a', '#fcff42', '#ffa62d', '#ff36ff']
-          });
-          
-          if (Date.now() < end) {
-            requestAnimationFrame(frame);
-          }
-        };
-        
-        frame();
-      }
     }
-  }, [progress, previousProgress, milestones, showConfetti]);
+  }, [progress, previousProgress, milestones]);
   
   // Animate progress bar
   useEffect(() => {
