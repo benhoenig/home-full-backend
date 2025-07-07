@@ -2,18 +2,18 @@ import React from 'react';
 import { Dialog } from "@/components/ui/dialog";
 import ListingDetailsDrawer from './ListingDetailsDrawer';
 import { Listing, defaultVisibleColumns, defaultColumnOrder } from '@/hooks/useListingsTableData';
-import ListingsTableHeader from './listings-table/ListingsTableHeader';
+import AllListingsTableHeader from './listings-table/AllListingsTableHeader';
 import ListingsTableContent from './listings-table/ListingsTableContent';
 import ColumnCustomizer from './listings-table/ColumnCustomizer';
 import { useTableColumns, allColumns } from './listings-table/useTableColumns';
 import { useListingsTableState } from './listings-table/hooks/useListingsTableState';
 import { useTableColumnsEnhancer } from './listings-table/hooks/useTableColumnsEnhancer';
 
-type ListingsTableProps = {
+type AllListingsTableProps = {
   data: Listing[];
 };
 
-export function ListingsTable({ data: initialData }: ListingsTableProps) {
+export function AllListingsTable({ data: initialData }: AllListingsTableProps) {
   const {
     data,
     selectedListingType,
@@ -46,7 +46,7 @@ export function ListingsTable({ data: initialData }: ListingsTableProps) {
   
   return (
     <div className="data-card">
-      <ListingsTableHeader 
+      <AllListingsTableHeader 
         isCustomizeDialogOpen={isCustomizeDialogOpen}
         setIsCustomizeDialogOpen={setIsCustomizeDialogOpen}
         selectedListingType={selectedListingType}
@@ -82,4 +82,4 @@ export function ListingsTable({ data: initialData }: ListingsTableProps) {
   );
 }
 
-export default ListingsTable; 
+export default AllListingsTable; 

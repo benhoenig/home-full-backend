@@ -7,3 +7,4 @@ export { default as LeaderboardTable } from './LeaderboardTable';
 export { default as MobileLeaderboardTable } from './MobileLeaderboardTable';
 export { default as AchieversModal } from './AchieversModal';
 export { default as LeaderboardTabs } from './LeaderboardTabs';
+export { default as AchievementTab } from './AchievementTab';

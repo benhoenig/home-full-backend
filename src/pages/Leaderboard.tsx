@@ -25,6 +25,7 @@ import {
   MobileLeaderboardTable,
   AchieversModal,
   LeaderboardTabs,
+  AchievementTab,
   achieversList,
   newSalesData,
   ActiveTabType,
@@ -233,10 +234,7 @@ const Leaderboard = () => {
       )}
       
       {activeTab === 'achievement' && (
-        <div className="pt-4 px-2">
-          <h1 className="text-2xl font-bold mb-4">Achievement Board</h1>
-          <p className="text-gray-500">This section is under development.</p>
-        </div>
+        <AchievementTab />
       )}
       
       {activeTab === 'newSales' && (

@@ -1,15 +1,41 @@
 import { useState, useEffect } from 'react';
 import { Listing, defaultColumnOrder, defaultVisibleColumns } from '@/hooks/useListingsTableData';
+import { Button } from '@/components/ui/button';
+import { Star } from 'lucide-react';
 
 export type Column = {
   header: string;
   accessorKey: keyof Listing;
+  cell?: (listing: Listing) => React.ReactNode;
+  className?: string;
 };
 
-// Define all possible columns
+// Define all possible columns without the star column functionality
 export const allColumns: Column[] = [
   // Basic listing information
   { header: "Listing Code", accessorKey: "listingCode" },
+  { 
+    header: "Thumbnail", 
+    accessorKey: "thumbnailUrl",
+    cell: (listing: Listing) => {
+      return (
+        <div className="relative w-12 h-12 overflow-hidden rounded-md">
+          {listing.thumbnailUrl ? (
+            <img 
+              src={listing.thumbnailUrl} 
+              alt={`Thumbnail for ${listing.listingName}`}
+              className="object-cover w-full h-full"
+            />
+          ) : (
+            <div className="flex items-center justify-center w-full h-full bg-muted">
+              <span className="text-xs text-muted-foreground">No image</span>
+            </div>
+          )}
+        </div>
+      );
+    },
+    className: "w-[80px]"
+  },
   { header: "Marketing Status", accessorKey: "marketingStatus" },
   { header: "Months On Sale", accessorKey: "monthsOnSale" },
   { header: "Listing Type", accessorKey: "listingType" },
@@ -67,17 +93,32 @@ export const allColumns: Column[] = [
   { header: "Created Time", accessorKey: "createdTime" },
   { header: "Last Modified Time", accessorKey: "lastModifiedTime" },
   { header: "Assigned To", accessorKey: "assignedTo" },
+  { header: "Star", accessorKey: "isStarred" }, // Basic definition without the cell renderer
 ];
 
-export const useTableColumns = () => {
+export const useTableColumns = (
+  handleStarToggle?: (listing: Listing) => void,
+  customVisibleColumns?: (keyof Listing)[],
+  customColumnOrder?: (keyof Listing)[]
+) => {
   const [visibleColumns, setVisibleColumns] = useState<(keyof Listing)[]>(() => {
     const savedColumns = localStorage.getItem('listingTableColumns');
-    return savedColumns ? JSON.parse(savedColumns) : defaultVisibleColumns;
+    // Clear any potentially corrupted localStorage
+    if (savedColumns) {
+      localStorage.removeItem('listingTableColumns');
+    }
+    // Use custom columns if provided, otherwise use defaults
+    return customVisibleColumns || defaultVisibleColumns;
   });
   
   const [columnOrder, setColumnOrder] = useState<(keyof Listing)[]>(() => {
     const savedOrder = localStorage.getItem('listingTableColumnOrder');
-    return savedOrder ? JSON.parse(savedOrder) : defaultColumnOrder;
+    // Clear any potentially corrupted localStorage
+    if (savedOrder) {
+      localStorage.removeItem('listingTableColumnOrder');
+    }
+    // Use custom order if provided, otherwise use defaults
+    return customColumnOrder || defaultColumnOrder;
   });
   
   // Generate columns array whenever visibleColumns or columnOrder changes
@@ -97,6 +138,34 @@ export const useTableColumns = () => {
     
     // Map the sorted keys to the actual column objects
     return visibleColumnKeys.map(key => {
+      // For the star column, add the custom cell renderer if handleStarToggle is provided
+      if (key === 'isStarred' && handleStarToggle) {
+        return {
+          header: "Star",
+          accessorKey: key,
+          cell: (listing: Listing) => {
+            return (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent row click
+                  handleStarToggle(listing);
+                }}
+              >
+                {listing.isStarred ? (
+                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                ) : (
+                  <Star className="h-4 w-4 text-muted-foreground" />
+                )}
+              </Button>
+            );
+          },
+          className: "w-[50px]"
+        };
+      }
+      
       return allColumns.find(col => col.accessorKey === key)!;
     }).filter(Boolean);
   })();

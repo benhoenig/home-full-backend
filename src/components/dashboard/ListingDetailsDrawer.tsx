@@ -24,6 +24,7 @@ type ListingDetailsDrawerProps = {
   onClose: () => void;
   listing: Listing | null;
   initialTab?: TabType;
+  onStarToggle?: (listing: Listing) => void;
 };
 
 type TabType = 'details' | 'photo' | 'location' | 'aexclusive' | 'activity';
@@ -38,7 +39,7 @@ const defaultCustomTags = [
   { name: "Owner Visit", color: "bg-green-600" },
 ];
 
-const ListingDetailsDrawer = ({ isOpen, onClose, listing, initialTab = 'details' }: ListingDetailsDrawerProps) => {
+const ListingDetailsDrawer = ({ isOpen, onClose, listing, initialTab = 'details', onStarToggle }: ListingDetailsDrawerProps) => {
   const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState<TabType>(initialTab);
   
@@ -106,8 +107,9 @@ const ListingDetailsDrawer = ({ isOpen, onClose, listing, initialTab = 'details'
   if (!listing) return null;
 
   const handleStarToggle = () => {
-    // This would be replaced with actual star toggle logic
-    console.log('Toggle star for listing:', listing.listingCode);
+    if (listing && onStarToggle) {
+      onStarToggle(listing);
+    }
   };
   
   const handleEditListing = () => {
@@ -410,9 +412,300 @@ const ListingDetailsDrawer = ({ isOpen, onClose, listing, initialTab = 'details'
                 
                 <TabsContent value="aexclusive" className="m-0 h-full overflow-y-auto">
                   <div className="p-6 space-y-6">
-                    <div className="flex flex-col items-center justify-center h-40 border-2 border-dashed rounded-md">
-                      <Crown className="h-10 w-10 text-muted-foreground mb-2" />
-                      <p className="text-center text-muted-foreground">A & Exclusive information will be displayed here</p>
+                    {/* Listing Classification */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-medium">Listing Classification</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm font-medium">Listing Type</p>
+                          <p className="text-sm text-muted-foreground">{listing.listingType}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">Property Hook</p>
+                          <p className="text-sm text-muted-foreground">
+                            {listing.propertyHook || <span className="italic text-gray-400">Not specified</span>}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">Hashtags</p>
+                          {listing.hashtags && listing.hashtags.length > 0 ? (
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {listing.hashtags.map((tag, index) => (
+                                <Badge key={index} variant="outline" className="text-xs">
+                                  #{tag}
+                                </Badge>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-sm italic text-gray-400">No hashtags</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <Separator />
+                    
+                    {/* Market Comparison */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-medium">Market Comparison</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm font-medium">Asking Price</p>
+                          <p className="text-sm text-muted-foreground">{formatCurrency(listing.askingPrice)}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">Last Match</p>
+                          <p className="text-sm text-muted-foreground">
+                            {listing.lastMatch ? formatCurrency(listing.lastMatch) : <span className="italic text-gray-400">Not specified</span>}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">% Difference</p>
+                          {listing.lastMatchDiff ? (
+                            <p className={`text-sm ${listing.lastMatchDiff > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                              {listing.lastMatchDiff > 0 ? '+' : ''}{listing.lastMatchDiff}%
+                            </p>
+                          ) : (
+                            <p className="text-sm italic text-gray-400">Not calculated</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <Separator />
+                    
+                    {/* Property Features */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-medium">Property Features</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm font-medium">Giveaways</p>
+                          {listing.giveaways && listing.giveaways.length > 0 ? (
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {listing.giveaways.map((item, index) => (
+                                <Badge key={index} variant="secondary" className="text-xs">
+                                  {item}
+                                </Badge>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-sm italic text-gray-400">None specified</p>
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">Common Areas</p>
+                          {listing.commonAreas && listing.commonAreas.length > 0 ? (
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {listing.commonAreas.map((item, index) => (
+                                <Badge key={index} variant="secondary" className="text-xs">
+                                  {item}
+                                </Badge>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-sm italic text-gray-400">None specified</p>
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">Unit Condition</p>
+                          {listing.propertyCondition && listing.propertyCondition.length > 0 ? (
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {listing.propertyCondition.map((item, index) => (
+                                <Badge key={index} variant="secondary" className="text-xs">
+                                  {item}
+                                </Badge>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-sm italic text-gray-400">Not specified</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <Separator />
+                    
+                    {/* Location */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-medium">Location</h3>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm font-medium">Environment</p>
+                          {listing.environment && listing.environment.length > 0 ? (
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {listing.environment.map((item, index) => (
+                                <Badge key={index} variant="outline" className="text-xs">
+                                  {item}
+                                </Badge>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-sm italic text-gray-400">None specified</p>
+                          )}
+                        </div>
+                        
+                        <div>
+                          <p className="text-sm font-medium">Location</p>
+                          {listing.locations && listing.locations.length > 0 ? (
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {listing.locations.map((item, index) => (
+                                <Badge key={index} variant="outline" className="text-xs">
+                                  {item}
+                                </Badge>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-sm italic text-gray-400">None specified</p>
+                          )}
+                        </div>
+                        
+                        <div className="col-span-2">
+                          <p className="text-sm font-medium">Location Remark</p>
+                          <p className="text-sm text-muted-foreground">
+                            {listing.locationRemark || <span className="italic text-gray-400">No remarks</span>}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      {/* Nearby Places */}
+                      <div className="mt-4">
+                        <p className="text-sm font-medium mb-2">Nearby Transit Stations</p>
+                        {listing.transitDistance && listing.transitDistance.length > 0 ? (
+                          <div className="space-y-1">
+                            {listing.transitDistance.map((item, index) => (
+                              <div key={index} className="flex justify-between text-sm">
+                                <span>{item.name}</span>
+                                <span className="text-muted-foreground">{item.distance} km</span>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-sm italic text-gray-400">None specified</p>
+                        )}
+                      </div>
+                      
+                      <div className="mt-4">
+                        <p className="text-sm font-medium mb-2">Nearby Hospitals</p>
+                        {listing.hospitalDistance && listing.hospitalDistance.length > 0 ? (
+                          <div className="space-y-1">
+                            {listing.hospitalDistance.map((item, index) => (
+                              <div key={index} className="flex justify-between text-sm">
+                                <span>{item.name}</span>
+                                <span className="text-muted-foreground">{item.distance} km</span>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-sm italic text-gray-400">None specified</p>
+                        )}
+                      </div>
+                      
+                      <div className="mt-4">
+                        <p className="text-sm font-medium mb-2">Nearby Schools & Colleges</p>
+                        {listing.educationDistance && listing.educationDistance.length > 0 ? (
+                          <div className="space-y-1">
+                            {listing.educationDistance.map((item, index) => (
+                              <div key={index} className="flex justify-between text-sm">
+                                <span>{item.name}</span>
+                                <span className="text-muted-foreground">{item.distance} km</span>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-sm italic text-gray-400">None specified</p>
+                        )}
+                      </div>
+                      
+                      <div className="mt-4">
+                        <p className="text-sm font-medium mb-2">Nearby Shopping Malls</p>
+                        {listing.mallDistance && listing.mallDistance.length > 0 ? (
+                          <div className="space-y-1">
+                            {listing.mallDistance.map((item, index) => (
+                              <div key={index} className="flex justify-between text-sm">
+                                <span>{item.name}</span>
+                                <span className="text-muted-foreground">{item.distance} km</span>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-sm italic text-gray-400">None specified</p>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <Separator />
+                    
+                    {/* Buyer Profile */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-medium">Buyer Profile</h3>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm font-medium">Target Buyer</p>
+                          {listing.targetBuyer && listing.targetBuyer.length > 0 ? (
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {listing.targetBuyer.map((item, index) => (
+                                <Badge key={index} variant="secondary" className="text-xs">
+                                  {item}
+                                </Badge>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-sm italic text-gray-400">None specified</p>
+                          )}
+                        </div>
+                        
+                        <div>
+                          <p className="text-sm font-medium">Age Range</p>
+                          <p className="text-sm text-muted-foreground">
+                            {listing.ageRange || <span className="italic text-gray-400">Not specified</span>}
+                          </p>
+                        </div>
+                        
+                        <div>
+                          <p className="text-sm font-medium">Occupations</p>
+                          <p className="text-sm text-muted-foreground">
+                            {listing.occupations || <span className="italic text-gray-400">Not specified</span>}
+                          </p>
+                        </div>
+                        
+                        <div>
+                          <p className="text-sm font-medium">Investor Features</p>
+                          {listing.investors && listing.investors.length > 0 ? (
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {listing.investors.map((item, index) => (
+                                <Badge key={index} variant="secondary" className="text-xs">
+                                  {item}
+                                </Badge>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-sm italic text-gray-400">None specified</p>
+                          )}
+                        </div>
+                        
+                        <div className="col-span-2">
+                          <p className="text-sm font-medium">Target Buyer Remark</p>
+                          <p className="text-sm text-muted-foreground">
+                            {listing.targetBuyerRemark || <span className="italic text-gray-400">No remarks</span>}
+                          </p>
+                        </div>
+                        
+                        <div>
+                          <p className="text-sm font-medium">Monthly Payment</p>
+                          <p className="text-sm text-muted-foreground">
+                            {listing.monthlyPayment ? formatCurrency(listing.monthlyPayment) : <span className="italic text-gray-400">Not specified</span>}
+                          </p>
+                        </div>
+                        
+                        <div>
+                          <p className="text-sm font-medium">Target Salary</p>
+                          <p className="text-sm text-muted-foreground">
+                            {listing.targetSalary ? formatCurrency(listing.targetSalary) : <span className="italic text-gray-400">Not specified</span>}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </TabsContent>

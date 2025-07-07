@@ -91,6 +91,7 @@ export type Listing = {
 // Creating a default column order based on common importance
 export const defaultColumnOrder: (keyof Listing)[] = [
   "listingCode",
+  "thumbnailUrl",
   "marketingStatus",
   "monthsOnSale",
   "listingType",
@@ -107,12 +108,14 @@ export const defaultColumnOrder: (keyof Listing)[] = [
   "askingPrice",
   "rentalPrice",
   "createdTime",
-  "assignedTo"
+  "assignedTo",
+  "isStarred"
 ];
 
 // Default columns to display
 export const defaultVisibleColumns: (keyof Listing)[] = [
   "listingCode",
+  "thumbnailUrl",
   "marketingStatus",
   "listingType",
   "listingName",
@@ -120,7 +123,8 @@ export const defaultVisibleColumns: (keyof Listing)[] = [
   "bedrooms",
   "askingPrice",
   "ownerName",
-  "assignedTo"
+  "assignedTo",
+  "isStarred"
 ];
 
 export function useListingsTableData() {

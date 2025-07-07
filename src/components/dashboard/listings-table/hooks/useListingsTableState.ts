@@ -1,14 +1,17 @@
 import { useState, useCallback, useMemo } from 'react';
 import { Listing } from '@/hooks/useListingsTableData';
 import { ListingFilterOptions } from '../ListingsFilter';
+import { toast } from "sonner";
 
 export function useListingsTableState(initialData: Listing[]) {
   const [data, setData] = useState<Listing[]>(initialData);
   const [selectedListingType, setSelectedListingType] = useState<string | null>(null);
+  const [selectedOwnerType, setSelectedOwnerType] = useState<string>("all");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
   const [isCustomizeDialogOpen, setIsCustomizeDialogOpen] = useState(false);
   const [activeFilters, setActiveFilters] = useState<ListingFilterOptions | null>(null);
+  const [isGroupingEnabled, setIsGroupingEnabled] = useState(false);
   
   // Apply filters to data
   const filteredData = useMemo(() => {
@@ -17,6 +20,11 @@ export function useListingsTableState(initialData: Listing[]) {
     // First apply selected listing type filter (from tabs)
     if (selectedListingType) {
       result = result.filter(listing => listing.listingType === selectedListingType);
+    }
+    
+    // Apply owner type filter
+    if (selectedOwnerType !== 'all') {
+      result = result.filter(listing => listing.ownerType === selectedOwnerType);
     }
     
     // Then apply additional filters if any are active
@@ -108,6 +116,22 @@ export function useListingsTableState(initialData: Listing[]) {
     );
   }, []);
   
+  // Handler for star toggle
+  const handleStarToggle = useCallback((listing: Listing) => {
+    setData(prevData => 
+      prevData.map(item => 
+        item.listingCode === listing.listingCode 
+          ? { ...item, isStarred: !item.isStarred } 
+          : item
+      )
+    );
+    
+    // If the drawer is open and the selected listing is being toggled, update it too
+    if (selectedListing && selectedListing.listingCode === listing.listingCode) {
+      setSelectedListing(prev => prev ? { ...prev, isStarred: !prev.isStarred } : null);
+    }
+  }, [selectedListing]);
+  
   // Handler for row click
   const handleRowClick = useCallback((listing: Listing) => {
     setSelectedListing(listing);
@@ -120,17 +144,28 @@ export function useListingsTableState(initialData: Listing[]) {
     setTimeout(() => setSelectedListing(null), 300); // Clear after animation
   }, []);
   
+  // Toggle grouping
+  const toggleGrouping = useCallback(() => {
+    setIsGroupingEnabled(!isGroupingEnabled);
+    toast.success(isGroupingEnabled ? "Grouping disabled" : "Grouping enabled");
+  }, [isGroupingEnabled]);
+  
   return {
     data: filteredData,
     selectedListingType,
     setSelectedListingType,
+    selectedOwnerType,
+    setSelectedOwnerType,
     isDrawerOpen,
     selectedListing,
     isCustomizeDialogOpen,
     setIsCustomizeDialogOpen,
+    isGroupingEnabled,
+    toggleGrouping,
     handleFilterChange,
     handleMarketingStatusChange,
     handleListingTypeChange,
+    handleStarToggle,
     handleRowClick,
     handleCloseDrawer
   };
