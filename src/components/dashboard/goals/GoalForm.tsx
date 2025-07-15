@@ -63,7 +63,8 @@ import {
   Shield,
   ArrowUp,
   Zap,
-  AlertTriangle
+  AlertTriangle,
+  Bell
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -457,6 +458,72 @@ const GoalForm: React.FC<GoalFormProps> = ({
     
     return () => subscription.unsubscribe();
   }, [form.watch]);
+
+  // If editing, only show notification settings
+  if (isEditing) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Bell className="h-5 w-5 text-primary" />
+          <h3 className="text-lg font-medium">Notification Settings</h3>
+        </div>
+        
+        <p className="text-muted-foreground mb-6">
+          You can only modify the notification settings for this goal. Other goal details cannot be changed once a goal is created.
+        </p>
+        
+        <Form {...form}>
+          <form className="space-y-6">
+            <FormField
+              control={form.control}
+              name="notificationFrequency"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Notification Reminder</FormLabel>
+                  <Select 
+                    onValueChange={field.onChange} 
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select reminder frequency" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="none">No reminders</SelectItem>
+                      <SelectItem value="daily">Daily</SelectItem>
+                      <SelectItem value="weekly">Weekly</SelectItem>
+                      <SelectItem value="monthly">Monthly</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>
+                    How often would you like to receive reminders about this goal?
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <div className="flex justify-end gap-2 pt-4">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={onCancel}
+              >
+                Cancel
+              </Button>
+              <Button 
+                type="button"
+                onClick={form.handleSubmit(handleSubmit)}
+              >
+                Update Settings
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

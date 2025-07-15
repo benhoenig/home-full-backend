@@ -6,8 +6,9 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { toast } from '@/components/ui/use-toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Trophy, Award, Target, Calendar, Star, Users, PieChart, MessageSquare, Filter, ChevronDown } from 'lucide-react';
+import { Trophy, Award, Target, Calendar, Star, Users, PieChart, MessageSquare, Filter, ChevronDown, Search } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { Input } from '@/components/ui/input';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,7 +35,6 @@ import {
   mockComments,
   mockCurrentUser,
   mockTeamPerformanceData,
-  mockTeamMembers,
   Goal,
   Challenge,
   GoalAnalytics,
@@ -42,10 +42,16 @@ import {
   ProgressCelebration
 } from '@/components/dashboard/goals';
 
+// Import employee components and data
+import EmployeeGoalsTable, { Employee } from '@/components/dashboard/goals/EmployeeGoalsTable';
+import EmployeeGoalsView from '@/components/dashboard/goals/EmployeeGoalsView';
+import { mockEmployees } from '@/components/dashboard/goals/mockEmployees';
+import { mockEmployeeGoals } from '@/components/dashboard/goals/mockEmployeeGoals';
+
 const Goals = () => {
   const [activeFilter, setActiveFilter] = useState<string>("all");
   const [timelineFilter, setTimelineFilter] = useState<string>("all");
-  const [activeTab, setActiveTab] = useState<string>("goals");
+  const [activeTab, setActiveTab] = useState<string>("myGoals"); // Default to myGoals
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
@@ -59,6 +65,12 @@ const Goals = () => {
     previousProgress: number;
   } | null>(null);
   
+  // Friend's Goals tab state
+  const [divisionFilter, setDivisionFilter] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+  const [employeeGoals, setEmployeeGoals] = useState<Goal[]>([]);
+  
   // Filter goals based on active filter and timeline filter
   const filteredGoals = goals
     .filter(goal => {
@@ -71,6 +83,25 @@ const Goals = () => {
       if (timelineFilter === "all") return true;
       return goal.timelineType === timelineFilter;
     });
+    
+  // Filter employees based on division filter and search query
+  const filteredEmployees = mockEmployees
+    .filter(employee => {
+      // Filter by division
+      if (divisionFilter === "all") return true;
+      return employee.division === divisionFilter;
+    })
+    .filter(employee => {
+      // Filter by search query
+      if (!searchQuery.trim()) return true;
+      return (
+        employee.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        employee.position.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        employee.division.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    })
+    // Sort by goals completed (descending)
+    .sort((a, b) => b.goalsCompleted - a.goalsCompleted);
 
   // Function to handle opening goal details
   const handleGoalDetails = (goal: Goal) => {
@@ -150,32 +181,11 @@ const Goals = () => {
     // Store the previous progress for celebration
     const previousProgress = selectedGoal.progress;
 
-    // Update the goal with the form data
+    // Update only the notification settings
     const updatedGoal: Goal = {
       ...selectedGoal,
-      title: formData.title,
-      type: formData.type,
-      goalType: formData.goalType,
-      kpiType: formData.kpiType,
-      settingType: formData.settingType,
-      timelineType: formData.timelineType,
-      timelinePeriod: formData.timelinePeriod,
-      description: formData.description || '',
-      target: formData.target,
-      current: formData.current,
-      deadline: getFormattedDeadline(formData.timelineType, formData.timelinePeriod),
-      reward: formData.reward,
-      icon: formData.icon,
-      iconColor: formData.iconColor,
-      // Calculate progress based on current/target
-      progress: Math.min(100, Math.round((parseFloat(formData.current.replace(/,/g, '')) / parseFloat(formData.target.replace(/,/g, ''))) * 100) || 0),
+      notificationFrequency: formData.notificationFrequency
     };
-
-    // Update milestones based on progress
-    updatedGoal.milestones = updatedGoal.milestones.map(milestone => ({
-      ...milestone,
-      reached: updatedGoal.progress >= milestone.value
-    }));
 
     // Update the goal in the list
     setGoals(prevGoals => prevGoals.map(goal => 
@@ -184,25 +194,11 @@ const Goals = () => {
     
     setIsEditModalOpen(false);
     
-    // Check if a milestone was reached
-    const newlyReachedMilestone = updatedGoal.milestones.find(
-      milestone => milestone.reached && milestone.value > previousProgress
-    );
-    
-    if (newlyReachedMilestone) {
-      // Show celebration if a milestone was reached
-      setCelebrationData({
-        goal: updatedGoal,
-        previousProgress
-      });
-      setShowCelebration(true);
-      
-      // Show toast for milestone reached
-      toast({
-        title: "Milestone Reached!",
-        description: `You've reached the ${newlyReachedMilestone.label} milestone for "${updatedGoal.title}"`,
-      });
-    }
+    // Show success toast
+    toast({
+      title: "Notification Settings Updated",
+      description: "Your goal notification settings have been updated successfully.",
+    });
   };
 
   // Helper function to format deadline based on timeline type and period
@@ -280,6 +276,38 @@ const Goals = () => {
       default: return "All Timelines";
     }
   };
+  
+  // Get the label for the division filter
+  const getDivisionFilterLabel = () => {
+    switch (divisionFilter) {
+      case "Sales": return "Sales Division";
+      case "Marketing": return "Marketing Division";
+      case "Listing Support": return "Listing Support";
+      case "Admin": return "Admin Division";
+      case "IT": return "IT Division";
+      case "HR": return "HR Division";
+      case "Finance": return "Finance Division";
+      case "Operations": return "Operations Division";
+      case "Customer Support": return "Customer Support";
+      default: return "All Divisions";
+    }
+  };
+  
+  // Function to handle selecting an employee
+  const handleSelectEmployee = (employee: Employee) => {
+    setSelectedEmployee(employee);
+    // Get the employee's goals from the mock data
+    const employeeGoalsData = mockEmployeeGoals[employee.id] || [];
+    setEmployeeGoals(employeeGoalsData);
+  };
+  
+  // Function to handle adding a comment to an employee's goal
+  const handleAddComment = (goalId: number, comment: string) => {
+    toast({
+      title: "Comment Added",
+      description: "Your comment has been added to the goal.",
+    });
+  };
 
   return (
     <DashboardLayout title="Goals & Targets">
@@ -289,13 +317,15 @@ const Goals = () => {
           <div className="flex justify-between items-center mb-4">
             <div className="flex items-center gap-4">
               <TabsList>
-                <TabsTrigger value="goals">Goals</TabsTrigger>
-                <TabsTrigger value="analytics">Analytics</TabsTrigger>
+                <TabsTrigger value="myGoals">My Goals</TabsTrigger>
+                <TabsTrigger value="friendsGoals">Friend's Goals</TabsTrigger>
+                {/* Analytics tab hidden temporarily */}
+                {/* <TabsTrigger value="analytics">Analytics</TabsTrigger> */}
               </TabsList>
             </div>
             
-            {/* Create Goal Button and Filters - Only show on goals tab */}
-            {activeTab === 'goals' && (
+            {/* Create Goal Button and Filters - Only show on myGoals tab */}
+            {activeTab === 'myGoals' && (
               <div className="flex items-center gap-2">
                 {/* Goal Type Filter Dropdown */}
                 <DropdownMenu>
@@ -358,14 +388,74 @@ const Goals = () => {
               </div>
             )}
             
-            {/* Show only Create Goal button on other tabs */}
-            {activeTab !== 'goals' && (
-              <div></div> // Empty div to maintain layout
+            {/* Search and Filter Controls for Friend's Goals tab */}
+            {activeTab === 'friendsGoals' && !selectedEmployee && (
+              <div className="flex items-center gap-2">
+                {/* Search Input */}
+                <div className="relative w-[200px]">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search employees..."
+                    className="pl-8"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+                
+                {/* Division Filter Dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="gap-1">
+                      <span>{getDivisionFilterLabel()}</span>
+                      <ChevronDown className="h-4 w-4 opacity-50" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Division</DropdownMenuLabel>
+                    <DropdownMenuItem onClick={() => setDivisionFilter("all")}>
+                      All Divisions
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => setDivisionFilter("Sales")}>
+                      Sales
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setDivisionFilter("Marketing")}>
+                      Marketing
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setDivisionFilter("Listing Support")}>
+                      Listing Support
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setDivisionFilter("Admin")}>
+                      Admin
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setDivisionFilter("IT")}>
+                      IT
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setDivisionFilter("HR")}>
+                      HR
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setDivisionFilter("Finance")}>
+                      Finance
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setDivisionFilter("Operations")}>
+                      Operations
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setDivisionFilter("Customer Support")}>
+                      Customer Support
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            )}
+            
+            {/* Empty div to maintain layout when no controls are shown */}
+            {(activeTab !== 'myGoals' && (activeTab !== 'friendsGoals' || selectedEmployee)) && (
+              <div></div>
             )}
           </div>
           
-          {/* Goals Tab Content */}
-          <TabsContent value="goals" className="space-y-4">
+          {/* My Goals Tab Content */}
+          <TabsContent value="myGoals" className="space-y-4">
             {/* Goals Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredGoals.map(goal => (
@@ -397,7 +487,40 @@ const Goals = () => {
             </div>
           </TabsContent>
           
-          {/* Analytics Tab Content */}
+          {/* Friend's Goals Tab Content */}
+          <TabsContent value="friendsGoals" className="space-y-4">
+            {selectedEmployee ? (
+              <EmployeeGoalsView 
+                employee={selectedEmployee}
+                goals={employeeGoals}
+                onBack={() => setSelectedEmployee(null)}
+                onAddComment={handleAddComment}
+              />
+            ) : (
+              <div className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Trophy className="h-5 w-5 text-amber-500" />
+                      Top Goal Achievers
+                    </CardTitle>
+                    <CardDescription>
+                      View and engage with goals from colleagues across the company
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EmployeeGoalsTable 
+                      employees={filteredEmployees}
+                      onSelectEmployee={handleSelectEmployee}
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+          </TabsContent>
+          
+          {/* Analytics Tab Content - Temporarily hidden */}
+          {/* 
           <TabsContent value="analytics" className="space-y-6">
             <Card>
               <CardHeader>
@@ -432,6 +555,7 @@ const Goals = () => {
               </CardContent>
             </Card>
           </TabsContent>
+          */}
         </Tabs>
         
         {/* Goal Details Modal */}
@@ -440,6 +564,8 @@ const Goals = () => {
           onOpenChange={setIsGoalDetailsOpen}
           goal={selectedGoal}
           renderIcon={renderIcon}
+          onEdit={handleEditGoal}
+          onDelete={handleDeleteGoal}
         />
         
         {/* Challenge Details Modal */}
@@ -454,7 +580,7 @@ const Goals = () => {
         <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
           <DialogContent className="max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Edit Goal</DialogTitle>
+              <DialogTitle>Notification Settings</DialogTitle>
             </DialogHeader>
             {selectedGoal && (
               <GoalForm 
@@ -479,7 +605,8 @@ const Goals = () => {
                   progress: selectedGoal.progress,
                   milestones: selectedGoal.milestones,
                   createdAt: selectedGoal.createdAt,
-                  teamMembers: selectedGoal.teamMembers
+                  teamMembers: selectedGoal.teamMembers,
+                  notificationFrequency: selectedGoal.notificationFrequency || 'weekly'
                 }}
               />
             )}

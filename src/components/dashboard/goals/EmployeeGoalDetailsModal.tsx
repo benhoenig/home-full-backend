@@ -13,7 +13,6 @@ import {
   Clock, 
   Trophy, 
   Share2, 
-  Clock as ClockIcon, 
   MessageSquare,
   ThumbsUp,
   Send,
@@ -21,11 +20,7 @@ import {
   RefreshCw,
   AlertCircle,
   CheckCircle2,
-  Filter,
-  UserPlus,
-  ArrowUpRight,
-  ArrowDownRight,
-  Minus
+  Filter
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Goal } from './GoalCard';
@@ -39,13 +34,11 @@ import {
   DropdownMenuContent, 
   DropdownMenuItem, 
   DropdownMenuTrigger,
-  DropdownMenuSeparator
+  DropdownMenuSeparator,
+  DropdownMenuLabel
 } from '@/components/ui/dropdown-menu';
-import { format, formatDistanceToNow } from 'date-fns';
-
-// Import mock comments data and team members
-import { mockComments, mockCurrentUser, mockTeamMembers } from './mockData';
-import { TeamMember } from './TeamCollaboration';
+import { format } from 'date-fns';
+import { Employee } from './EmployeeGoalsTable';
 
 // Comment types
 type CommentType = 'comment' | 'update' | 'issue' | 'resolution';
@@ -66,32 +59,112 @@ type Comment = {
   likes: number;
   liked?: boolean;
   replies?: Comment[];
-  isEditing?: boolean;
 };
 
-type GoalDetailsModalProps = {
+// Mock current user
+const currentUser: CommentUser = {
+  id: 999,
+  name: "You",
+  avatar: "/avatars/alex.jpg",
+  role: "Sales Executive"
+};
+
+// Mock comments for each goal
+const mockGoalComments: Record<number, Comment[]> = {
+  101: [
+    {
+      id: 1,
+      user: {
+        id: 2,
+        name: "Sarah Williams",
+        avatar: "/avatars/sarah.jpg",
+        role: "Sales Team Lead"
+      },
+      content: "Great progress on this goal, Alex! You're very close to hitting your target.",
+      type: 'comment',
+      createdAt: new Date(2023, 11, 15, 9, 30),
+      likes: 3,
+      liked: false
+    },
+    {
+      id: 2,
+      user: {
+        id: 5,
+        name: "David Chen",
+        avatar: "/avatars/david.jpg",
+        role: "Listing Manager"
+      },
+      content: "The listing support team is ready to help you with the final push to reach $6M!",
+      type: 'comment',
+      createdAt: new Date(2023, 11, 16, 10, 15),
+      likes: 2,
+      liked: false
+    }
+  ],
+  102: [
+    {
+      id: 3,
+      user: {
+        id: 4,
+        name: "Emma Davis",
+        avatar: "/avatars/emma.jpg",
+        role: "Junior Sales Executive"
+      },
+      content: "I'm impressed with how many listings you've secured already. Any tips for a junior agent?",
+      type: 'comment',
+      createdAt: new Date(2023, 12, 5, 14, 45),
+      likes: 1,
+      liked: false
+    }
+  ],
+  201: [
+    {
+      id: 4,
+      user: {
+        id: 1,
+        name: "Alex Johnson",
+        avatar: "/avatars/alex.jpg",
+        role: "Senior Sales Executive"
+      },
+      content: "Sarah, your team is doing an amazing job! Looking forward to seeing you hit the target.",
+      type: 'comment',
+      createdAt: new Date(2023, 11, 20, 11, 20),
+      likes: 4,
+      liked: true
+    }
+  ]
+};
+
+interface EmployeeGoalDetailsModalProps {
   goal: Goal | null;
+  employee: Employee;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   renderIcon: (iconName: string) => React.ReactNode;
-  onEdit?: (goal: Goal) => void;
-  onDelete?: (goalId: number) => void;
-};
+  onAddComment: (goalId: number, comment: string) => void;
+}
 
-const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ 
+const EmployeeGoalDetailsModal: React.FC<EmployeeGoalDetailsModalProps> = ({ 
   goal, 
+  employee,
   isOpen, 
   onOpenChange,
   renderIcon,
-  onEdit,
-  onDelete
+  onAddComment
 }) => {
   const [activeTab, setActiveTab] = useState<string>("details");
-  const [comments, setComments] = useState<Comment[]>(mockComments);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState<string>('');
   const [commentType, setCommentType] = useState<CommentType>('comment');
   const [filter, setFilter] = useState<CommentType | 'all'>('all');
-  const currentUser = mockCurrentUser;
+
+  // Load comments when goal changes
+  React.useEffect(() => {
+    if (goal) {
+      const goalComments = mockGoalComments[goal.id] || [];
+      setComments(goalComments);
+    }
+  }, [goal]);
 
   if (!goal) return null;
 
@@ -104,16 +177,6 @@ const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({
       case 'amber': return 'text-amber-500 bg-amber-100';
       case 'purple': return 'text-purple-500 bg-purple-100';
       default: return 'bg-primary/10'; // Default color
-    }
-  };
-
-  // Get timeline type label
-  const getTimelineTypeLabel = (timelineType?: string) => {
-    switch(timelineType) {
-      case 'monthly': return 'Monthly';
-      case 'quarterly': return 'Quarterly';
-      case 'annually': return 'Annually';
-      default: return '';
     }
   };
 
@@ -154,8 +217,9 @@ const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({
   // Handle adding a new comment
   const handleAddComment = () => {
     if (newComment.trim()) {
+      // Create new comment object
       const newCommentObj: Comment = {
-        id: comments.length + 1,
+        id: Date.now(), // Use timestamp as ID
         user: currentUser,
         content: newComment.trim(),
         type: commentType,
@@ -163,7 +227,14 @@ const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({
         likes: 0,
         liked: false,
       };
+      
+      // Update local state
       setComments([...comments, newCommentObj]);
+      
+      // Call the parent component's handler
+      onAddComment(goal.id, newComment);
+      
+      // Reset form
       setNewComment('');
       setCommentType('comment');
     }
@@ -224,30 +295,9 @@ const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({
     }
   };
 
-  // Helper function for team collaboration
-  const getTrendIcon = (contribution: number) => {
-    if (contribution > 0) {
-      return <ArrowUpRight className="h-4 w-4 text-green-500" />;
-    } else if (contribution < 0) {
-      return <ArrowDownRight className="h-4 w-4 text-red-500" />;
-    } else {
-      return <Minus className="h-4 w-4 text-gray-500" />;
-    }
-  };
-
   const filteredComments = filter === 'all' 
     ? comments 
     : comments.filter(comment => comment.type === filter);
-
-  // Use mock team members for demonstration
-  const teamMembers = goal.teamMembers || [];
-  const sortedMembers = [...teamMembers].sort((a, b) => {
-    // Since we don't have contribution in the Goal's TeamMember type,
-    // we'll try to find it in mockTeamMembers or default to 0
-    const aContrib = mockTeamMembers.find(m => m.name === a.name)?.contribution || 0;
-    const bContrib = mockTeamMembers.find(m => m.name === b.name)?.contribution || 0;
-    return bContrib - aContrib;
-  });
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -269,21 +319,9 @@ const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({
                      goal.goalType === 'kpi' ? 'KPI' : 'Custom'}
                   </Badge>
                 )}
-                {goal.timelineType && (
-                  <Badge variant="outline" className="capitalize">
-                    {goal.timelineType}
-                  </Badge>
-                )}
-                {goal.goalType === 'kpi' && goal.kpiType && (
-                  <Badge variant="secondary">
-                    {getKpiTypeLabel(goal.kpiType)}
-                  </Badge>
-                )}
-                {goal.settingType && (
-                  <Badge variant={getSettingTypeBadgeVariant(goal.settingType)} className="capitalize">
-                    {goal.settingType}
-                  </Badge>
-                )}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {employee.name}'s Goal
               </div>
             </div>
           </DialogTitle>
@@ -342,80 +380,21 @@ const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({
               <>
                 <Separator className="my-4" />
                 
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <h4 className="text-sm font-medium">Team Collaboration</h4>
-                    <Button size="sm" variant="outline" className="h-8">
-                      <UserPlus className="h-4 w-4 mr-1" />
-                      Add Member
-                    </Button>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    {sortedMembers.map((member) => {
-                      // Find additional member info from mockTeamMembers
-                      const memberInfo = mockTeamMembers.find(m => m.name === member.name);
-                      const contribution = memberInfo?.contribution || 0;
-                      const status = memberInfo?.status || 'active';
-                      const role = memberInfo?.role || 'Team Member';
-                      const lastActive = memberInfo?.lastActive || 'Recently';
-                      
-                      return (
-                        <div 
-                          key={member.id}
-                          className={cn(
-                            "flex items-center justify-between p-3 rounded-lg border",
-                            status === 'active' ? 'bg-white' : 'bg-gray-50'
-                          )}
-                        >
-                          <div className="flex items-center gap-3">
-                            <Avatar className="h-10 w-10">
-                              <AvatarImage src={member.avatar} alt={member.name} />
-                              <AvatarFallback>{member.name.substring(0, 2)}</AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <h4 className="font-medium">{member.name}</h4>
-                                <Badge 
-                                  variant={status === 'active' ? 'default' : 'outline'}
-                                  className="text-xs"
-                                >
-                                  {status === 'active' ? 'Active' : 'Inactive'}
-                                </Badge>
-                              </div>
-                              <p className="text-sm text-gray-500">{role}</p>
-                            </div>
-                          </div>
-                          
-                          <div className="flex items-center gap-4">
-                            <div className="text-right">
-                              <div className="flex items-center gap-1">
-                                <span className="font-medium">{contribution}%</span>
-                                {getTrendIcon(contribution)}
-                              </div>
-                              <p className="text-xs text-gray-500">Contribution</p>
-                            </div>
-                            <p className="text-xs text-gray-500">{lastActive}</p>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8">
-                                  <MoreVertical className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem>View Profile</DropdownMenuItem>
-                                <DropdownMenuItem>Message</DropdownMenuItem>
-                                {status === 'active' ? (
-                                  <DropdownMenuItem className="text-red-600">Set as Inactive</DropdownMenuItem>
-                                ) : (
-                                  <DropdownMenuItem className="text-green-600">Set as Active</DropdownMenuItem>
-                                )}
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
-                        </div>
-                      );
-                    })}
+                <div>
+                  <h4 className="text-sm font-medium mb-2">Team Members</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {goal.teamMembers.map((member) => (
+                      <div 
+                        key={member.id}
+                        className="flex items-center gap-2 border rounded-lg p-2"
+                      >
+                        <Avatar className="h-6 w-6">
+                          <AvatarImage src={member.avatar} alt={member.name} />
+                          <AvatarFallback>{member.name.substring(0, 1)}</AvatarFallback>
+                        </Avatar>
+                        <span className="text-sm">{member.name}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </>
@@ -590,14 +569,6 @@ const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({
             Close
           </Button>
           <div className="flex gap-2">
-            {onEdit && (
-              <Button 
-                variant="secondary" 
-                onClick={() => onEdit(goal)}
-              >
-                Notification Settings
-              </Button>
-            )}
             <Button 
               variant="outline" 
               size="icon" 
@@ -612,4 +583,4 @@ const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({
   );
 };
 
-export default GoalDetailsModal; 
+export default EmployeeGoalDetailsModal; 
