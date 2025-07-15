@@ -35,13 +35,13 @@ const EmployeeGoalsView: React.FC<EmployeeGoalsViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Back button and employee info header */}
-      <div className="flex items-center justify-between">
-        <Button variant="ghost" onClick={onBack} className="flex items-center gap-1">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <Button variant="ghost" onClick={onBack} className="flex items-center gap-1 justify-start px-2 h-auto">
           <ArrowLeft className="h-4 w-4" />
-          <span>Back to All Employees</span>
+          <span className="text-sm sm:text-base">Back to All Employees</span>
         </Button>
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <Badge variant="outline" className="font-normal">
             {employee.division}
           </Badge>
@@ -54,14 +54,14 @@ const EmployeeGoalsView: React.FC<EmployeeGoalsViewProps> = ({
       {/* Employee Profile Card */}
       <Card>
         <CardHeader className="pb-3">
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             <Avatar className="h-16 w-16">
               <AvatarImage src={employee.image} alt={employee.name} />
               <AvatarFallback>{employee.name.charAt(0)}</AvatarFallback>
             </Avatar>
             <div>
               <CardTitle className="text-xl">{employee.name}'s Goals</CardTitle>
-              <div className="flex items-center gap-4 mt-2">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-2">
                 <div className="flex items-center gap-1">
                   <Trophy className="h-4 w-4 text-amber-500" />
                   <span className="text-sm font-medium">{employee.goalsCompleted} completed</span>
@@ -83,7 +83,7 @@ const EmployeeGoalsView: React.FC<EmployeeGoalsViewProps> = ({
       {/* Goals Grid */}
       <div>
         <h2 className="text-lg font-semibold mb-4">Current Goals</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {goals.filter(goal => goal.progress < 100).map(goal => (
             <GoalCard 
               key={goal.id} 
@@ -100,7 +100,7 @@ const EmployeeGoalsView: React.FC<EmployeeGoalsViewProps> = ({
       {/* Completed Goals */}
       <div>
         <h2 className="text-lg font-semibold mb-4">Completed Goals</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {goals.filter(goal => goal.progress === 100).map(goal => (
             <GoalCard 
               key={goal.id} 

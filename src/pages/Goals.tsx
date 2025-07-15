@@ -314,9 +314,9 @@ const Goals = () => {
       <div className="p-4">
         {/* Tabs for main sections */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <div className="flex justify-between items-center mb-4">
-            <div className="flex items-center gap-4">
-              <TabsList>
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+            <div className="flex items-center">
+              <TabsList className="w-full sm:w-auto">
                 <TabsTrigger value="myGoals">My Goals</TabsTrigger>
                 <TabsTrigger value="friendsGoals">Friend's Goals</TabsTrigger>
                 {/* Analytics tab hidden temporarily */}
@@ -326,7 +326,7 @@ const Goals = () => {
             
             {/* Create Goal Button and Filters - Only show on myGoals tab */}
             {activeTab === 'myGoals' && (
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 {/* Goal Type Filter Dropdown */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -390,9 +390,9 @@ const Goals = () => {
             
             {/* Search and Filter Controls for Friend's Goals tab */}
             {activeTab === 'friendsGoals' && !selectedEmployee && (
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                 {/* Search Input */}
-                <div className="relative w-[200px]">
+                <div className="relative w-full sm:w-[200px]">
                   <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
                     placeholder="Search employees..."
@@ -405,7 +405,7 @@ const Goals = () => {
                 {/* Division Filter Dropdown */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="gap-1">
+                    <Button variant="outline" size="sm" className="gap-1 w-full sm:w-auto">
                       <span>{getDivisionFilterLabel()}</span>
                       <ChevronDown className="h-4 w-4 opacity-50" />
                     </Button>
@@ -499,20 +499,23 @@ const Goals = () => {
             ) : (
               <div className="space-y-6">
                 <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 flex-wrap">
                       <Trophy className="h-5 w-5 text-amber-500" />
-                      Top Goal Achievers
+                      <span>Top Goal Achievers</span>
                     </CardTitle>
                     <CardDescription>
                       View and engage with goals from colleagues across the company
                     </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <EmployeeGoalsTable 
-                      employees={filteredEmployees}
-                      onSelectEmployee={handleSelectEmployee}
-                    />
+                  <CardContent className="px-2 sm:px-6">
+                    <div className="overflow-x-auto -mx-2 sm:mx-0">
+                      <EmployeeGoalsTable 
+                        employees={filteredEmployees}
+                        onSelectEmployee={handleSelectEmployee}
+                        className="min-w-full"
+                      />
+                    </div>
                   </CardContent>
                 </Card>
               </div>

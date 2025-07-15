@@ -301,14 +301,14 @@ const EmployeeGoalDetailsModal: React.FC<EmployeeGoalDetailsModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto p-4 sm:p-6">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-3">
+          <DialogTitle className="flex flex-col sm:flex-row sm:items-center gap-3">
             <div className={`p-2 rounded-full ${getColorClass(goal.iconColor)}`}>
               {renderIcon(goal.icon)}
             </div>
-            <div className="flex flex-col">
-              <div className="flex items-center gap-2 mb-1">
+            <div className="flex flex-col mt-2 sm:mt-0">
+              <div className="flex flex-wrap items-center gap-2 mb-1">
                 <h2 className="text-xl font-semibold">{goal.title}</h2>
                 <Badge variant={goal.type === 'personal' ? 'default' : 'secondary'}>
                   {goal.type === 'personal' ? 'Personal' : 'Team'}
@@ -327,7 +327,7 @@ const EmployeeGoalDetailsModal: React.FC<EmployeeGoalDetailsModalProps> = ({
           </DialogTitle>
         </DialogHeader>
         
-        <Tabs defaultValue="details" value={activeTab} onValueChange={setActiveTab}>
+        <Tabs defaultValue="details" value={activeTab} onValueChange={setActiveTab} className="mt-4">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="details">Goal Details</TabsTrigger>
             <TabsTrigger value="comments">Comments</TabsTrigger>
@@ -351,7 +351,7 @@ const EmployeeGoalDetailsModal: React.FC<EmployeeGoalDetailsModalProps> = ({
               </div>
             </div>
             
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <h4 className="text-sm font-medium mb-1">Deadline</h4>
                 <div className="flex items-center gap-2">
@@ -402,11 +402,11 @@ const EmployeeGoalDetailsModal: React.FC<EmployeeGoalDetailsModalProps> = ({
           </TabsContent>
           
           <TabsContent value="comments" className="space-y-4 pt-4">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <h3 className="text-lg font-medium">Goal Discussion</h3>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-8">
+                  <Button variant="outline" size="sm" className="h-8 w-full sm:w-auto">
                     <Filter className="h-4 w-4 mr-1" />
                     {filter === 'all' ? 'All' : filter.charAt(0).toUpperCase() + filter.slice(1)}
                   </Button>
@@ -433,8 +433,8 @@ const EmployeeGoalDetailsModal: React.FC<EmployeeGoalDetailsModalProps> = ({
             
             {/* New Comment Input */}
             <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Avatar className="h-8 w-8">
+              <div className="flex items-start gap-2">
+                <Avatar className="h-8 w-8 mt-1">
                   <AvatarImage src={currentUser.avatar} alt={currentUser.name} />
                   <AvatarFallback>{currentUser.name.substring(0, 2)}</AvatarFallback>
                 </Avatar>
@@ -447,11 +447,11 @@ const EmployeeGoalDetailsModal: React.FC<EmployeeGoalDetailsModalProps> = ({
                   />
                 </div>
               </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div className="flex items-center">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm" className="h-8 gap-1">
+                      <Button variant="outline" size="sm" className="h-8 gap-1 w-full sm:w-auto">
                         {renderCommentTypeIcon(commentType)}
                         <span>
                           {commentType.charAt(0).toUpperCase() + commentType.slice(1)}
@@ -482,7 +482,7 @@ const EmployeeGoalDetailsModal: React.FC<EmployeeGoalDetailsModalProps> = ({
                   onClick={handleAddComment} 
                   disabled={!newComment.trim()}
                   size="sm"
-                  className="h-8"
+                  className="h-8 w-full sm:w-auto"
                 >
                   <Send className="h-4 w-4 mr-1" />
                   Post
@@ -500,15 +500,15 @@ const EmployeeGoalDetailsModal: React.FC<EmployeeGoalDetailsModalProps> = ({
                 </div>
               ) : (
                 filteredComments.map((comment) => (
-                  <div key={comment.id} className="border rounded-lg p-4">
-                    <div className="flex items-start justify-between">
+                  <div key={comment.id} className="border rounded-lg p-3 sm:p-4">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
                       <div className="flex items-start gap-3">
                         <Avatar className="h-8 w-8">
                           <AvatarImage src={comment.user.avatar} alt={comment.user.name} />
                           <AvatarFallback>{comment.user.name.substring(0, 2)}</AvatarFallback>
                         </Avatar>
                         <div>
-                          <div className="flex items-center gap-2">
+                          <div className="flex flex-wrap items-center gap-2">
                             <h4 className="font-medium">{comment.user.name}</h4>
                             <span className="text-xs text-gray-500">{comment.user.role}</span>
                             {renderCommentTypeBadge(comment.type)}
@@ -561,14 +561,15 @@ const EmployeeGoalDetailsModal: React.FC<EmployeeGoalDetailsModalProps> = ({
           </TabsContent>
         </Tabs>
         
-        <DialogFooter className="flex justify-between">
+        <DialogFooter className="flex flex-col sm:flex-row sm:justify-between gap-2 mt-4">
           <Button 
             variant="outline" 
             onClick={() => onOpenChange(false)}
+            className="w-full sm:w-auto order-2 sm:order-1"
           >
             Close
           </Button>
-          <div className="flex gap-2">
+          <div className="flex gap-2 order-1 sm:order-2">
             <Button 
               variant="outline" 
               size="icon" 
