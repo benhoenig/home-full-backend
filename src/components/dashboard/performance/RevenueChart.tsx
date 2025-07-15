@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { CartesianGrid, Line, LineChart, XAxis, YAxis, ResponsiveContainer } from "recharts";
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
+import { 
+  LineChart, 
+  Line, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  Legend, 
+  ResponsiveContainer 
+} from 'recharts';
 
 // Sample data for the chart
 const revenueData = [
@@ -25,13 +28,19 @@ const revenueData = [
   { month: 'Dec', "2023": 218000, "2024": 0 },
 ];
 
-// Chart component
+const quarterlyData = [
+  { quarter: 'Q1', "2023": 397000, "2024": 492000 },
+  { quarter: 'Q2', "2023": 455000, "2024": 576000 },
+  { quarter: 'Q3', "2023": 533000, "2024": 442000 },
+  { quarter: 'Q4', "2023": 619000, "2024": 0 },
+];
+
 const RevenueChart = () => {
   const [timeframe, setTimeframe] = useState<'quarterly' | 'monthly'>('monthly');
   const [yearFilter, setYearFilter] = useState<'both' | '2023' | '2024'>('both');
   
-  // Format the currency on the tooltip
-  const formatTooltipValue = (value: number) => {
+  // Format currency for display
+  const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -40,20 +49,11 @@ const RevenueChart = () => {
     }).format(value);
   };
   
-  // Format quarters if quarterly view is selected
-  const getQuarterlyData = () => {
-    return [
-      { quarter: 'Q1', "2023": 397000, "2024": 492000 },
-      { quarter: 'Q2', "2023": 455000, "2024": 576000 },
-      { quarter: 'Q3', "2023": 533000, "2024": 442000 },
-      { quarter: 'Q4', "2023": 619000, "2024": 0 },
-    ];
-  };
-  
-  const chartData = timeframe === 'quarterly' ? getQuarterlyData() : revenueData;
+  // Get the appropriate data based on timeframe
+  const chartData = timeframe === 'quarterly' ? quarterlyData : revenueData;
   const xAxisKey = timeframe === 'quarterly' ? 'quarter' : 'month';
   
-  // Calculate year totals for summary
+  // Calculate totals and growth
   const totals = {
     "2023": chartData.reduce((sum, item) => sum + (item["2023"] || 0), 0),
     "2024": chartData.reduce((sum, item) => sum + (item["2024"] || 0), 0),
@@ -61,29 +61,13 @@ const RevenueChart = () => {
   
   const growth = ((totals["2024"] / totals["2023"]) - 1) * 100;
   
-  // Chart configuration for shadcn/ui Chart
-  const chartConfig: ChartConfig = {
-    "2023": {
-      label: "2023",
-      color: "#94a3b8",
-    },
-    "2024": {
-      label: "2024",
-      color: "#0d9488",
-    },
-  };
-
-  // Filter chart data based on yearFilter
-  const getVisibleDataKeys = () => {
-    if (yearFilter === 'both') return ["2023", "2024"];
-    return [yearFilter];
-  };
-  
-  const visibleDataKeys = getVisibleDataKeys();
+  // Determine which lines to show based on filter
+  const showLine2023 = yearFilter === 'both' || yearFilter === '2023';
+  const showLine2024 = yearFilter === 'both' || yearFilter === '2024';
   
   return (
-    <Card className="h-full data-card">
-      <CardHeader className="relative pb-2">
+    <Card className="h-full overflow-hidden">
+      <CardHeader className="pb-2">
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-semibold">Revenue Trends :</h3>
           <div className="flex items-center gap-2">
@@ -123,99 +107,83 @@ const RevenueChart = () => {
           </div>
         </div>
       </CardHeader>
-      <CardContent>
-        {/* Summary Stats Container */}
-        <div className="grid grid-cols-3 gap-2 mb-6 mt-2 mx-1 bg-slate-50 p-3 rounded-md border w-full overflow-hidden text-center">
+      <CardContent className="p-0 pb-8">
+        {/* Chart Container */}
+        <div style={{ width: '100%', height: 240, paddingRight: '10px' }}>
+          <ResponsiveContainer>
+            <LineChart
+              data={chartData}
+              margin={{
+                top: 5,
+                right: 30,
+                left: 20,
+                bottom: 15,
+              }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis 
+                dataKey={xAxisKey} 
+                tick={{ fontSize: 12 }}
+                tickLine={false}
+                dy={10}
+              />
+              <YAxis 
+                tickFormatter={(value) => `$${value / 1000}k`}
+                tick={{ fontSize: 12 }}
+                tickLine={false}
+                width={60}
+              />
+              <Tooltip 
+                formatter={(value) => formatCurrency(value as number)}
+                labelFormatter={(label) => timeframe === 'quarterly' ? `Quarter ${label.substring(1)}` : label}
+                contentStyle={{ 
+                  borderRadius: '6px',
+                  padding: '8px',
+                  backgroundColor: '#fff',
+                  boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)'
+                }}
+              />
+              <Legend wrapperStyle={{ paddingTop: '5px', marginBottom: '5px' }} />
+              {showLine2023 && (
+                <Line
+                  type="monotone"
+                  dataKey="2023"
+                  stroke="#94a3b8"
+                  strokeWidth={2}
+                  dot={{ r: 3 }}
+                  activeDot={{ r: 5 }}
+                  name="2023"
+                />
+              )}
+              {showLine2024 && (
+                <Line
+                  type="monotone"
+                  dataKey="2024"
+                  stroke="#0d9488"
+                  strokeWidth={2}
+                  dot={{ r: 3 }}
+                  activeDot={{ r: 5 }}
+                  name="2024"
+                />
+              )}
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        
+        {/* Summary Stats Container - Moved below the chart */}
+        <div className="grid grid-cols-3 gap-2 mt-2 mx-6 bg-slate-50 p-3 rounded-md border overflow-hidden text-center">
           <div className="overflow-hidden">
             <div className="text-xs text-muted-foreground truncate">2023 Total</div>
-            <div className="text-sm font-semibold truncate">{formatTooltipValue(totals["2023"])}</div>
+            <div className="text-sm font-semibold truncate">{formatCurrency(totals["2023"])}</div>
           </div>
           <div className="overflow-hidden">
             <div className="text-xs text-muted-foreground truncate">2024 Total</div>
-            <div className="text-sm font-semibold truncate">{formatTooltipValue(totals["2024"])}</div>
+            <div className="text-sm font-semibold truncate">{formatCurrency(totals["2024"])}</div>
           </div>
           <div className="overflow-hidden">
             <div className="text-xs text-muted-foreground truncate">Growth</div>
             <div className="text-sm font-semibold text-teal-600 truncate">+{growth.toFixed(1)}%</div>
           </div>
-        </div>
-        
-        {/* Chart Container */}
-        <div className="w-full h-64">
-          <ResponsiveContainer width="100%" height={250}>
-            <ChartContainer config={chartConfig} className="h-full" id="revenue-chart">
-              <LineChart
-                accessibilityLayer
-                data={chartData}
-                margin={{
-                  top: 5,
-                  right: 5,
-                  left: 25,
-                  bottom: 5,
-                }}
-              >
-                <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                <XAxis
-                  dataKey={xAxisKey}
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
-                  fontSize={11}
-                />
-                <YAxis 
-                  tickFormatter={(value) => `$${value / 1000}k`}
-                  axisLine={false}
-                  tickLine={false}
-                  tickMargin={8}
-                  fontSize={11}
-                  width={50}
-                />
-                <ChartTooltip
-                  cursor={false}
-                  content={
-                    <ChartTooltipContent 
-                      indicator="line" 
-                      formatter={(value) => formatTooltipValue(value as number)}
-                    />
-                  }
-                />
-                {visibleDataKeys.includes("2023") && (
-                  <Line
-                    dataKey="2023"
-                    type="monotone"
-                    stroke="var(--color-2023)"
-                    strokeWidth={2}
-                    dot={{
-                      r: 3,
-                      fill: "var(--color-2023)",
-                    }}
-                    activeDot={{
-                      r: 5,
-                      stroke: "var(--color-2023)",
-                      strokeWidth: 2,
-                    }}
-                  />
-                )}
-                {visibleDataKeys.includes("2024") && (
-                  <Line
-                    dataKey="2024"
-                    type="monotone"
-                    stroke="var(--color-2024)"
-                    strokeWidth={2}
-                    dot={{
-                      r: 3,
-                      fill: "var(--color-2024)",
-                    }}
-                    activeDot={{
-                      r: 5,
-                      stroke: "var(--color-2024)",
-                      strokeWidth: 2,
-                    }}
-                  />
-                )}
-              </LineChart>
-            </ChartContainer>
-          </ResponsiveContainer>
         </div>
       </CardContent>
     </Card>

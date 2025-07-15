@@ -3,6 +3,10 @@ import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import RevenueSection from '@/components/dashboard/RevenueSection';
+import RevenueChart from '@/components/dashboard/performance/RevenueChart';
+import PerformanceStats from '@/components/dashboard/performance/PerformanceStats';
+import PendingTransfersTable from '@/components/dashboard/PendingTransfersTable';
+import TransferredCasesTable from '@/components/dashboard/TransferredCasesTable';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 type DisplayMode = 'revenue' | 'listings';
@@ -61,6 +65,32 @@ const Dashboard = () => {
               <>
                 {/* Revenue Section */}
                 <RevenueSection />
+                
+                {/* Charts and Stats Section - First Row */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* Revenue Trends Chart - 2/3 width on large screens */}
+                  <div className="lg:col-span-2" style={{ height: '400px' }}>
+                    <RevenueChart />
+                  </div>
+                  
+                  {/* Performance Stats - 1/3 width on large screens */}
+                  <div className="lg:col-span-1">
+                    <PerformanceStats />
+                  </div>
+                </div>
+                
+                {/* Case Tables Section - Second Row */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* Pending Transfers Table - 2/3 width on large screens */}
+                  <div className="lg:col-span-2">
+                    <PendingTransfersTable />
+                  </div>
+                  
+                  {/* Transferred Cases Table - 1/3 width on large screens */}
+                  <div className="lg:col-span-1">
+                    <TransferredCasesTable />
+                  </div>
+                </div>
               </>
             ) : (
               <Card className="data-card">

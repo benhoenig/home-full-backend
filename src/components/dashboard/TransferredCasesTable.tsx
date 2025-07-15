@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { 
-  ArrowUpRight, 
-  CheckSquare, 
-  Tag, 
-  CreditCard 
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from '@/components/ui/table';
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
   Select,
@@ -15,10 +16,69 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 type TimeFrame = 'monthly' | 'quarterly' | 'annually';
 
-const PerformanceStats = () => {
+// Mock data for transferred cases
+const mockTransferredCases = [
+  {
+    id: 101,
+    projectName: 'The Reserve Sukhumvit',
+    closingPrice: 9500000,
+    transferDate: '2024-08-01'
+  },
+  {
+    id: 102,
+    projectName: 'Ashton Silom',
+    closingPrice: 7200000,
+    transferDate: '2024-07-25'
+  },
+  {
+    id: 103,
+    projectName: 'Noble Recole',
+    closingPrice: 6800000,
+    transferDate: '2024-07-20'
+  },
+  {
+    id: 104,
+    projectName: 'Life One Wireless',
+    closingPrice: 5500000,
+    transferDate: '2024-07-15'
+  },
+  {
+    id: 105,
+    projectName: 'Rhythm Asoke',
+    closingPrice: 4900000,
+    transferDate: '2024-07-10'
+  },
+  {
+    id: 106,
+    projectName: 'The Line Jatujak',
+    closingPrice: 4200000,
+    transferDate: '2024-07-05'
+  },
+  {
+    id: 107,
+    projectName: 'Ideo Mobi Sukhumvit',
+    closingPrice: 3800000,
+    transferDate: '2024-07-01'
+  },
+  {
+    id: 108,
+    projectName: 'Noble Around Ari',
+    closingPrice: 8100000,
+    transferDate: '2024-06-28'
+  },
+  {
+    id: 109,
+    projectName: 'Ashton Chula',
+    closingPrice: 7800000,
+    transferDate: '2024-06-25'
+  }
+];
+
+const TransferredCasesTable = () => {
   const [timeframe, setTimeframe] = useState<TimeFrame>('monthly');
   const [period, setPeriod] = useState<string>(getCurrentPeriod('monthly'));
   
@@ -78,89 +138,23 @@ const PerformanceStats = () => {
     }
   };
   
-  // Get stats data based on selected timeframe and period
-  const getStatsData = () => {
-    // In a real application, this would fetch data from an API based on timeframe and period
-    // For now, we'll use mock data that changes slightly based on selections
-    
-    // Base values
-    let caseClosed = 48;
-    let totalCases = 82;
-    let conversionRate = 58.5;
-    let averageTicketSize = 302500;
-    
-    // Adjust based on timeframe
-    if (timeframe === 'quarterly') {
-      caseClosed *= 3;
-      totalCases *= 3;
-      averageTicketSize *= 0.95;
-    } else if (timeframe === 'annually') {
-      caseClosed *= 12;
-      totalCases *= 12;
-      averageTicketSize *= 0.9;
-    }
-    
-    // Adjust based on period (just for demo purposes)
-    const periodNum = parseInt(period.split('-').pop()?.replace('Q', '') || '0');
-    const adjustFactor = periodNum / 10;
-    
-    caseClosed = Math.round(caseClosed * (1 + adjustFactor * 0.1));
-    totalCases = Math.round(totalCases * (1 + adjustFactor * 0.05));
-    conversionRate = parseFloat((conversionRate * (1 + adjustFactor * 0.02)).toFixed(1));
-    averageTicketSize = Math.round(averageTicketSize * (1 + adjustFactor * 0.03));
-    
-    return {
-      caseClosed,
-      totalCases,
-      conversionRate,
-      averageTicketSize
-    };
+  // Filter data based on timeframe and period
+  const getFilteredData = () => {
+    // In a real app, this would filter based on the actual dates
+    // For demo purposes, we'll just return all data
+    return mockTransferredCases;
   };
   
-  const statsData = getStatsData();
+  const transferredCases = getFilteredData();
   
+  // Format currency
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', { 
+    return new Intl.NumberFormat('th-TH', { 
       style: 'currency', 
-      currency: 'USD',
+      currency: 'THB',
       maximumFractionDigits: 0
     }).format(value);
   };
-
-  // Stat item component for consistent styling
-  const StatItem = ({ 
-    icon, 
-    iconBg, 
-    iconColor, 
-    label, 
-    value, 
-    change, 
-    changeColor 
-  }: { 
-    icon: React.ReactNode; 
-    iconBg: string; 
-    iconColor: string; 
-    label: string; 
-    value: string; 
-    change: string; 
-    changeColor: string;
-  }) => (
-    <div className="flex items-center gap-4 py-3 border-b last:border-0 border-border/50">
-      <div className={cn("rounded-full p-2.5", iconBg)}>
-        {icon}
-      </div>
-      <div className="flex-1">
-        <div className="text-sm text-muted-foreground mb-1">{label}</div>
-        <div className="flex justify-between items-baseline">
-          <span className="text-xl font-semibold">{value}</span>
-          <span className={cn("text-xs font-medium flex items-center", changeColor)}>
-            <ArrowUpRight className="h-3 w-3 mr-1" />
-            {change}
-          </span>
-        </div>
-      </div>
-    </div>
-  );
   
   // Handle timeframe change
   const handleTimeframeChange = (value: string) => {
@@ -172,10 +166,10 @@ const PerformanceStats = () => {
   };
   
   return (
-    <Card className="h-full">
-      <CardHeader className="pb-2">
+    <Card className="h-full data-card">
+      <CardHeader className="py-3">
         <div className="flex justify-between items-center">
-          <h3 className="text-lg font-semibold">Performance Stats :</h3>
+          <h3 className="text-lg font-semibold">เคสที่โอนฯแล้ว</h3>
           <div className="flex items-center gap-2">
             <ToggleGroup 
               type="single" 
@@ -209,39 +203,33 @@ const PerformanceStats = () => {
           </div>
         </div>
       </CardHeader>
-      <CardContent>
-        <StatItem 
-          icon={<CheckSquare className="h-4 w-4 text-teal-600" />}
-          iconBg="bg-teal-100" 
-          iconColor="text-teal-600"
-          label="Cases Closed"
-          value={`${statsData.caseClosed}/${statsData.totalCases}`}
-          change={`${Math.round((statsData.caseClosed / statsData.totalCases) * 100)}%`}
-          changeColor="text-teal-600"
-        />
-        
-        <StatItem 
-          icon={<Tag className="h-4 w-4 text-blue-600" />}
-          iconBg="bg-blue-100" 
-          iconColor="text-blue-600"
-          label="Conversion Rate"
-          value={`${statsData.conversionRate}%`}
-          change="8.2%"
-          changeColor="text-blue-600"
-        />
-        
-        <StatItem 
-          icon={<CreditCard className="h-4 w-4 text-amber-600" />}
-          iconBg="bg-amber-100" 
-          iconColor="text-amber-600"
-          label="Ticket Size"
-          value={formatCurrency(statsData.averageTicketSize)}
-          change="12.3%"
-          changeColor="text-amber-600"
-        />
+      <CardContent className="p-0">
+        <div className="w-full overflow-hidden border rounded-md">
+          <ScrollArea className="h-[320px] w-full">
+            <div className="w-full min-w-max">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="sticky top-0 whitespace-nowrap">Closing Project</TableHead>
+                    <TableHead className="sticky top-0 whitespace-nowrap text-right">Closing Price</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {transferredCases.map(item => (
+                    <TableRow key={item.id} className="cursor-pointer hover:bg-muted/30">
+                      <TableCell className="whitespace-nowrap font-medium">{item.projectName}</TableCell>
+                      <TableCell className="whitespace-nowrap text-right">{formatCurrency(item.closingPrice)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+            <ScrollBar orientation="horizontal" />
+          </ScrollArea>
+        </div>
       </CardContent>
     </Card>
   );
 };
 
-export default PerformanceStats; 
+export default TransferredCasesTable; 
