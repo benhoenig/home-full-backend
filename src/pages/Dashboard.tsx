@@ -9,6 +9,12 @@ import PendingTransfersTable from '@/components/dashboard/PendingTransfersTable'
 import TransferredCasesTable from '@/components/dashboard/TransferredCasesTable';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
+// Import Team components
+import TeamRevenueSection from '@/components/dashboard/team/TeamRevenueSection';
+import TeamRevenueChart from '@/components/dashboard/team/TeamRevenueChart';
+import TeamPerformanceStats from '@/components/dashboard/team/TeamPerformanceStats';
+import TeamTransfersTable from '@/components/dashboard/team/TeamTransfersTable';
+
 type DisplayMode = 'revenue' | 'listings';
 
 const Dashboard = () => {
@@ -104,15 +110,40 @@ const Dashboard = () => {
             )}
           </TabsContent>
           
-          <TabsContent value="team">
-            <Card className="data-card">
-              <CardHeader>
-                <CardTitle>Team Dashboard</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p>Team performance content will go here</p>
-              </CardContent>
-            </Card>
+          <TabsContent value="team" className="space-y-6">
+            {displayMode === 'revenue' ? (
+              <>
+                {/* Team Revenue Section */}
+                <TeamRevenueSection />
+                
+                {/* Team Charts and Stats Section - First Row */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* Team Revenue Trends Chart - 2/3 width on large screens */}
+                  <div className="lg:col-span-2" style={{ height: '400px' }}>
+                    <TeamRevenueChart />
+                  </div>
+                  
+                  {/* Team Performance Stats - 1/3 width on large screens */}
+                  <div className="lg:col-span-1">
+                    <TeamPerformanceStats />
+                  </div>
+                </div>
+                
+                {/* Team Transfers Table - Full width */}
+                <div>
+                  <TeamTransfersTable />
+                </div>
+              </>
+            ) : (
+              <Card className="data-card">
+                <CardHeader>
+                  <CardTitle>Team Listings Dashboard</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p>Team listings content will go here</p>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
           
           <TabsContent value="employees">
