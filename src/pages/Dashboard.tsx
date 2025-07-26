@@ -15,17 +15,26 @@ import TeamRevenueChart from '@/components/dashboard/team/TeamRevenueChart';
 import TeamPerformanceStats from '@/components/dashboard/team/TeamPerformanceStats';
 import TeamTransfersTable from '@/components/dashboard/team/TeamTransfersTable';
 
+// Import Employee Status component
+import EmployeeStatusContent from '@/components/dashboard/employee-status/EmployeeStatusContent';
+
 type DisplayMode = 'revenue' | 'listings';
+type ActiveTab = 'main' | 'team' | 'employees';
 
 const Dashboard = () => {
   const [displayMode, setDisplayMode] = useState<DisplayMode>('revenue');
+  const [activeTab, setActiveTab] = useState<ActiveTab>('main');
+  
+  const handleTabChange = (value: string) => {
+    setActiveTab(value as ActiveTab);
+  };
   
   return (
     <DashboardLayout 
       title="Dashboard"
     >
       <div className="space-y-6">
-        <Tabs defaultValue="main" className="w-full">
+        <Tabs defaultValue="main" className="w-full" onValueChange={handleTabChange}>
           {/* Tab controls and display mode buttons */}
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
             <div className="flex items-center">
@@ -36,22 +45,25 @@ const Dashboard = () => {
               </TabsList>
             </div>
             
-            <div className="flex space-x-2">
-              <Button 
-                variant={displayMode === 'revenue' ? 'default' : 'outline'} 
-                size="sm"
-                onClick={() => setDisplayMode('revenue')}
-              >
-                Revenue
-              </Button>
-              <Button 
-                variant={displayMode === 'listings' ? 'default' : 'outline'} 
-                size="sm"
-                onClick={() => setDisplayMode('listings')}
-              >
-                Listings
-              </Button>
-            </div>
+            {/* Only show Revenue/Listings buttons for Main and Team tabs */}
+            {activeTab !== 'employees' && (
+              <div className="flex space-x-2">
+                <Button 
+                  variant={displayMode === 'revenue' ? 'default' : 'outline'} 
+                  size="sm"
+                  onClick={() => setDisplayMode('revenue')}
+                >
+                  Revenue
+                </Button>
+                <Button 
+                  variant={displayMode === 'listings' ? 'default' : 'outline'} 
+                  size="sm"
+                  onClick={() => setDisplayMode('listings')}
+                >
+                  Listings
+                </Button>
+              </div>
+            )}
           </div>
           
           {/* Banner Image Placeholder - 10:1 ratio */}
@@ -147,14 +159,7 @@ const Dashboard = () => {
           </TabsContent>
           
           <TabsContent value="employees">
-            <Card className="data-card">
-              <CardHeader>
-                <CardTitle>Employee Status</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p>Employee status content will go here</p>
-              </CardContent>
-            </Card>
+            <EmployeeStatusContent />
           </TabsContent>
         </Tabs>
       </div>
