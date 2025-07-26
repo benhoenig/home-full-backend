@@ -18,6 +18,9 @@ import TeamTransfersTable from '@/components/dashboard/team/TeamTransfersTable';
 // Import Employee Status component
 import EmployeeStatusContent from '@/components/dashboard/employee-status/EmployeeStatusContent';
 
+// Import Listings Dashboard component
+import ListingsDashboard from '@/components/dashboard/listings/ListingsDashboard';
+
 type DisplayMode = 'revenue' | 'listings';
 type ActiveTab = 'main' | 'team' | 'employees';
 
@@ -111,14 +114,7 @@ const Dashboard = () => {
                 </div>
               </>
             ) : (
-              <Card className="data-card">
-                <CardHeader>
-                  <CardTitle>Listings Dashboard</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p>Listings content will go here</p>
-                </CardContent>
-              </Card>
+              <ListingsDashboard />
             )}
           </TabsContent>
           
@@ -147,12 +143,12 @@ const Dashboard = () => {
                 </div>
               </>
             ) : (
-              <Card className="data-card">
+              <Card>
                 <CardHeader>
                   <CardTitle>Team Listings Dashboard</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <p>Team listings content will go here</p>
+                <CardContent className="flex items-center justify-center h-96">
+                  <p className="text-muted-foreground">Team Listings Dashboard will be implemented in the future.</p>
                 </CardContent>
               </Card>
             )}
