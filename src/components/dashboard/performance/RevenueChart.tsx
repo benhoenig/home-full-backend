@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { 
+import {
   LineChart, 
   Line, 
   XAxis, 

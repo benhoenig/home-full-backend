@@ -195,10 +195,10 @@ const Goals = () => {
     setIsEditModalOpen(false);
     
     // Show success toast
-    toast({
+      toast({
       title: "Notification Settings Updated",
       description: "Your goal notification settings have been updated successfully.",
-    });
+      });
   };
 
   // Helper function to format deadline based on timeline type and period
