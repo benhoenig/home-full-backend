@@ -11,6 +11,8 @@ import FilterableListingsDashboard from '@/components/dashboard/listings/Filtera
 import EmployeeStatusContent from '@/components/dashboard/employee-status/EmployeeStatusContent';
 import TeamRevenueSection from '@/components/dashboard/team/TeamRevenueSection';
 import TeamRevenueChart from '@/components/dashboard/team/TeamRevenueChart';
+import EnhancedPipelineCard from '@/components/dashboard/EnhancedPipelineCard';
+import TeamPipelineCard from '@/components/dashboard/TeamPipelineCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 type DisplayMode = 'revenue' | 'listings';
@@ -96,6 +98,15 @@ const Dashboard = () => {
                     <TransferredCasesTable />
                   </div>
                 </div>
+                
+                {/* Pipeline Section - Third Row */}
+                <div className="w-full">
+                  <EnhancedPipelineCard 
+                    totalCommission="$420,000"
+                    winCommission="$42,000" 
+                    className="w-full"
+                  />
+                </div>
               </>
             ) : (
               <FilterableListingsDashboard isTeamView={false} />
@@ -132,6 +143,15 @@ const Dashboard = () => {
                   <div className="lg:col-span-1">
                     <TransferredCasesTable />
                   </div>
+                </div>
+                
+                {/* Pipeline Section - Third Row */}
+                <div className="w-full">
+                  <TeamPipelineCard 
+                    totalCommission="$620,000"
+                    winCommission="$62,000" 
+                    className="w-full"
+                  />
                 </div>
               </>
             ) : (
