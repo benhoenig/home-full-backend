@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -45,7 +45,12 @@ const Dashboard = () => {
       title="Dashboard"
     >
       <div className="space-y-6">
-        <Tabs defaultValue="main" className="w-full" onValueChange={setActiveTab}>
+        <Tabs 
+          defaultValue="main" 
+          value={activeTab}
+          className="w-full" 
+          onValueChange={setActiveTab}
+        >
           {/* Tab controls and display mode buttons */}
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
             <div className="flex items-center">
@@ -56,29 +61,32 @@ const Dashboard = () => {
               </TabsList>
             </div>
             
-        <div className="flex space-x-2">
-          <Button 
-            variant={displayMode === 'revenue' ? 'default' : 'outline'} 
-            size="sm"
-            onClick={() => setDisplayMode('revenue')}
-          >
-            Revenue
-          </Button>
-          <Button 
-            variant={displayMode === 'listings' ? 'default' : 'outline'} 
-            size="sm"
-            onClick={() => setDisplayMode('listings')}
-          >
-            Listings
-          </Button>
-          <Button 
-            variant={displayMode === 'stats' ? 'default' : 'outline'} 
-            size="sm"
-            onClick={() => setDisplayMode('stats')}
-          >
-            Stats
-          </Button>
-        </div>
+            {/* Display Mode Buttons - only show when not on Employee Status tab */}
+            {activeTab !== 'employees' && (
+              <div className="flex space-x-2">
+                <Button 
+                  variant={displayMode === 'revenue' ? 'default' : 'outline'} 
+                  size="sm"
+                  onClick={() => setDisplayMode('revenue')}
+                >
+                  Revenue
+                </Button>
+                <Button 
+                  variant={displayMode === 'listings' ? 'default' : 'outline'} 
+                  size="sm"
+                  onClick={() => setDisplayMode('listings')}
+                >
+                  Listings
+                </Button>
+                <Button 
+                  variant={displayMode === 'stats' ? 'default' : 'outline'} 
+                  size="sm"
+                  onClick={() => setDisplayMode('stats')}
+                >
+                  Stats
+                </Button>
+              </div>
+            )}
           </div>
           
         {/* Banner Image Placeholder - 10:1 ratio */}
@@ -138,7 +146,7 @@ const Dashboard = () => {
               <FilterableListingsDashboard isTeamView={false} />
             ) : (
               <StatsDashboard selectedMember="current_user" />
-            )}
+                        )}
           </TabsContent>
           
           <TabsContent value="team" className="space-y-6">

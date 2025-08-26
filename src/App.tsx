@@ -10,7 +10,7 @@ import NotFound from "./pages/NotFound";
 import Settings from "./pages/Settings";
 import LeadManager from "./pages/LeadManager";
 import LeadSubmissionPage from "./pages/LeadSubmissionPage";
-import Dashboard from "./pages/Dashboard";
+import RoleDashboard from "./pages/RoleDashboard";
 import Goals from "./pages/Goals";
 import Leaderboard from "./pages/Leaderboard";
 import Mentoring from "./pages/Mentoring";
@@ -19,7 +19,6 @@ import Listings from "@/pages/Listings";
 import AllListings from "@/pages/AllListings";
 import OwnerFocus from "@/pages/OwnerFocus";
 import MasterDataPage from "@/pages/MasterDataPage";
-import ManagerDashboard from "@/pages/ManagerDashboard";
 
 const App = () => {
   // Create a new QueryClient instance inside the component
@@ -32,12 +31,12 @@ const App = () => {
           <Toaster />
           <Sonner />
           <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/inbox" element={<Index />} /> 
+            <Route path="/" element={<RoleDashboard />} />
+            <Route path="/inbox" element={<RoleDashboard />} /> 
             <Route path="/client-process" element={<ClientProcess />} />
             <Route path="/lead-manager" element={<LeadManager />} />
             <Route path="/lead-submission" element={<LeadSubmissionPage />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard" element={<RoleDashboard />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/goals" element={<Goals />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
@@ -46,7 +45,7 @@ const App = () => {
             <Route path="/all-listings" element={<AllListings />} />
             <Route path="/owner-focus" element={<OwnerFocus />} />
             <Route path="/master-data" element={<MasterDataPage />} />
-            <Route path="/manager-dashboard" element={<ManagerDashboard />} />
+
             <Route path="/action-tracker-demo" element={<ActionTrackerDemo />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
