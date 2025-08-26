@@ -10,11 +10,11 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { ArrowUpDown, ArrowDown } from 'lucide-react';
+import { ArrowUpDown, ArrowDown, X } from 'lucide-react';
+import { Slider } from '@/components/ui/slider';
 
-// Mock data for areas
+// Mock data for areas (used for display names)
 const areas = [
-  { id: 'all', name: 'All Areas' },
   // Core areas (always shown)
   { id: 'bangkok_central', name: 'Bangkok (Central)' },
   { id: 'bangkok_east', name: 'Bangkok (East)' },
@@ -54,25 +54,24 @@ const areas = [
   { id: 'surin', name: 'Surin' },
 ];
 
-// Mock data for property types
-const propertyTypes = [
+// Mock data for listing types
+const listingTypes = [
   { id: 'all', name: 'All Types' },
-  { id: 'condo', name: 'Condo' },
-  { id: 'house', name: 'House' },
-  { id: 'land', name: 'Land' },
-  { id: 'townhouse', name: 'Townhouse' },
+  { id: 'normal', name: 'Normal' },
+  { id: 'a_list', name: 'A List' },
+  { id: 'exclusive', name: 'Exclusive' },
 ];
 
-// Mock data for price ranges
-const priceRanges = [
-  { id: 'all', name: 'All Prices' },
-  { id: 'under_5m', name: 'Under 5M THB' },
-  { id: '5m_15m', name: '5M - 15M THB' },
-  { id: '15m_30m', name: '15M - 30M THB' },
-  { id: 'over_30m', name: 'Over 30M THB' },
-];
+// Price range configuration for slider
+const priceRangeConfig = {
+  min: 0,
+  max: 50,
+  step: 1,
+  defaultValue: [0, 50], // 0M to 50M THB
+  formatValue: (value: number) => `${value}M฿`,
+};
 
-// Mock data for marketing channels
+// Mock data for marketing channels (single-select)
 const marketingChannels = [
   { id: 'all', name: 'All Channels' },
   { id: 'ddproperty', name: 'Ddproperty' },
@@ -80,7 +79,11 @@ const marketingChannels = [
   { id: 'instagram', name: 'Instagram' },
   { id: 'livinginsider', name: 'Livinginsider' },
   { id: 'events', name: 'Events' },
-  { id: 'facebook_group', name: 'Facebook Group' },
+  { id: 'youtube', name: 'YouTube' },
+  { id: 'tiktok', name: 'TikTok' },
+  { id: 'offline_ads', name: 'Offline Ads' },
+  { id: 'referral', name: 'Referral' },
+  { id: 'email_marketing', name: 'Email Marketing' },
 ];
 
 // Generate random performance data for an area and property type
@@ -179,9 +182,8 @@ interface SelectedCellData {
 }
 
 const MarketingDashboard = () => {
-  const [selectedArea, setSelectedArea] = useState<string>('all');
-  const [selectedPropertyType, setSelectedPropertyType] = useState<string>('all');
-  const [selectedPriceRange, setSelectedPriceRange] = useState<string>('all');
+  const [selectedListingType, setSelectedListingType] = useState<string>('all');
+  const [priceRange, setPriceRange] = useState<number[]>(priceRangeConfig.defaultValue);
   const [selectedChannel, setSelectedChannel] = useState<string>('all');
   const [selectedMetric, setSelectedMetric] = useState<string>('leads');
   const [selectedCellData, setSelectedCellData] = useState<SelectedCellData | null>(null);
@@ -189,6 +191,7 @@ const MarketingDashboard = () => {
   const [sortedColumn, setSortedColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isHeatmapModalOpen, setIsHeatmapModalOpen] = useState(false);
 
   // Get current performance matrix based on expanded state
   const currentPerformanceMatrix = isExpanded ? extendedPerformanceMatrix : corePerformanceMatrix;
@@ -244,15 +247,16 @@ const MarketingDashboard = () => {
 
   // Clear all filters
   const clearFilters = () => {
-    setSelectedArea('all');
-    setSelectedPropertyType('all');
-    setSelectedPriceRange('all');
+    setSelectedListingType('all');
+    setPriceRange(priceRangeConfig.defaultValue);
     setSelectedChannel('all');
   };
 
   // Check if any filters are active
-  const hasActiveFilters = selectedArea !== 'all' || selectedPropertyType !== 'all' || 
-                          selectedPriceRange !== 'all' || selectedChannel !== 'all';
+  const hasActiveFilters = selectedListingType !== 'all' || 
+                          priceRange[0] !== priceRangeConfig.defaultValue[0] || 
+                          priceRange[1] !== priceRangeConfig.defaultValue[1] ||
+                          selectedChannel !== 'all';
 
   // Get current metric name for display
   const currentMetric = availableMetrics.find(m => m.id === selectedMetric);
@@ -310,121 +314,7 @@ const MarketingDashboard = () => {
 
   return (
     <div className="space-y-6">
-      {/* Filters Section */}
-      <Card>
-        <CardHeader>
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-            <CardTitle>Marketing Performance Analysis</CardTitle>
-            {hasActiveFilters && (
-              <Button variant="outline" size="sm" onClick={clearFilters}>
-                Clear All Filters
-              </Button>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Area Filter */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Area</label>
-              <Select value={selectedArea} onValueChange={setSelectedArea}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select area" />
-                </SelectTrigger>
-                <SelectContent>
-                  {areas.map(area => (
-                    <SelectItem key={area.id} value={area.id}>
-                      {area.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Property Type Filter */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Property Type</label>
-              <Select value={selectedPropertyType} onValueChange={setSelectedPropertyType}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select property type" />
-                </SelectTrigger>
-                <SelectContent>
-                  {propertyTypes.map(type => (
-                    <SelectItem key={type.id} value={type.id}>
-                      {type.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Price Range Filter */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Price Range</label>
-              <Select value={selectedPriceRange} onValueChange={setSelectedPriceRange}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select price range" />
-                </SelectTrigger>
-                <SelectContent>
-                  {priceRanges.map(range => (
-                    <SelectItem key={range.id} value={range.id}>
-                      {range.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Marketing Channel Filter */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Marketing Channel</label>
-              <Select value={selectedChannel} onValueChange={setSelectedChannel}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select channel" />
-                </SelectTrigger>
-                <SelectContent>
-                  {marketingChannels.map(channel => (
-                    <SelectItem key={channel.id} value={channel.id}>
-                      {channel.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Active Filters Display */}
-          {hasActiveFilters && (
-            <div className="mt-4 pt-4 border-t">
-              <div className="flex flex-wrap gap-2">
-                <span className="text-sm font-medium text-gray-600">Active Filters:</span>
-                {selectedArea !== 'all' && (
-                  <Badge variant="secondary">
-                    Area: {areas.find(a => a.id === selectedArea)?.name}
-                  </Badge>
-                )}
-                {selectedPropertyType !== 'all' && (
-                  <Badge variant="secondary">
-                    Type: {propertyTypes.find(t => t.id === selectedPropertyType)?.name}
-                  </Badge>
-                )}
-                {selectedPriceRange !== 'all' && (
-                  <Badge variant="secondary">
-                    Price: {priceRanges.find(p => p.id === selectedPriceRange)?.name}
-                  </Badge>
-                )}
-                {selectedChannel !== 'all' && (
-                  <Badge variant="secondary">
-                    Channel: {marketingChannels.find(c => c.id === selectedChannel)?.name}
-                  </Badge>
-                )}
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Performance Heatmap Matrix */}
+      {/* Performance Heatmap Matrix with Integrated Filters */}
       <Card>
         <CardHeader>
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
@@ -591,22 +481,14 @@ const MarketingDashboard = () => {
             </div>
           </div>
           
-          {/* See All / Collapse Button */}
+          {/* See All Button */}
           <div className="flex justify-center pt-4 border-t">
             <Button
               variant="outline"
-              onClick={() => setIsExpanded(!isExpanded)}
+              onClick={() => setIsHeatmapModalOpen(true)}
               className="text-sm"
             >
-              {isExpanded ? (
-                <>
-                  ↑ Show Less Areas ({Object.keys(corePerformanceMatrix).length} core areas)
-                </>
-              ) : (
-                <>
-                  ↓ See All Areas ({Object.keys(extendedPerformanceMatrix).length} total areas)
-                </>
-              )}
+              🔍 View Full Heatmap ({Object.keys(extendedPerformanceMatrix).length} total areas)
             </Button>
           </div>
         </CardContent>
@@ -685,6 +567,266 @@ const MarketingDashboard = () => {
                 </div>
               </div>
             )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Full-Screen Heatmap Modal */}
+      <Dialog open={isHeatmapModalOpen} onOpenChange={setIsHeatmapModalOpen}>
+        <DialogContent className="max-w-[95vw] max-h-[95vh] w-full h-full p-0">
+          <div className="flex flex-col h-full">
+            {/* Modal Header with Filters */}
+            <div className="sticky top-0 bg-white border-b z-10">
+              <div className="p-6 space-y-4">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <DialogTitle className="text-xl font-semibold">
+                      Complete Marketing Performance Heatmap
+                    </DialogTitle>
+                    <p className="text-sm text-gray-600 mt-1">
+                      All {Object.keys(extendedPerformanceMatrix).length} areas with advanced filtering capabilities
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">Metric to Display</label>
+                    <div className="flex gap-2">
+                      <Select value={selectedMetric} onValueChange={setSelectedMetric}>
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue placeholder="Select metric" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {availableMetrics.map(metric => (
+                            <SelectItem key={metric.id} value={metric.id}>
+                              {metric.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {sortedColumn && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setSortedColumn(null);
+                            setSortDirection('desc');
+                          }}
+                          className="text-xs"
+                        >
+                          Clear Sort
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Advanced Filters in Modal - 3 Column Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Listing Type Filter */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">Listing Type</label>
+                    <Select value={selectedListingType} onValueChange={setSelectedListingType}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select listing type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {listingTypes.map(type => (
+                          <SelectItem key={type.id} value={type.id}>
+                            {type.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Marketing Channel Filter */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">Marketing Channel</label>
+                    <Select value={selectedChannel} onValueChange={setSelectedChannel}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select channel" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {marketingChannels.map(channel => (
+                          <SelectItem key={channel.id} value={channel.id}>
+                            {channel.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Price Range Slider */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">
+                      Price Range: {priceRangeConfig.formatValue(priceRange[0])} - {priceRangeConfig.formatValue(priceRange[1])}
+                    </label>
+                    <div className="px-3 py-4">
+                      <Slider
+                        value={priceRange}
+                        onValueChange={setPriceRange}
+                        min={priceRangeConfig.min}
+                        max={priceRangeConfig.max}
+                        step={priceRangeConfig.step}
+                        className="w-full"
+                        minStepsBetweenThumbs={1}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Active Filters in Modal */}
+                {hasActiveFilters && (
+                  <div className="pt-4 border-t">
+                    <div className="flex flex-wrap gap-2">
+                      <span className="text-sm font-medium text-gray-600">Active Filters:</span>
+                      {selectedListingType !== 'all' && (
+                        <Badge variant="secondary" className="cursor-pointer" onClick={() => setSelectedListingType('all')}>
+                          Listing: {listingTypes.find(t => t.id === selectedListingType)?.name} <X className="h-3 w-3 ml-1" />
+                        </Badge>
+                      )}
+                      {(priceRange[0] !== priceRangeConfig.defaultValue[0] || priceRange[1] !== priceRangeConfig.defaultValue[1]) && (
+                        <Badge variant="secondary" className="cursor-pointer" onClick={() => setPriceRange(priceRangeConfig.defaultValue)}>
+                          Price: {priceRangeConfig.formatValue(priceRange[0])} - {priceRangeConfig.formatValue(priceRange[1])} <X className="h-3 w-3 ml-1" />
+                        </Badge>
+                      )}
+                      {selectedChannel !== 'all' && (
+                        <Badge variant="secondary" className="cursor-pointer" onClick={() => setSelectedChannel('all')}>
+                          Channel: {marketingChannels.find(c => c.id === selectedChannel)?.name} <X className="h-3 w-3 ml-1" />
+                        </Badge>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={clearFilters}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        Clear All
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Modal Content - Scrollable Heatmap */}
+            <div className="flex-1 overflow-auto p-6">
+              <div className="space-y-4">
+                {/* Column Headers */}
+                <div className="grid grid-cols-5 gap-2 sticky top-0 bg-white py-2 z-5">
+                  <div className="p-3 text-sm font-medium text-gray-700 bg-gray-100 rounded">Area / Property Type</div>
+                  {[
+                    { type: 'condo', icon: '🏢', label: 'Condo' },
+                    { type: 'house', icon: '🏠', label: 'House' },
+                    { type: 'land', icon: '🌾', label: 'Land' },
+                    { type: 'townhouse', icon: '🏘️', label: 'Townhouse' }
+                  ].map(({ type, icon, label }) => (
+                    <div key={type} className="bg-gray-100 rounded">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full h-full text-sm font-medium text-gray-700 hover:bg-gray-200 p-3 flex items-center justify-center gap-1"
+                        onClick={() => handleColumnSort(type)}
+                      >
+                        <span>{icon} {label}</span>
+                        {sortedColumn === type ? (
+                          <ArrowDown className={`h-3 w-3 ml-1 ${sortDirection === 'asc' ? 'rotate-180' : ''}`} />
+                        ) : (
+                          <ArrowUpDown className="h-3 w-3 ml-1 opacity-50" />
+                        )}
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+
+                {/* All Areas Data - Using Extended Matrix */}
+                {Object.entries(extendedPerformanceMatrix).map(([areaId, areaData]) => {
+                  const areaName = areas.find(a => a.id === areaId)?.name || areaId;
+                  
+                  return (
+                    <div key={areaId} className="grid grid-cols-5 gap-2">
+                      {/* Area Name */}
+                      <div className="p-3 text-sm font-medium text-gray-700 bg-gray-50 rounded flex items-center">
+                        {areaName}
+                      </div>
+
+                      {/* Property Type Performance Cells */}
+                      {['condo', 'house', 'land', 'townhouse'].map(propertyType => {
+                        const data = areaData[propertyType as keyof typeof areaData];
+                        if (!data) return null;
+
+                        const metricValue = data[selectedMetric as keyof typeof data] as number;
+                        const percentage = getPercentage(metricValue);
+
+                        return (
+                          <div
+                            key={`${areaId}-${propertyType}`}
+                            className={`p-2 rounded cursor-pointer hover:opacity-80 hover:scale-105 transition-all ${getPerformanceColor(percentage)}`}
+                            onClick={() => handleCellClick(areaName, propertyType, data)}
+                            title="Click for detailed metrics"
+                          >
+                            <div className={`text-center ${getPerformanceTextColor(percentage)}`}>
+                              <div className="text-base font-bold">{formatValue(metricValue, selectedMetric)}</div>
+                              <div className="text-xs opacity-90">
+                                {percentage.toFixed(0)}%
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })}
+
+                {/* Legend in Modal */}
+                <div className="mt-6 pt-4 border-t bg-gray-50 rounded-lg p-4">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-700 mb-2">
+                        {currentMetric?.name} Scale Legend:
+                      </h4>
+                      <div className="flex flex-wrap gap-2 mb-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 bg-green-500 rounded"></div>
+                          <span className="text-xs text-gray-600">80-100% (Top Performers)</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 bg-green-400 rounded"></div>
+                          <span className="text-xs text-gray-600">60-79% (Good)</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 bg-yellow-400 rounded"></div>
+                          <span className="text-xs text-gray-600">40-59% (Average)</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 bg-orange-400 rounded"></div>
+                          <span className="text-xs text-gray-600">20-39% (Below Average)</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 bg-red-400 rounded"></div>
+                          <span className="text-xs text-gray-600">0-19% (Lowest)</span>
+                        </div>
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        Range: {formatValue(minValue, selectedMetric)} - {formatValue(maxValue, selectedMetric)}
+                        {selectedMetric === 'cpl' && ' (Lower CPL = Better Performance)'}
+                      </div>
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      <div>• Click cells for detailed metrics</div>
+                      <div>• Click column headers to sort by property type</div>
+                      <div>• Percentage shows relative rank</div>
+                      <div>• Green = Best, Red = Worst</div>
+                      {sortedColumn && (
+                        <div className="mt-1 text-blue-600 font-medium">
+                          ↓ Sorted by {sortedColumn.charAt(0).toUpperCase() + sortedColumn.slice(1)} 
+                          ({sortDirection === 'desc' ? 'Highest to Lowest' : 'Lowest to Highest'})
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
