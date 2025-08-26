@@ -6,14 +6,18 @@ import { RevenuePeriod, RevenueType } from '@/components/dashboard/RevenueSectio
 
 // Mock team data
 const mockTeamMembers = [
-  { id: 1, name: 'สมชาย วงศ์สุข', position: 'Senior Sales' },
-  { id: 2, name: 'วิภาดา มานะ', position: 'Sales Manager' },
-  { id: 3, name: 'ธนพล รุ่งเรือง', position: 'Sales Executive' },
-  { id: 4, name: 'นภัสวรรณ ใจดี', position: 'Sales Associate' },
-  { id: 5, name: 'อนุชา พงศ์ธร', position: 'Sales Executive' },
+  { id: 1, name: 'Alex Johnson', thaiName: 'สมชาย วงศ์สุข', position: 'Senior Sales', key: 'alex' },
+  { id: 2, name: 'Sarah Williams', thaiName: 'วิภาดา มานะ', position: 'Sales Manager', key: 'sarah' },
+  { id: 3, name: 'Michael Brown', thaiName: 'ธนพล รุ่งเรือง', position: 'Sales Executive', key: 'michael' },
+  { id: 4, name: 'Emma Davis', thaiName: 'นภัสวรรณ ใจดี', position: 'Sales Associate', key: 'emma' },
+  { id: 5, name: 'David Chen', thaiName: 'อนุชา พงศ์ธร', position: 'Sales Executive', key: 'david' },
 ];
 
-export function TeamRevenueSection() {
+interface TeamRevenueSectionProps {
+  selectedMember?: string;
+}
+
+export function TeamRevenueSection({ selectedMember = 'all' }: TeamRevenueSectionProps) {
   const [period, setPeriod] = useState<RevenuePeriod>('monthly');
   const [revenueType, setRevenueType] = useState<RevenueType>('closing');
   
@@ -77,22 +81,35 @@ export function TeamRevenueSection() {
     }
   };
   
-  const revenueData = getRevenueData();
+  const allRevenueData = getRevenueData();
   
-  // Calculate team total
+  // Filter data based on selected member
+  const revenueData = selectedMember === 'all' 
+    ? allRevenueData 
+    : allRevenueData.filter(member => {
+        const teamMember = mockTeamMembers.find(tm => tm.id === member.id);
+        return teamMember?.key === selectedMember;
+      });
+  
+  // Calculate team total (or individual total if filtered)
   const teamTotal = {
     current: revenueData.reduce((sum, member) => sum + member.current, 0),
     target: revenueData.reduce((sum, member) => sum + member.target, 0),
     percentage: Math.round((revenueData.reduce((sum, member) => sum + member.current, 0) / 
                            revenueData.reduce((sum, member) => sum + member.target, 0)) * 100)
   };
+  
+  // Update title based on selection
+  const sectionTitle = selectedMember === 'all' ? 'Team Revenue :' : 'Member Revenue :';
+  const totalTitle = selectedMember === 'all' ? 'Team Total :' : 'Total :';
+  const showIndividualMembers = selectedMember === 'all';
 
   return (
     <div className="mb-0">
       <Card className="data-card">
         <CardHeader className="relative pb-2">
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">Team Revenue :</h3>
+            <h3 className="text-lg font-semibold">{sectionTitle}</h3>
             <RevenueToggleButtons 
               period={period} 
               setPeriod={setPeriod} 
@@ -102,10 +119,10 @@ export function TeamRevenueSection() {
           </div>
         </CardHeader>
         <CardContent>
-          {/* Team Total */}
+          {/* Team Total or Individual Member Total */}
           <div className="mb-6 pb-4 border-b">
             <TeamRevenue 
-              title="Team Total :" 
+              title={totalTitle}
               name=""
               current={teamTotal.current} 
               target={teamTotal.target} 
@@ -114,20 +131,22 @@ export function TeamRevenueSection() {
             />
           </div>
           
-          {/* Individual Team Members */}
-          <div className="space-y-4">
-            {revenueData.map(member => (
-              <TeamRevenue 
-                key={member.id}
-                title=""
-                name={member.name}
-                current={member.current} 
-                target={member.target} 
-                percentage={member.percentage}
-                isTotal={false} 
-              />
-            ))}
-          </div>
+          {/* Individual Team Members - only show when viewing all */}
+          {showIndividualMembers && (
+            <div className="space-y-4">
+              {revenueData.map(member => (
+                <TeamRevenue 
+                  key={member.id}
+                  title=""
+                  name={member.name}
+                  current={member.current} 
+                  target={member.target} 
+                  percentage={member.percentage}
+                  isTotal={false} 
+                />
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

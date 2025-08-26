@@ -35,7 +35,11 @@ const teamQuarterlyData = [
   { quarter: 'Q4', "Team Total": 0, "Top Performer": 0, "Average": 0 },
 ];
 
-const TeamRevenueChart = () => {
+interface TeamRevenueChartProps {
+  selectedMember?: string;
+}
+
+const TeamRevenueChart: React.FC<TeamRevenueChartProps> = ({ selectedMember = 'all' }) => {
   const [timeframe, setTimeframe] = useState<'quarterly' | 'monthly'>('monthly');
   const [dataView, setDataView] = useState<'all' | 'total' | 'individual'>('all');
   
@@ -50,8 +54,18 @@ const TeamRevenueChart = () => {
   };
   
   // Get the appropriate data based on timeframe
-  const chartData = timeframe === 'quarterly' ? teamQuarterlyData : teamMonthlyData;
+  let chartData = timeframe === 'quarterly' ? teamQuarterlyData : teamMonthlyData;
   const xAxisKey = timeframe === 'quarterly' ? 'quarter' : 'month';
+  
+  // Modify chart data based on selected member
+  if (selectedMember !== 'all') {
+    // For individual members, show their personal performance vs team averages
+    chartData = chartData.map(item => ({
+      ...item,
+      "Individual": Math.round(item["Average"] * (0.8 + Math.random() * 0.4)), // Mock individual data
+      "Team Average": item["Average"],
+    }));
+  }
   
   // Calculate totals
   const totals = {
@@ -64,7 +78,9 @@ const TeamRevenueChart = () => {
     <Card className="h-full overflow-hidden">
       <CardHeader className="pb-2">
         <div className="flex justify-between items-center">
-          <h3 className="text-lg font-semibold">Team Revenue Trends :</h3>
+          <h3 className="text-lg font-semibold">
+            {selectedMember === 'all' ? 'Team Revenue Trends :' : 'Individual Revenue Trends :'}
+          </h3>
           <div className="flex items-center gap-2">
             <ToggleGroup 
               type="single" 

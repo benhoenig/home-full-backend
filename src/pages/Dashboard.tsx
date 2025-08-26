@@ -13,13 +13,32 @@ import TeamRevenueSection from '@/components/dashboard/team/TeamRevenueSection';
 import TeamRevenueChart from '@/components/dashboard/team/TeamRevenueChart';
 import EnhancedPipelineCard from '@/components/dashboard/EnhancedPipelineCard';
 import TeamPipelineCard from '@/components/dashboard/TeamPipelineCard';
+import StatsDashboard from '@/components/dashboard/stats/StatsDashboard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-type DisplayMode = 'revenue' | 'listings';
+type DisplayMode = 'revenue' | 'listings' | 'stats';
+
+// Mock team members data - consistent with listings dashboard
+const teamMembers = [
+  { id: 'all', name: 'All Team Members' },
+  { id: 'alex', name: 'Alex Johnson' },
+  { id: 'sarah', name: 'Sarah Williams' },
+  { id: 'michael', name: 'Michael Brown' },
+  { id: 'emma', name: 'Emma Davis' },
+  { id: 'david', name: 'David Chen' },
+];
 
 const Dashboard = () => {
   const [displayMode, setDisplayMode] = useState<DisplayMode>('revenue');
   const [activeTab, setActiveTab] = useState<string>('main');
+  const [selectedTeamMember, setSelectedTeamMember] = useState<string>('all');
   
   return (
     <DashboardLayout 
@@ -51,6 +70,13 @@ const Dashboard = () => {
             onClick={() => setDisplayMode('listings')}
           >
             Listings
+          </Button>
+          <Button 
+            variant={displayMode === 'stats' ? 'default' : 'outline'} 
+            size="sm"
+            onClick={() => setDisplayMode('stats')}
+          >
+            Stats
           </Button>
         </div>
           </div>
@@ -108,22 +134,53 @@ const Dashboard = () => {
                   />
                 </div>
               </>
-            ) : (
+            ) : displayMode === 'listings' ? (
               <FilterableListingsDashboard isTeamView={false} />
+            ) : (
+              <StatsDashboard selectedMember="current_user" />
             )}
           </TabsContent>
           
           <TabsContent value="team" className="space-y-6">
             {displayMode === 'revenue' ? (
               <>
+                {/* Team Member Filter */}
+                <Card>
+                  <CardHeader className="pb-3">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                      <CardTitle>Team Revenue Dashboard</CardTitle>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium">Filter by:</span>
+                        <Select value={selectedTeamMember} onValueChange={setSelectedTeamMember}>
+                          <SelectTrigger className="w-[200px]">
+                            <SelectValue placeholder="Select team member" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {teamMembers.map(member => (
+                              <SelectItem key={member.id} value={member.id}>
+                                {member.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    {selectedTeamMember !== 'all' && (
+                      <div className="text-sm text-muted-foreground">
+                        Showing revenue for: <span className="font-medium">{teamMembers.find(m => m.id === selectedTeamMember)?.name}</span>
+                      </div>
+                    )}
+                  </CardHeader>
+                </Card>
+
                 {/* Team Revenue Section - similar to individual revenue */}
-                <TeamRevenueSection />
+                <TeamRevenueSection selectedMember={selectedTeamMember} />
                 
                 {/* Charts and Stats Section - First Row */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   {/* Team Revenue Trends Chart - 2/3 width on large screens */}
                   <div className="lg:col-span-2" style={{ height: '400px' }}>
-                    <TeamRevenueChart />
+                    <TeamRevenueChart selectedMember={selectedTeamMember} />
                   </div>
                   
                   {/* Team Performance Stats - 1/3 width on large screens */}
@@ -150,12 +207,41 @@ const Dashboard = () => {
                   <TeamPipelineCard 
                     totalCommission="$620,000"
                     winCommission="$62,000" 
+                    selectedMember={selectedTeamMember}
                     className="w-full"
                   />
                 </div>
               </>
-            ) : (
+            ) : displayMode === 'listings' ? (
               <FilterableListingsDashboard isTeamView={true} />
+            ) : (
+              <>
+                {/* Team Member Filter for Stats */}
+                <Card>
+                  <CardHeader className="pb-3">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                      <CardTitle>Team Stats Dashboard</CardTitle>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium">Filter by:</span>
+                        <Select value={selectedTeamMember} onValueChange={setSelectedTeamMember}>
+                          <SelectTrigger className="w-[200px]">
+                            <SelectValue placeholder="Select team member" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {teamMembers.map(member => (
+                              <SelectItem key={member.id} value={member.id}>
+                                {member.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </CardHeader>
+                </Card>
+                
+                <StatsDashboard selectedMember={selectedTeamMember} />
+              </>
             )}
           </TabsContent>
           

@@ -11,16 +11,19 @@ import { DateRange } from 'react-day-picker';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTeamPipelineComparison } from '@/hooks/useTeamPipelineComparison';
+import { usePipelineComparison } from '@/hooks/usePipelineComparison';
 
 type TeamPipelineCardProps = {
   totalCommission: string;
   winCommission: string;
+  selectedMember?: string;
   className?: string;
 };
 
 export default function TeamPipelineCard({ 
   totalCommission, 
   winCommission, 
+  selectedMember = 'all',
   className 
 }: TeamPipelineCardProps) {
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
@@ -28,6 +31,13 @@ export default function TeamPipelineCard({
     to: undefined,
   });
 
+  // Use different hooks based on whether viewing team or individual
+  const teamHook = useTeamPipelineComparison();
+  const individualHook = usePipelineComparison();
+  
+  const isIndividualView = selectedMember !== 'all';
+  const currentHook = isIndividualView ? individualHook : teamHook;
+  
   const {
     comparisonTarget,
     setComparisonTarget,
@@ -37,22 +47,24 @@ export default function TeamPipelineCard({
     setTimePeriod,
     comparisonData,
     comparisonTitle,
-  } = useTeamPipelineComparison();
+  } = currentHook;
 
-  const handleComparisonTargetChange = (value: 'current' | 'my_team' | 'best_team' | 'company') => {
-    setComparisonTarget(value);
+  const handleComparisonTargetChange = (value: string) => {
+    setComparisonTarget(value as any);
   };
 
-  const handleComparisonTypeChange = (value: 'average' | 'best_complete' | 'best_peak') => {
-    setComparisonType(value);
+  const handleComparisonTypeChange = (value: string) => {
+    setComparisonType(value as any);
   };
 
-  const handleTimePeriodChange = (value: 'monthly' | 'quarterly' | 'annually') => {
-    setTimePeriod(value);
+  const handleTimePeriodChange = (value: string) => {
+    setTimePeriod(value as any);
   };
 
   const showComparisonTypeSelector = comparisonTarget !== 'current';
-  const showTimePeriodSelector = comparisonTarget === 'my_team';
+  const showTimePeriodSelector = isIndividualView 
+    ? comparisonTarget === 'myself' 
+    : comparisonTarget === 'my_team';
   const showDatePicker = comparisonTarget === 'current';
 
   return (
@@ -67,15 +79,27 @@ export default function TeamPipelineCard({
           
           <div className="flex gap-2 flex-wrap">
             {/* Comparison Target Selector */}
-            <Select value={comparisonTarget} onValueChange={handleComparisonTargetChange}>
+            <Select value={comparisonTarget as string} onValueChange={handleComparisonTargetChange}>
               <SelectTrigger className="w-[140px] h-8 text-xs">
                 <SelectValue placeholder="Compare with" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="current">Current Only</SelectItem>
-                <SelectItem value="my_team">vs My Team</SelectItem>
-                <SelectItem value="best_team">vs Best Team</SelectItem>
-                <SelectItem value="company">vs Company</SelectItem>
+                {isIndividualView ? (
+                  <>
+                    <SelectItem value="myself">vs Myself</SelectItem>
+                    <SelectItem value="top_1">vs Top Performer #1</SelectItem>
+                    <SelectItem value="top_2">vs Top Performer #2</SelectItem>
+                    <SelectItem value="top_3">vs Top Performer #3</SelectItem>
+                    <SelectItem value="top_3_average">vs Top 3 Average</SelectItem>
+                  </>
+                ) : (
+                  <>
+                    <SelectItem value="my_team">vs My Team</SelectItem>
+                    <SelectItem value="best_team">vs Best Team</SelectItem>
+                    <SelectItem value="company">vs Company</SelectItem>
+                  </>
+                )}
               </SelectContent>
             </Select>
 
