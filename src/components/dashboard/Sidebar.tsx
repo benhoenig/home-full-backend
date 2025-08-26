@@ -25,13 +25,15 @@ export function Sidebar() {
   const location = useLocation();
   const [isOpen, setIsOpen] = React.useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [role, setRole] = useState<'Sales' | 'Admin' | 'Listing Support'>(() =>
-    (localStorage.getItem('user-role') as 'Sales' | 'Admin' | 'Listing Support') || 'Sales'
+  const [role, setRole] = useState<'Sales' | 'Admin' | 'Listing Support' | 'Manager'>(() =>
+    (localStorage.getItem('user-role') as 'Sales' | 'Admin' | 'Listing Support' | 'Manager') || 'Sales'
   );
   if (role === 'Admin') {
     console.log('[Sidebar] Current role: Admin (Admin sidebar)');
   } else if (role === 'Listing Support') {
     console.log('[Sidebar] Current role: Listing Support (Listing Support sidebar)');
+  } else if (role === 'Manager') {
+    console.log('[Sidebar] Current role: Manager (Manager sidebar)');
   } else {
     console.log('[Sidebar] Current role: Sales (Sales sidebar)');
   }
@@ -50,7 +52,7 @@ export function Sidebar() {
 
   useEffect(() => {
     const handleRoleChange = () => {
-      setRole((localStorage.getItem('user-role') as 'Sales' | 'Admin' | 'Listing Support') || 'Sales');
+      setRole((localStorage.getItem('user-role') as 'Sales' | 'Admin' | 'Listing Support' | 'Manager') || 'Sales');
     };
     window.addEventListener('role-changed', handleRoleChange);
     return () => {
@@ -86,10 +88,28 @@ export function Sidebar() {
       { label: 'Master Data', to: '/master-data', icon: <Database className="h-5 w-5" /> },
       { label: 'Settings', to: '/settings', icon: <Settings className="h-5 w-5" /> },
     ],
+    'Manager': [
+      // Combined menu from Admin, Listing Support, and Sales
+      { label: 'Dashboard', to: '/manager-dashboard', icon: <LayoutDashboard className="h-5 w-5" /> },
+      { label: 'Inbox', to: '/inbox', icon: <Inbox className="h-5 w-5" /> },
+      { label: 'Goals & Target', to: '/goals', icon: <Target className="h-5 w-5" /> },
+      { label: 'Leaderboard', to: '/leaderboard', icon: <Trophy className="h-5 w-5" /> },
+      { label: 'Lead Manager', to: '/lead-manager', icon: <Users className="h-5 w-5" /> },
+      { label: 'Lead Submission', to: '/lead-submission', icon: <FileText className="h-5 w-5" /> },
+      { label: 'My Listings', to: '/listings', icon: <LayoutList className="h-5 w-5" /> },
+      { label: 'All Listings', to: '/all-listings', icon: <LayoutList className="h-5 w-5" /> },
+      { label: 'OF (Owner Focus)', to: '/owner-focus', icon: <Users className="h-5 w-5" /> },
+      { label: 'UCP (Client Process)', to: '/client-process', icon: <FileText className="h-5 w-5" /> },
+      { label: 'Mentoring', to: '/mentoring', icon: <Users2 className="h-5 w-5" /> },
+      { label: 'Master Data', to: '/master-data', icon: <Database className="h-5 w-5" /> },
+      { label: 'Contacts', to: '/contacts', icon: <Users className="h-5 w-5" /> },
+      { label: 'Settings', to: '/settings', icon: <Settings className="h-5 w-5" /> },
+    ],
   };
 
-  // Show custom menu for Admin and Listing Support, default (Sales) sidebar for Sales
+  // Show custom menu for Admin and Listing Support, grouped menu for Manager, default (Sales) sidebar for Sales
   const isCustomRole = role === 'Admin' || role === 'Listing Support';
+  const isManagerRole = role === 'Manager';
 
   const sidebarContent = (
     <>
@@ -128,6 +148,150 @@ export function Sidebar() {
               )
             ))}
           </div>
+        ) : isManagerRole ? (
+          <>
+            {/* Manager Role Grouped Navigation */}
+            <div className="space-y-1">
+              <NavLink to="/manager-dashboard" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                <LayoutDashboard className="h-5 w-5" />
+                {!isCollapsed && <span>Dashboard</span>}
+              </NavLink>
+              <NavLink to="/inbox" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                <Inbox className="h-5 w-5" />
+                {!isCollapsed && <span>Inbox</span>}
+              </NavLink>
+              <NavLink to="/goals" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                <Target className="h-5 w-5" />
+                {!isCollapsed && <span>Goals & Target</span>}
+              </NavLink>
+              <NavLink to="/leaderboard" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                <Trophy className="h-5 w-5" />
+                {!isCollapsed && <span>Leaderboard</span>}
+              </NavLink>
+            </div>
+            
+            {!isCollapsed && (
+              <div>
+                <h3 className="px-3 text-xs uppercase text-sidebar-foreground/50 font-semibold tracking-wider">
+                  Main
+                </h3>
+                <div className="mt-2 space-y-1">
+                  <NavLink to="/listings" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                    <LayoutList className="h-5 w-5" />
+                    <span>My Listings</span>
+                  </NavLink>
+                  <NavLink to="/owner-focus" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                    <Users className="h-5 w-5" />
+                    <span>OF (Owner Focus)</span>
+                  </NavLink>
+                  <NavLink to="/client-process" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                    <FileText className="h-5 w-5" />
+                    <span>UCP (Client Process)</span>
+                  </NavLink>
+                  <NavLink to="/mentoring" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                    <Users2 className="h-5 w-5" />
+                    <span>Mentoring</span>
+                  </NavLink>
+                </div>
+              </div>
+            )}
+            
+            {isCollapsed && (
+              <div className="space-y-1">
+                <NavLink to="/listings" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                  <LayoutList className="h-5 w-5" />
+                </NavLink>
+                <NavLink to="/owner-focus" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                  <Users className="h-5 w-5" />
+                </NavLink>
+                <NavLink to="/client-process" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                  <FileText className="h-5 w-5" />
+                </NavLink>
+                <NavLink to="/mentoring" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                  <Users2 className="h-5 w-5" />
+                </NavLink>
+              </div>
+            )}
+            
+            {!isCollapsed && (
+              <div>
+                <h3 className="px-3 text-xs uppercase text-sidebar-foreground/50 font-semibold tracking-wider">
+                  Manager
+                </h3>
+                <div className="mt-2 space-y-1">
+                  <NavLink to="/lead-manager" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                    <Users className="h-5 w-5" />
+                    <span>Lead Manager</span>
+                  </NavLink>
+                  <NavLink to="/lead-submission" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                    <FileText className="h-5 w-5" />
+                    <span>Lead Submission</span>
+                  </NavLink>
+                  <NavLink to="/listing-manager" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                    <LayoutList className="h-5 w-5" />
+                    <span>Listing Manager</span>
+                  </NavLink>
+                  <NavLink to="/contacts" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                    <Users className="h-5 w-5" />
+                    <span>Contacts</span>
+                  </NavLink>
+                  <NavLink to="/master-data" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                    <Database className="h-5 w-5" />
+                    <span>Master Data</span>
+                  </NavLink>
+                </div>
+              </div>
+            )}
+            
+            {isCollapsed && (
+              <div className="space-y-1">
+                <NavLink to="/lead-manager" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                  <Users className="h-5 w-5" />
+                </NavLink>
+                <NavLink to="/lead-submission" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                  <FileText className="h-5 w-5" />
+                </NavLink>
+                <NavLink to="/listing-manager" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                  <LayoutList className="h-5 w-5" />
+                </NavLink>
+                <NavLink to="/contacts" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                  <Users className="h-5 w-5" />
+                </NavLink>
+                <NavLink to="/master-data" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                  <Database className="h-5 w-5" />
+                </NavLink>
+              </div>
+            )}
+            
+            {!isCollapsed && (
+              <div>
+                <h3 className="px-3 text-xs uppercase text-sidebar-foreground/50 font-semibold tracking-wider">
+                  Tools
+                </h3>
+                <div className="mt-2 space-y-1">
+                  <NavLink to="/all-listings" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                    <LayoutList className="h-5 w-5" />
+                    <span>All Listings</span>
+                  </NavLink>
+                  <NavLink to="/agreement" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                    <FileText className="h-5 w-5" />
+                    <span>Agreement Gen.</span>
+                  </NavLink>
+                </div>
+              </div>
+            )}
+            
+            {isCollapsed && (
+              <div className="space-y-1">
+                <NavLink to="/all-listings" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                  <LayoutList className="h-5 w-5" />
+                </NavLink>
+                <NavLink to="/agreement" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                  <FileText className="h-5 w-5" />
+                </NavLink>
+              </div>
+            )}
+          </>
         ) : (
           <>
             <div className="space-y-1">

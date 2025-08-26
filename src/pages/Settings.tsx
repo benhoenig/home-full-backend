@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 
-const ROLES = ['Sales', 'Admin', 'Listing Support'] as const;
+const ROLES = ['Sales', 'Admin', 'Listing Support', 'Manager'] as const;
 type Role = typeof ROLES[number];
 
 const Settings: React.FC = () => {
