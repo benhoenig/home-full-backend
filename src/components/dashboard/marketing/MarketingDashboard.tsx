@@ -368,6 +368,48 @@ const availableYears = [
   { id: '2024', name: '2024' },
 ];
 
+// Timeline filter options
+const timeframeOptions = [
+  { id: 'monthly', name: 'Monthly' },
+  { id: 'quarterly', name: 'Quarterly' },
+  { id: 'annually', name: 'Annually' },
+];
+
+// Period options based on timeframe
+const getPeriodOptions = (timeframe: string) => {
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = currentDate.getMonth() + 1;
+  const currentQuarter = Math.ceil(currentMonth / 3);
+
+  switch (timeframe) {
+    case 'monthly':
+      return [
+        { id: 'current', name: `Current Month (${currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })})` },
+        { id: 'last', name: 'Last Month' },
+        { id: 'last3', name: 'Last 3 Months' },
+        { id: 'last6', name: 'Last 6 Months' },
+        { id: 'last12', name: 'Last 12 Months' },
+      ];
+    case 'quarterly':
+      return [
+        { id: 'current', name: `Current Quarter (Q${currentQuarter} ${currentYear})` },
+        { id: 'last', name: 'Last Quarter' },
+        { id: 'last4', name: 'Last 4 Quarters' },
+        { id: 'ytd', name: 'Year to Date' },
+      ];
+    case 'annually':
+      return [
+        { id: 'current', name: `Current Year (${currentYear})` },
+        { id: 'last', name: 'Last Year' },
+        { id: 'last3', name: 'Last 3 Years' },
+        { id: 'last5', name: 'Last 5 Years' },
+      ];
+    default:
+      return [{ id: 'current', name: 'Current Period' }];
+  }
+};
+
 
 
 const teamPerformanceData = generateTeamPerformanceData();
@@ -420,6 +462,10 @@ const MarketingDashboard = () => {
     from: new Date(2024, 0, 1), // January 1, 2024
     to: new Date() // Today
   });
+
+  // Summary cards timeline filter state
+  const [summaryTimeframe, setSummaryTimeframe] = useState<string>('monthly');
+  const [summaryPeriod, setSummaryPeriod] = useState<string>('current');
 
   // Get current performance matrix based on expanded state
   const currentPerformanceMatrix = isExpanded ? extendedPerformanceMatrix : corePerformanceMatrix;
@@ -799,6 +845,103 @@ const MarketingDashboard = () => {
     setSelectedChartSalesperson('all');
   };
 
+  // Handle timeframe change and reset period
+  const handleTimeframeChange = (timeframe: string) => {
+    setSummaryTimeframe(timeframe);
+    setSummaryPeriod('current');
+  };
+
+  // Generate summary card data based on timeframe and period
+  const generateSummaryCardData = () => {
+    // Platform channels (property listing platforms)
+    const platformChannels = ['ddproperty', 'livinginsider', 'proppit'];
+    
+    // Social media channels
+    const socialMediaChannels = ['facebook_ad', 'facebook_group', 'instagram', 'youtube', 'tiktok'];
+
+    // Base data generation with some variance based on timeframe and period
+    const baseMultiplier = summaryTimeframe === 'monthly' ? 1 : 
+                          summaryTimeframe === 'quarterly' ? 3 : 12;
+    
+    const periodMultiplier = summaryPeriod === 'current' ? 1 :
+                            summaryPeriod === 'last' ? 0.95 :
+                            summaryPeriod.includes('3') ? 3 :
+                            summaryPeriod.includes('4') ? 4 :
+                            summaryPeriod.includes('6') ? 6 :
+                            summaryPeriod.includes('12') ? 12 :
+                            summaryPeriod.includes('5') ? 5 : 1;
+
+    // Platform data
+    const platformLeads = Math.floor((Math.random() * 800 + 400) * baseMultiplier * periodMultiplier);
+    const platformSpend = Math.floor((Math.random() * 200000 + 100000) * baseMultiplier * periodMultiplier);
+    const platformCPL = Math.floor(platformSpend / platformLeads);
+
+    // Social Media data
+    const socialLeads = Math.floor((Math.random() * 600 + 300) * baseMultiplier * periodMultiplier);
+    const socialSpend = Math.floor((Math.random() * 150000 + 80000) * baseMultiplier * periodMultiplier);
+    const socialCPL = Math.floor(socialSpend / socialLeads);
+
+    // Total leads (combining both)
+    const totalLeads = platformLeads + socialLeads;
+
+    // Generate performance indicators (simulated comparison with previous period)
+    const totalLeadsChange = (Math.random() - 0.5) * 0.3; // -15% to +15%
+    const platformLeadsChange = (Math.random() - 0.5) * 0.4; // -20% to +20%
+    const socialLeadsChange = (Math.random() - 0.5) * 0.4; // -20% to +20%
+    const platformCPLChange = (Math.random() - 0.5) * 0.3; // -15% to +15% (negative is better for CPL)
+    const socialCPLChange = (Math.random() - 0.5) * 0.3; // -15% to +15% (negative is better for CPL)
+
+    return {
+      totalLeads,
+      platformLeads,
+      socialLeads,
+      platformCPL,
+      socialCPL,
+      platformSpend,
+      socialSpend,
+      // Performance indicators
+      totalLeadsChange,
+      platformLeadsChange,
+      socialLeadsChange,
+      platformCPLChange,
+      socialCPLChange,
+    };
+  };
+
+  // Helper function to render performance indicator
+  const renderPerformanceIndicator = (change: number, isCPL: boolean = false) => {
+    // For CPL, negative change is good (lower cost), positive is bad
+    // For leads, positive change is good (more leads), negative is bad
+    const isPositive = isCPL ? change < 0 : change > 0;
+    const percentage = Math.abs(change * 100).toFixed(1);
+    
+    if (Math.abs(change) < 0.01) {
+      return (
+        <div className="flex items-center text-gray-500">
+          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+          </svg>
+          <span className="text-xs">No change</span>
+        </div>
+      );
+    }
+
+    return (
+      <div className={`flex items-center ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+        {isPositive ? (
+          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+          </svg>
+        ) : (
+          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          </svg>
+        )}
+        <span className="text-xs font-medium">{percentage}%</span>
+      </div>
+    );
+  };
+
   // Get the appropriate data key for chart and stats
   const getChartDataKey = () => {
     if (selectedChartTeam === 'all') {
@@ -829,9 +972,142 @@ const MarketingDashboard = () => {
 
 
   const filteredListings = getFilteredListings();
+  const summaryData = generateSummaryCardData();
 
   return (
     <div className="space-y-6">
+      {/* Summary Cards with Timeline Filter */}
+      <Card>
+        <CardHeader>
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+            <div>
+              <CardTitle>Marketing Performance Summary</CardTitle>
+              <p className="text-sm text-gray-600">
+                Key metrics overview for the selected period
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Select value={summaryTimeframe} onValueChange={handleTimeframeChange}>
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="Timeframe" />
+                </SelectTrigger>
+                <SelectContent>
+                  {timeframeOptions.map(option => (
+                    <SelectItem key={option.id} value={option.id}>
+                      {option.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={summaryPeriod} onValueChange={setSummaryPeriod}>
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder="Period" />
+                </SelectTrigger>
+                <SelectContent>
+                  {getPeriodOptions(summaryTimeframe).map(option => (
+                    <SelectItem key={option.id} value={option.id}>
+                      {option.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            {/* Total Leads */}
+            <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-600">Total Leads</p>
+                  <p className="text-2xl font-bold text-gray-900 mt-1">{summaryData.totalLeads.toLocaleString()}</p>
+                  <div className="mt-2">
+                    {renderPerformanceIndicator(summaryData.totalLeadsChange)}
+                  </div>
+                </div>
+                <div className="bg-gray-100 rounded-lg p-2">
+                  <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            {/* Platform Leads */}
+            <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-600">Platform Leads</p>
+                  <p className="text-2xl font-bold text-gray-900 mt-1">{summaryData.platformLeads.toLocaleString()}</p>
+                  <div className="mt-2">
+                    {renderPerformanceIndicator(summaryData.platformLeadsChange)}
+                  </div>
+                </div>
+                <div className="bg-gray-100 rounded-lg p-2">
+                  <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            {/* Social Media Leads */}
+            <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-600">Social Media Leads</p>
+                  <p className="text-2xl font-bold text-gray-900 mt-1">{summaryData.socialLeads.toLocaleString()}</p>
+                  <div className="mt-2">
+                    {renderPerformanceIndicator(summaryData.socialLeadsChange)}
+                  </div>
+                </div>
+                <div className="bg-gray-100 rounded-lg p-2">
+                  <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2h4a1 1 0 011 1v2a1 1 0 01-1 1h-1v10a2 2 0 01-2 2H6a2 2 0 01-2-2V8H3a1 1 0 01-1-1V5a1 1 0 011-1h4zm2-1v1h6V3H9z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            {/* Platform CPL */}
+            <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-600">Platform CPL</p>
+                  <p className="text-2xl font-bold text-gray-900 mt-1">฿{summaryData.platformCPL.toLocaleString()}</p>
+                  <div className="mt-2">
+                    {renderPerformanceIndicator(summaryData.platformCPLChange, true)}
+                  </div>
+                </div>
+                <div className="bg-gray-100 rounded-lg p-2">
+                  <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            {/* Social Media CPL */}
+            <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-600">Social Media CPL</p>
+                  <p className="text-2xl font-bold text-gray-900 mt-1">฿{summaryData.socialCPL.toLocaleString()}</p>
+                  <div className="mt-2">
+                    {renderPerformanceIndicator(summaryData.socialCPLChange, true)}
+                  </div>
+                </div>
+                <div className="bg-gray-100 rounded-lg p-2">
+                  <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Team Performance Summary - 1/3 width */}
         <div className="lg:col-span-1">
