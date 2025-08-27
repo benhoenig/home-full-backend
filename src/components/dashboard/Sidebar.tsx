@@ -138,16 +138,90 @@ export function Sidebar() {
       
       <nav className={`flex-1 ${isCollapsed ? 'px-2' : 'px-3'} space-y-6 overflow-y-auto`}>
         {isCustomRole ? (
-          <div className="space-y-1">
-            {menus[role].map((item) => (
-              item.label !== 'Settings' && (
-                <NavLink key={item.label} to={item.to} className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
-                  {item.icon}
-                  {!isCollapsed && <span>{item.label}</span>}
+          role === 'Admin' ? (
+            <>
+              {/* Admin Role Grouped Navigation */}
+              <div className="space-y-1">
+                <NavLink to="/" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                  <LayoutDashboard className="h-5 w-5" />
+                  {!isCollapsed && <span>Dashboard</span>}
                 </NavLink>
-              )
-            ))}
-          </div>
+                <NavLink to="/inbox" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                  <Inbox className="h-5 w-5" />
+                  {!isCollapsed && <span>Inbox</span>}
+                </NavLink>
+              </div>
+              
+              {!isCollapsed && (
+                <div>
+                  <h3 className="px-3 text-xs uppercase text-sidebar-foreground/50 font-semibold tracking-wider">
+                    Main
+                  </h3>
+                  <div className="mt-2 space-y-1">
+                    <NavLink to="/lead-manager" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                      <Users className="h-5 w-5" />
+                      <span>Lead Manager</span>
+                    </NavLink>
+                    <NavLink to="/lead-submission" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                      <FileText className="h-5 w-5" />
+                      <span>Lead Submission</span>
+                    </NavLink>
+                    <NavLink to="/contacts" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                      <Users className="h-5 w-5" />
+                      <span>Contacts</span>
+                    </NavLink>
+                  </div>
+                </div>
+              )}
+              
+              {isCollapsed && (
+                <div className="space-y-1">
+                  <NavLink to="/lead-manager" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                    <Users className="h-5 w-5" />
+                  </NavLink>
+                  <NavLink to="/lead-submission" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                    <FileText className="h-5 w-5" />
+                  </NavLink>
+                  <NavLink to="/contacts" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                    <Users className="h-5 w-5" />
+                  </NavLink>
+                </div>
+              )}
+              
+              {!isCollapsed && (
+                <div>
+                  <h3 className="px-3 text-xs uppercase text-sidebar-foreground/50 font-semibold tracking-wider">
+                    Settings
+                  </h3>
+                  <div className="mt-2 space-y-1">
+                    <NavLink to="/marketing-budget" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                      <Target className="h-5 w-5" />
+                      <span>Marketing Budget</span>
+                    </NavLink>
+                  </div>
+                </div>
+              )}
+              
+              {isCollapsed && (
+                <div className="space-y-1">
+                  <NavLink to="/marketing-budget" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                    <Target className="h-5 w-5" />
+                  </NavLink>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="space-y-1">
+              {menus[role].map((item) => (
+                item.label !== 'Settings' && (
+                  <NavLink key={item.label} to={item.to} className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                    {item.icon}
+                    {!isCollapsed && <span>{item.label}</span>}
+                  </NavLink>
+                )
+              ))}
+            </div>
+          )
         ) : isManagerRole ? (
           <>
             {/* Manager Role Grouped Navigation */}

@@ -19,6 +19,7 @@ import Listings from "@/pages/Listings";
 import AllListings from "@/pages/AllListings";
 import OwnerFocus from "@/pages/OwnerFocus";
 import MasterDataPage from "@/pages/MasterDataPage";
+import MarketingBudget from "@/pages/MarketingBudget";
 
 const App = () => {
   // Create a new QueryClient instance inside the component
@@ -45,6 +46,7 @@ const App = () => {
             <Route path="/all-listings" element={<AllListings />} />
             <Route path="/owner-focus" element={<OwnerFocus />} />
             <Route path="/master-data" element={<MasterDataPage />} />
+            <Route path="/marketing-budget" element={<MarketingBudget />} />
 
             <Route path="/action-tracker-demo" element={<ActionTrackerDemo />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
