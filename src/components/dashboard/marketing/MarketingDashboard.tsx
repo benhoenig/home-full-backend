@@ -12,6 +12,21 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ArrowUpDown, ArrowDown, X } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import ListingDetailsDrawer from '@/components/dashboard/ListingDetailsDrawer';
+import { Listing } from '@/hooks/useListingsTableData';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { CalendarIcon } from 'lucide-react';
+import { format } from 'date-fns';
 
 // Mock data for areas (used for display names)
 const areas = [
@@ -84,6 +99,41 @@ const marketingChannels = [
   { id: 'offline_ads', name: 'Offline Ads' },
   { id: 'referral', name: 'Referral' },
   { id: 'email_marketing', name: 'Email Marketing' },
+];
+
+// Mock data for teams
+const teams = [
+  { id: 'all', name: 'All Teams' },
+  { id: 'team_alpha', name: 'Team Alpha' },
+  { id: 'team_beta', name: 'Team Beta' },
+  { id: 'team_gamma', name: 'Team Gamma' },
+  { id: 'team_delta', name: 'Team Delta' },
+  { id: 'team_epsilon', name: 'Team Epsilon' },
+];
+
+// Mock data for salespersons
+const salespersons = [
+  { id: 'all', name: 'All Salespersons' },
+  // Team Alpha
+  { id: 'sarah_jones', name: 'Sarah Jones', teamId: 'team_alpha' },
+  { id: 'michael_chen', name: 'Michael Chen', teamId: 'team_alpha' },
+  { id: 'emma_davis', name: 'Emma Davis', teamId: 'team_alpha' },
+  // Team Beta
+  { id: 'david_kim', name: 'David Kim', teamId: 'team_beta' },
+  { id: 'alex_wilson', name: 'Alex Wilson', teamId: 'team_beta' },
+  { id: 'lisa_anderson', name: 'Lisa Anderson', teamId: 'team_beta' },
+  // Team Gamma
+  { id: 'james_brown', name: 'James Brown', teamId: 'team_gamma' },
+  { id: 'sophia_taylor', name: 'Sophia Taylor', teamId: 'team_gamma' },
+  { id: 'ryan_martinez', name: 'Ryan Martinez', teamId: 'team_gamma' },
+  // Team Delta
+  { id: 'olivia_garcia', name: 'Olivia Garcia', teamId: 'team_delta' },
+  { id: 'ethan_rodriguez', name: 'Ethan Rodriguez', teamId: 'team_delta' },
+  { id: 'ava_lopez', name: 'Ava Lopez', teamId: 'team_delta' },
+  // Team Epsilon
+  { id: 'noah_hernandez', name: 'Noah Hernandez', teamId: 'team_epsilon' },
+  { id: 'mia_gonzalez', name: 'Mia Gonzalez', teamId: 'team_epsilon' },
+  { id: 'lucas_perez', name: 'Lucas Perez', teamId: 'team_epsilon' },
 ];
 
 // Generate random performance data for an area and property type
@@ -171,6 +221,158 @@ const availableMetrics = [
   { id: 'cpl', name: 'CPL (Cost Per Lead)', unit: '฿' },
 ];
 
+// Mock data for individual listings
+const generateListingsData = () => {
+  const propertyTypes = ['Condo', 'House', 'Land', 'Townhouse'];
+  const listingTypeValues = ['Normal', 'A List', 'Exclusive'];
+  
+  const sampleListings = [
+    { name: 'Luxury Downtown Penthouse', area: 'Bangkok (Central)', type: 'Condo' },
+    { name: 'Modern Family Villa', area: 'Bangkok (East)', type: 'House' },
+    { name: 'Prime Commercial Land', area: 'Bangkok (West)', type: 'Land' },
+    { name: 'Contemporary Townhouse', area: 'Phuket', type: 'Townhouse' },
+    { name: 'Beachfront Condo Resort', area: 'Phuket', type: 'Condo' },
+    { name: 'Mountain View Villa', area: 'Chiang Mai', type: 'House' },
+    { name: 'Development Land Plot', area: 'Chiang Mai', type: 'Land' },
+    { name: 'City Center Apartment', area: 'Pattaya', type: 'Condo' },
+    { name: 'Suburban Family Home', area: 'Hua Hin', type: 'House' },
+    { name: 'Resort Development Site', area: 'Hua Hin', type: 'Land' },
+    { name: 'Executive Townhouse', area: 'Bangkok (North)', type: 'Townhouse' },
+    { name: 'High-Rise Condo Unit', area: 'Bangkok (South)', type: 'Condo' },
+    { name: 'Traditional Thai House', area: 'Ayutthaya', type: 'House' },
+    { name: 'Agricultural Land', area: 'Nakhon Pathom', type: 'Land' },
+    { name: 'Gated Community Home', area: 'Samut Prakan', type: 'Townhouse' },
+    { name: 'Luxury Condo Tower', area: 'Nonthaburi', type: 'Condo' },
+    { name: 'Country Estate', area: 'Kanchanaburi', type: 'House' },
+    { name: 'Investment Land Parcel', area: 'Ratchaburi', type: 'Land' },
+    { name: 'Modern Townhouse Complex', area: 'Pathum Thani', type: 'Townhouse' },
+    { name: 'Riverside Condo', area: 'Samut Sakhon', type: 'Condo' },
+    { name: 'Island Villa Resort', area: 'Krabi', type: 'House' },
+    { name: 'Beachfront Land', area: 'Koh Samui', type: 'Land' },
+    { name: 'Beach Resort Condo', area: 'Koh Phangan', type: 'Condo' },
+    { name: 'Coastal Villa', area: 'Rayong', type: 'House' },
+    { name: 'Industrial Land Zone', area: 'Chonburi', type: 'Land' },
+  ];
+
+  return sampleListings.map((listing, index) => {
+    const basePrice = Math.floor(Math.random() * 40000000) + 2000000; // 2M - 42M THB
+    const totalLeads = Math.floor(Math.random() * 25) + 5; // 5-30 leads
+    const amountSpent = Math.floor(Math.random() * 80000) + 20000; // 20K-100K THB spent
+    const cpl = Math.floor(amountSpent / totalLeads);
+    
+    // Generate date within last 6 months
+    const monthsAgo = Math.floor(Math.random() * 6);
+    const daysAgo = Math.floor(Math.random() * 30);
+    const publishDate = new Date();
+    publishDate.setMonth(publishDate.getMonth() - monthsAgo);
+    publishDate.setDate(publishDate.getDate() - daysAgo);
+
+    // Calculate days on market
+    const today = new Date();
+    const timeDiff = today.getTime() - publishDate.getTime();
+    const daysOnMarket = Math.floor(timeDiff / (1000 * 3600 * 24));
+
+    // Assign random team and salesperson
+    const randomTeam = teams[Math.floor(Math.random() * (teams.length - 1)) + 1]; // Exclude 'all'
+    const teamSalespersons = salespersons.filter(sp => sp.teamId === randomTeam.id);
+    const randomSalesperson = teamSalespersons[Math.floor(Math.random() * teamSalespersons.length)];
+
+    return {
+      id: `LST-${(index + 1).toString().padStart(4, '0')}`,
+      listingCode: `LST-${(index + 1).toString().padStart(4, '0')}`,
+      datePublished: publishDate.toLocaleDateString('en-GB'),
+      listingName: listing.name,
+      propertyType: listing.type,
+      area: listing.area,
+      price: basePrice,
+      listingType: listingTypeValues[Math.floor(Math.random() * listingTypeValues.length)],
+      totalLeads: totalLeads,
+      amountSpent: amountSpent,
+      cpl: cpl,
+      marketingChannel: marketingChannels[Math.floor(Math.random() * (marketingChannels.length - 1)) + 1].id, // Exclude 'all'
+      daysOnMarket: daysOnMarket,
+      teamId: randomTeam.id,
+      teamName: randomTeam.name,
+      salespersonId: randomSalesperson.id,
+      salespersonName: randomSalesperson.name,
+    };
+  });
+};
+
+const mockListingsData = generateListingsData();
+
+// Mock data for team marketing performance summary
+const generateTeamPerformanceData = () => {
+  return (teams || []).slice(1).map(team => { // Exclude 'all' team
+    const activeListings = Math.floor(Math.random() * 15) + 5; // 5-20 listings
+    const budgetSpent = Math.floor(Math.random() * 300000) + 150000; // 150K-450K
+    const totalLeads = Math.floor(Math.random() * 100) + 50; // 50-150 leads
+    const revenue = Math.floor(Math.random() * 50000000) + 20000000; // 20M-70M
+    const cpl = Math.floor(budgetSpent / totalLeads);
+    
+    return {
+      teamId: team.id,
+      teamName: team.name,
+      activeListings,
+      budgetSpent,
+      totalLeads,
+      revenue,
+      cpl
+    };
+  });
+};
+
+// Mock data for annual performance trends
+const generateAnnualTrendsData = () => {
+  const months = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+  ];
+  
+  return months.map(month => {
+    const base = {
+      month,
+      totalListings: Math.floor(Math.random() * 50) + 30,
+      totalBudget: Math.floor(Math.random() * 500000) + 300000,
+      totalLeads: Math.floor(Math.random() * 200) + 100,
+      totalRevenue: Math.floor(Math.random() * 80000000) + 40000000,
+      avgCPL: Math.floor(Math.random() * 2000) + 1000
+    };
+    
+    // Add team-specific data
+    (teams || []).slice(1).forEach(team => {
+      base[`${team.id}_listings`] = Math.floor(Math.random() * 15) + 5;
+      base[`${team.id}_budget`] = Math.floor(Math.random() * 100000) + 50000;
+      base[`${team.id}_leads`] = Math.floor(Math.random() * 50) + 20;
+      base[`${team.id}_revenue`] = Math.floor(Math.random() * 20000000) + 10000000;
+      base[`${team.id}_cpl`] = Math.floor(Math.random() * 1000) + 800;
+    });
+
+    // Add salesperson-specific data
+    salespersons.slice(1).forEach(person => { // Skip 'all' option
+      base[`${person.id}_listings`] = Math.floor(Math.random() * 8) + 2;
+      base[`${person.id}_budget`] = Math.floor(Math.random() * 30000) + 15000;
+      base[`${person.id}_leads`] = Math.floor(Math.random() * 20) + 5;
+      base[`${person.id}_revenue`] = Math.floor(Math.random() * 8000000) + 3000000;
+      base[`${person.id}_cpl`] = Math.floor(Math.random() * 1200) + 700;
+    });
+    
+    return base;
+  });
+};
+
+// Available years for selection
+const availableYears = [
+  { id: '2022', name: '2022' },
+  { id: '2023', name: '2023' },
+  { id: '2024', name: '2024' },
+];
+
+
+
+const teamPerformanceData = generateTeamPerformanceData();
+const annualTrendsData = generateAnnualTrendsData();
+
 interface SelectedCellData {
   areaName: string;
   propertyType: string;
@@ -182,6 +384,7 @@ interface SelectedCellData {
 }
 
 const MarketingDashboard = () => {
+
   const [selectedListingType, setSelectedListingType] = useState<string>('all');
   const [priceRange, setPriceRange] = useState<number[]>(priceRangeConfig.defaultValue);
   const [selectedChannel, setSelectedChannel] = useState<string>('all');
@@ -192,6 +395,31 @@ const MarketingDashboard = () => {
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [isExpanded, setIsExpanded] = useState(false);
   const [isHeatmapModalOpen, setIsHeatmapModalOpen] = useState(false);
+  
+  // Listings table state
+  const [listingsSortColumn, setListingsSortColumn] = useState<string>('datePublished');
+  const [listingsSortDirection, setListingsSortDirection] = useState<'asc' | 'desc'>('desc');
+  
+  // Additional filter states
+  const [selectedArea, setSelectedArea] = useState<string>('all');
+  const [selectedTeam, setSelectedTeam] = useState<string>('all');
+  const [selectedSalesperson, setSelectedSalesperson] = useState<string>('all');
+  
+  // Listing details drawer state
+  const [isListingDrawerOpen, setIsListingDrawerOpen] = useState(false);
+  const [selectedListingForDrawer, setSelectedListingForDrawer] = useState<Listing | null>(null);
+  
+  // Annual trends chart state
+  const [selectedChartMetric, setSelectedChartMetric] = useState<string>('totalLeads');
+  const [selectedChartTeam, setSelectedChartTeam] = useState<string>('all');
+  const [selectedChartSalesperson, setSelectedChartSalesperson] = useState<string>('all');
+  const [selectedYear, setSelectedYear] = useState<string>('2024');
+  
+  // Date range filter state for team performance
+  const [dateRange, setDateRange] = useState<{from: Date | undefined, to: Date | undefined}>({
+    from: new Date(2024, 0, 1), // January 1, 2024
+    to: new Date() // Today
+  });
 
   // Get current performance matrix based on expanded state
   const currentPerformanceMatrix = isExpanded ? extendedPerformanceMatrix : corePerformanceMatrix;
@@ -245,18 +473,47 @@ const MarketingDashboard = () => {
     return `${value}${metric?.unit}`;
   };
 
+  // Get available salespersons based on selected team
+  const getAvailableSalespersons = () => {
+    if (selectedTeam === 'all') {
+      return salespersons;
+    }
+    return [
+      { id: 'all', name: 'All Salespersons' },
+      ...salespersons.filter(sp => sp.teamId === selectedTeam)
+    ];
+  };
+
+  // Handle team change and reset salesperson if needed
+  const handleTeamChange = (teamId: string) => {
+    setSelectedTeam(teamId);
+    // Reset salesperson if current selection is not available in new team
+    if (teamId !== 'all') {
+      const availableSalespersons = salespersons.filter(sp => sp.teamId === teamId);
+      if (selectedSalesperson !== 'all' && !availableSalespersons.find(sp => sp.id === selectedSalesperson)) {
+        setSelectedSalesperson('all');
+      }
+    }
+  };
+
   // Clear all filters
   const clearFilters = () => {
     setSelectedListingType('all');
     setPriceRange(priceRangeConfig.defaultValue);
     setSelectedChannel('all');
+    setSelectedArea('all');
+    setSelectedTeam('all');
+    setSelectedSalesperson('all');
   };
 
   // Check if any filters are active
   const hasActiveFilters = selectedListingType !== 'all' || 
                           priceRange[0] !== priceRangeConfig.defaultValue[0] || 
                           priceRange[1] !== priceRangeConfig.defaultValue[1] ||
-                          selectedChannel !== 'all';
+                          selectedChannel !== 'all' ||
+                          selectedArea !== 'all' ||
+                          selectedTeam !== 'all' ||
+                          selectedSalesperson !== 'all';
 
   // Get current metric name for display
   const currentMetric = availableMetrics.find(m => m.id === selectedMetric);
@@ -312,8 +569,924 @@ const MarketingDashboard = () => {
     return sortedEntries;
   };
 
+  // Filter and sort listings data based on current filters
+  const getFilteredListings = () => {
+    let filtered = [...mockListingsData];
+
+    // Apply filters
+    if (selectedListingType !== 'all') {
+      const filterType = selectedListingType === 'a_list' ? 'A List' : 
+                        selectedListingType === 'normal' ? 'Normal' : 
+                        selectedListingType === 'exclusive' ? 'Exclusive' : '';
+      if (filterType) {
+        filtered = filtered.filter(listing => listing.listingType === filterType);
+      }
+    }
+
+    if (selectedChannel !== 'all') {
+      filtered = filtered.filter(listing => listing.marketingChannel === selectedChannel);
+    }
+
+    if (selectedArea !== 'all') {
+      filtered = filtered.filter(listing => listing.area === selectedArea);
+    }
+
+    if (selectedTeam !== 'all') {
+      filtered = filtered.filter(listing => listing.teamId === selectedTeam);
+    }
+
+    if (selectedSalesperson !== 'all') {
+      filtered = filtered.filter(listing => listing.salespersonId === selectedSalesperson);
+    }
+
+    // Filter by price range (convert from millions to actual price)
+    const minPrice = priceRange[0] * 1000000;
+    const maxPrice = priceRange[1] * 1000000;
+    filtered = filtered.filter(listing => listing.price >= minPrice && listing.price <= maxPrice);
+
+    // Apply sorting
+    filtered.sort((a, b) => {
+      let aValue: any = a[listingsSortColumn as keyof typeof a];
+      let bValue: any = b[listingsSortColumn as keyof typeof b];
+
+      // Handle different data types
+      if (listingsSortColumn === 'datePublished') {
+        aValue = new Date(aValue.split('/').reverse().join('-')).getTime();
+        bValue = new Date(bValue.split('/').reverse().join('-')).getTime();
+      } else if (typeof aValue === 'string') {
+        aValue = aValue.toLowerCase();
+        bValue = bValue.toLowerCase();
+      }
+
+      if (listingsSortDirection === 'desc') {
+        return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
+      } else {
+        return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+      }
+    });
+
+    return filtered;
+  };
+
+  // Handle listings table sorting
+  const handleListingsSort = (column: string) => {
+    if (listingsSortColumn === column) {
+      setListingsSortDirection(listingsSortDirection === 'desc' ? 'asc' : 'desc');
+    } else {
+      setListingsSortColumn(column);
+      setListingsSortDirection('desc');
+    }
+  };
+
+  // Format price for display
+  const formatPrice = (price: number) => {
+    if (price >= 1000000) {
+      return `฿${(price / 1000000).toFixed(1)}M`;
+    }
+    return `฿${(price / 1000).toFixed(0)}K`;
+  };
+
+  // Get marketing channel display name
+  const getChannelDisplayName = (channelId: string) => {
+    return marketingChannels.find(c => c.id === channelId)?.name || channelId;
+  };
+
+  // Convert marketing listing to Listing type for the drawer
+  const convertToListing = (marketingListing: any): Listing => {
+    // Convert DD/MM/YYYY format to ISO string
+    const convertDateToISO = (dateString: string): string => {
+      if (!dateString) return new Date().toISOString();
+      
+      try {
+        // Split DD/MM/YYYY format
+        const parts = dateString.split('/');
+        if (parts.length === 3) {
+          const [day, month, year] = parts;
+          // Create date in YYYY-MM-DD format for proper parsing
+          const isoDate = new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`);
+          return isoDate.toISOString();
+        }
+        // Fallback to current date if format is unexpected
+        return new Date().toISOString();
+      } catch (error) {
+        // Fallback to current date if parsing fails
+        return new Date().toISOString();
+      }
+    };
+
+    return {
+      listingCode: marketingListing.listingCode,
+      marketingStatus: 'Active',
+      monthsOnSale: Math.floor(marketingListing.daysOnMarket / 30),
+      listingType: marketingListing.listingType === 'A List' ? 'A List' : 
+                   marketingListing.listingType === 'Exclusive' ? 'Exclusive List' : 'Normal List',
+      listingStatus: 'For Sale',
+      ownerName: 'Marketing Owner',
+      ownerContact: '+66-80-123-4567',
+      listingName: marketingListing.listingName,
+      propertyType: marketingListing.propertyType,
+      projectName: marketingListing.listingName,
+      inProject: 'ในโครงการ',
+      streetSoi: 'Marketing Street',
+      zoneArea: marketingListing.area,
+      bts: 'BTS Station',
+      mrt: '',
+      arl: '',
+      locationGrade: 'A',
+      bedrooms: Math.floor(Math.random() * 4) + 1,
+      bathrooms: Math.floor(Math.random() * 3) + 1,
+      unitNo: Math.floor(Math.random() * 999) + 1 + '',
+      rai: 0,
+      ngan: 0,
+      wa: 0,
+      usableArea: Math.floor(Math.random() * 200) + 50,
+      condoArea: Math.floor(Math.random() * 200) + 50,
+      floors: Math.floor(Math.random() * 40) + 5,
+      building: 'A',
+      floor: Math.floor(Math.random() * 30) + 1,
+      parking: Math.floor(Math.random() * 2) + 1,
+      view: ['City', 'Garden'],
+      direction: 'North',
+      matchingTags: ['Modern', 'Convenient'],
+      askingPrice: marketingListing.price,
+      rentalPrice: Math.floor(marketingListing.price * 0.004),
+      netPrice: marketingListing.price * 0.98,
+      pricePerSqm: Math.floor(marketingListing.price / 80),
+      googleMapsLink: 'https://goo.gl/maps/example',
+      remark: `Marketing listing with ${marketingListing.totalLeads} leads generated`,
+      listingPhotos: ['photo1.jpg', 'photo2.jpg'],
+      thumbnailUrl: 'https://placehold.co/600x400/png',
+      propertyHook: `${marketingListing.listingType} listing with excellent marketing performance`,
+      giveaways: ['Furniture Package'],
+      commonAreas: ['Pool', 'Gym'],
+      environment: ['Quiet', 'Safe'],
+      locations: [marketingListing.area],
+      targetBuyer: ['Family', 'Investor'],
+      isStarred: false,
+      ownerType: 'Chill',
+      createdBy: marketingListing.salespersonName,
+      createdTime: convertDateToISO(marketingListing.datePublished),
+      lastModifiedTime: new Date().toISOString(),
+      assignedTo: marketingListing.salespersonName
+    };
+  };
+
+  // Handle listing row click
+  const handleListingRowClick = (marketingListing: any) => {
+    const listing = convertToListing(marketingListing);
+    setSelectedListingForDrawer(listing);
+    setIsListingDrawerOpen(true);
+  };
+
+  // Handle listing drawer close
+  const handleListingDrawerClose = () => {
+    setIsListingDrawerOpen(false);
+    setTimeout(() => setSelectedListingForDrawer(null), 300);
+  };
+
+  // Handle star toggle (not used for marketing listings but required by drawer)
+  const handleStarToggle = (listing: Listing) => {
+    // This could be implemented to update marketing listing starred status if needed
+    console.log('Star toggle for listing:', listing.listingCode);
+  };
+
+  // Available chart metrics
+  const chartMetrics = [
+    { id: 'totalListings', name: 'Total Listings', unit: '' },
+    { id: 'totalBudget', name: 'Total Budget', unit: '฿' },
+    { id: 'totalLeads', name: 'Total Leads', unit: '' },
+    { id: 'totalRevenue', name: 'Total Revenue', unit: '฿' },
+    { id: 'avgCPL', name: 'Average CPL', unit: '฿' },
+  ];
+
+  // Format chart values for display
+  const formatChartValue = (value: number, metricId: string) => {
+    if (metricId === 'totalBudget' || metricId === 'totalRevenue') {
+      return `${(value / 1000000).toFixed(2)}M`;
+    }
+    if (metricId === 'avgCPL') {
+      return `${(value / 1000).toFixed(2)}K`;
+    }
+    return Math.round(value).toString();
+  };
+
+  // Format large numbers for table display
+  const formatLargeNumber = (value: number) => {
+    if (value >= 1000000) {
+      return `฿${(value / 1000000).toFixed(1)}M`;
+    }
+    if (value >= 1000) {
+      return `฿${(value / 1000).toFixed(0)}K`;
+    }
+    return `฿${value}`;
+  };
+
+  // Get available salespersons for chart based on selected team
+  const getAvailableChartSalespersons = () => {
+    if (selectedChartTeam === 'all') {
+      return [];
+    }
+    return [
+      { id: 'all', name: 'All Team Members' },
+      ...salespersons.filter(sp => sp.teamId === selectedChartTeam)
+    ];
+  };
+
+  // Handle chart team change and reset salesperson if needed
+  const handleChartTeamChange = (teamId: string) => {
+    setSelectedChartTeam(teamId);
+    // Reset salesperson when team changes
+    setSelectedChartSalesperson('all');
+  };
+
+  // Get the appropriate data key for chart and stats
+  const getChartDataKey = () => {
+    if (selectedChartTeam === 'all') {
+      return selectedChartMetric;
+    } else if (selectedChartSalesperson === 'all') {
+      // Team-level data
+      switch (selectedChartMetric) {
+        case 'totalListings': return `${selectedChartTeam}_listings`;
+        case 'totalBudget': return `${selectedChartTeam}_budget`;
+        case 'totalLeads': return `${selectedChartTeam}_leads`;
+        case 'totalRevenue': return `${selectedChartTeam}_revenue`;
+        case 'avgCPL': return `${selectedChartTeam}_cpl`;
+        default: return `${selectedChartTeam}_leads`;
+      }
+    } else {
+      // Salesperson-level data
+      switch (selectedChartMetric) {
+        case 'totalListings': return `${selectedChartSalesperson}_listings`;
+        case 'totalBudget': return `${selectedChartSalesperson}_budget`;
+        case 'totalLeads': return `${selectedChartSalesperson}_leads`;
+        case 'totalRevenue': return `${selectedChartSalesperson}_revenue`;
+        case 'avgCPL': return `${selectedChartSalesperson}_cpl`;
+        default: return `${selectedChartSalesperson}_leads`;
+      }
+    }
+  };
+
+
+
+  const filteredListings = getFilteredListings();
+
   return (
     <div className="space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Team Performance Summary - 1/3 width */}
+        <div className="lg:col-span-1">
+          <Card>
+            <CardHeader>
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+                <div>
+                  <CardTitle>Team Performance Summary</CardTitle>
+                  <p className="text-sm text-gray-600">
+                    Marketing performance metrics by team
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">Date Range</label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={`w-[240px] justify-start text-left font-normal ${
+                          !dateRange.from && "text-muted-foreground"
+                        }`}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {dateRange.from ? (
+                          dateRange.to ? (
+                            <>
+                              {format(dateRange.from, "LLL dd, y")} -{" "}
+                              {format(dateRange.to, "LLL dd, y")}
+                            </>
+                          ) : (
+                            format(dateRange.from, "LLL dd, y")
+                          )
+                        ) : (
+                          <span>Pick a date range</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        initialFocus
+                        mode="range"
+                        defaultMonth={dateRange.from}
+                        selected={dateRange}
+                        onSelect={setDateRange}
+                        numberOfMonths={2}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="text-xs">Team</TableHead>
+                        <TableHead className="text-xs text-center">Listings</TableHead>
+                        <TableHead className="text-xs text-center">Budget</TableHead>
+                        <TableHead className="text-xs text-center">Leads</TableHead>
+                        <TableHead className="text-xs text-center">Revenue</TableHead>
+                        <TableHead className="text-xs text-center">CPL</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {teamPerformanceData.map((team) => (
+                        <TableRow key={team.teamId} className="hover:bg-gray-50">
+                          <TableCell className="font-medium text-sm">
+                            {team.teamName}
+                          </TableCell>
+                          <TableCell className="text-center text-sm">
+                            <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                              {team.activeListings}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-center text-sm font-medium">
+                            {formatLargeNumber(team.budgetSpent)}
+                          </TableCell>
+                          <TableCell className="text-center text-sm">
+                            <Badge variant="secondary" className="bg-green-100 text-green-800">
+                              {team.totalLeads}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-center text-sm font-semibold text-teal-600">
+                            {formatLargeNumber(team.revenue)}
+                          </TableCell>
+                          <TableCell className="text-center text-sm font-medium">
+                            ฿{team.cpl.toLocaleString()}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+                
+                {/* Team Summary Stats */}
+                <div className="grid grid-cols-2 gap-3 pt-4 border-t">
+                  <div className="text-center">
+                    <div className="text-sm font-medium text-gray-600">Total Listings</div>
+                    <div className="text-lg font-bold text-blue-600">
+                      {teamPerformanceData.reduce((sum, team) => sum + team.activeListings, 0)}
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-sm font-medium text-gray-600">Total Leads</div>
+                    <div className="text-lg font-bold text-green-600">
+                      {teamPerformanceData.reduce((sum, team) => sum + team.totalLeads, 0)}
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-sm font-medium text-gray-600">Total Budget</div>
+                    <div className="text-lg font-bold text-orange-600">
+                      {formatLargeNumber(teamPerformanceData.reduce((sum, team) => sum + team.budgetSpent, 0))}
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-sm font-medium text-gray-600">Total Revenue</div>
+                    <div className="text-lg font-bold text-teal-600">
+                      {formatLargeNumber(teamPerformanceData.reduce((sum, team) => sum + team.revenue, 0))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Annual Trends Chart - 2/3 width */}
+        <div className="lg:col-span-2">
+          <Card>
+            <CardHeader>
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+                <div>
+                  <CardTitle>Annual Performance Trends</CardTitle>
+                  <p className="text-sm text-gray-600">
+                    Monthly marketing performance analysis and team comparison
+                  </p>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Select value={selectedYear} onValueChange={setSelectedYear}>
+                    <SelectTrigger className="w-[120px]">
+                      <SelectValue placeholder="Year" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableYears.map(year => (
+                        <SelectItem key={year.id} value={year.id}>
+                          {year.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select value={selectedChartMetric} onValueChange={setSelectedChartMetric}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Select metric" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {chartMetrics.map(metric => (
+                        <SelectItem key={metric.id} value={metric.id}>
+                          {metric.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select value={selectedChartTeam} onValueChange={handleChartTeamChange}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Select team" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {teams.map(team => (
+                        <SelectItem key={team.id} value={team.id}>
+                          {team.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {selectedChartTeam !== 'all' && (
+                    <Select value={selectedChartSalesperson} onValueChange={setSelectedChartSalesperson}>
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Select salesperson" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {getAvailableChartSalespersons().map(person => (
+                          <SelectItem key={person.id} value={person.id}>
+                            {person.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={annualTrendsData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis 
+                        dataKey="month" 
+                        tick={{ fontSize: 12 }}
+                        interval={0}
+                      />
+                      <YAxis 
+                        tick={{ fontSize: 12 }}
+                        tickFormatter={(value) => formatChartValue(value, selectedChartMetric)}
+                      />
+                      <Tooltip 
+                        formatter={(value: number) => [
+                          formatChartValue(value, selectedChartMetric),
+                          chartMetrics.find(m => m.id === selectedChartMetric)?.name
+                        ]}
+                        labelStyle={{ color: '#374151' }}
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey={getChartDataKey()}
+                        stroke="#0d9488" 
+                        strokeWidth={3}
+                        dot={{ fill: '#0d9488', strokeWidth: 2, r: 4 }}
+                        activeDot={{ r: 6, stroke: '#0d9488', strokeWidth: 2 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+                
+                {/* Chart Summary Stats */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t">
+                  <div className="text-center">
+                    <div className="text-sm font-medium text-gray-600">Best Month</div>
+                    <div className="text-lg font-bold text-green-600">
+                      {(() => {
+                        const dataKey = getChartDataKey();
+                        return annualTrendsData.reduce((max, current) => 
+                          current[dataKey] > max[dataKey] ? current : max
+                        ).month;
+                      })()}
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-sm font-medium text-gray-600">Average</div>
+                    <div className="text-lg font-bold text-blue-600">
+                      {(() => {
+                        const dataKey = getChartDataKey();
+                        return formatChartValue(
+                          annualTrendsData.reduce((sum, month) => sum + month[dataKey], 0) / annualTrendsData.length,
+                          selectedChartMetric
+                        );
+                      })()}
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-sm font-medium text-gray-600">Growth Trend</div>
+                    <div className="text-lg font-bold text-teal-600">
+                      {(() => {
+                        const dataKey = getChartDataKey();
+                        const firstValue = annualTrendsData[0][dataKey];
+                        const lastValue = annualTrendsData[11][dataKey];
+                        const isGrowth = lastValue > firstValue;
+                        const growthPercent = ((lastValue - firstValue) / firstValue) * 100;
+                        return `${isGrowth ? '↗️ +' : '↘️ '}${growthPercent.toFixed(1)}%`;
+                      })()}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Listings Table */}
+      <Card>
+        <CardHeader>
+          <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+              <div>
+                <CardTitle>Marketing Listings Performance</CardTitle>
+                <p className="text-sm text-gray-600">
+                  Showing {filteredListings.length} listings matching current filters
+                </p>
+              </div>
+              <div className="text-sm text-gray-500">
+                {hasActiveFilters && "Filtered view - adjust filters below to see more listings"}
+              </div>
+            </div>
+
+            {/* Filter Section */}
+            <div className="pt-4 border-t">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                {/* Filter By Area */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">Filter By Area</label>
+                  <Select value={selectedArea} onValueChange={setSelectedArea}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select area" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Areas</SelectItem>
+                      {areas.map(area => (
+                        <SelectItem key={area.id} value={area.name}>
+                          {area.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Filter By Team */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">Filter By Team</label>
+                  <Select value={selectedTeam} onValueChange={handleTeamChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select team" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {teams.map(team => (
+                        <SelectItem key={team.id} value={team.id}>
+                          {team.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Filter By Salesperson */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">Filter By Salesperson</label>
+                  <Select value={selectedSalesperson} onValueChange={setSelectedSalesperson}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select salesperson" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {getAvailableSalespersons().map(person => (
+                        <SelectItem key={person.id} value={person.id}>
+                          {person.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Filter By Listing Type */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">Filter By Listing Type</label>
+                  <Select value={selectedListingType} onValueChange={setSelectedListingType}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select listing type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {listingTypes.map(type => (
+                        <SelectItem key={type.id} value={type.id}>
+                          {type.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Filter By Marketing Channel */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">Filter By Marketing Channel</label>
+                  <Select value={selectedChannel} onValueChange={setSelectedChannel}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select channel" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {marketingChannels.map(channel => (
+                        <SelectItem key={channel.id} value={channel.id}>
+                          {channel.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Active Filters and Clear All */}
+              {hasActiveFilters && (
+                <div className="mt-4 pt-4 border-t">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-sm font-medium text-gray-600">Active Filters:</span>
+                    {selectedArea !== 'all' && (
+                      <Badge variant="secondary" className="cursor-pointer" onClick={() => setSelectedArea('all')}>
+                        Area: {selectedArea} <X className="h-3 w-3 ml-1" />
+                      </Badge>
+                    )}
+                    {selectedTeam !== 'all' && (
+                      <Badge variant="secondary" className="cursor-pointer" onClick={() => setSelectedTeam('all')}>
+                        Team: {teams.find(t => t.id === selectedTeam)?.name} <X className="h-3 w-3 ml-1" />
+                      </Badge>
+                    )}
+                    {selectedSalesperson !== 'all' && (
+                      <Badge variant="secondary" className="cursor-pointer" onClick={() => setSelectedSalesperson('all')}>
+                        Salesperson: {salespersons.find(s => s.id === selectedSalesperson)?.name} <X className="h-3 w-3 ml-1" />
+                      </Badge>
+                    )}
+                    {selectedListingType !== 'all' && (
+                      <Badge variant="secondary" className="cursor-pointer" onClick={() => setSelectedListingType('all')}>
+                        Listing: {listingTypes.find(t => t.id === selectedListingType)?.name} <X className="h-3 w-3 ml-1" />
+                      </Badge>
+                    )}
+                    {selectedChannel !== 'all' && (
+                      <Badge variant="secondary" className="cursor-pointer" onClick={() => setSelectedChannel('all')}>
+                        Channel: {marketingChannels.find(c => c.id === selectedChannel)?.name} <X className="h-3 w-3 ml-1" />
+                      </Badge>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={clearFilters}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 ml-2"
+                    >
+                      Clear All Filters
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="cursor-pointer hover:bg-gray-50" onClick={() => handleListingsSort('listingCode')}>
+                    <div className="flex items-center gap-1">
+                      Listing Code
+                      {listingsSortColumn === 'listingCode' ? (
+                        <ArrowDown className={`h-3 w-3 ${listingsSortDirection === 'asc' ? 'rotate-180' : ''}`} />
+                      ) : (
+                        <ArrowUpDown className="h-3 w-3 opacity-50" />
+                      )}
+                    </div>
+                  </TableHead>
+                  <TableHead className="cursor-pointer hover:bg-gray-50" onClick={() => handleListingsSort('datePublished')}>
+                    <div className="flex items-center gap-1">
+                      Date Published
+                      {listingsSortColumn === 'datePublished' ? (
+                        <ArrowDown className={`h-3 w-3 ${listingsSortDirection === 'asc' ? 'rotate-180' : ''}`} />
+                      ) : (
+                        <ArrowUpDown className="h-3 w-3 opacity-50" />
+                      )}
+                    </div>
+                  </TableHead>
+                  <TableHead className="cursor-pointer hover:bg-gray-50" onClick={() => handleListingsSort('listingName')}>
+                    <div className="flex items-center gap-1">
+                      Listing Name
+                      {listingsSortColumn === 'listingName' ? (
+                        <ArrowDown className={`h-3 w-3 ${listingsSortDirection === 'asc' ? 'rotate-180' : ''}`} />
+                      ) : (
+                        <ArrowUpDown className="h-3 w-3 opacity-50" />
+                      )}
+                    </div>
+                  </TableHead>
+                  <TableHead className="cursor-pointer hover:bg-gray-50" onClick={() => handleListingsSort('propertyType')}>
+                    <div className="flex items-center gap-1">
+                      Property Type
+                      {listingsSortColumn === 'propertyType' ? (
+                        <ArrowDown className={`h-3 w-3 ${listingsSortDirection === 'asc' ? 'rotate-180' : ''}`} />
+                      ) : (
+                        <ArrowUpDown className="h-3 w-3 opacity-50" />
+                      )}
+                    </div>
+                  </TableHead>
+                  <TableHead className="cursor-pointer hover:bg-gray-50" onClick={() => handleListingsSort('area')}>
+                    <div className="flex items-center gap-1">
+                      Area
+                      {listingsSortColumn === 'area' ? (
+                        <ArrowDown className={`h-3 w-3 ${listingsSortDirection === 'asc' ? 'rotate-180' : ''}`} />
+                      ) : (
+                        <ArrowUpDown className="h-3 w-3 opacity-50" />
+                      )}
+                    </div>
+                  </TableHead>
+                  <TableHead className="cursor-pointer hover:bg-gray-50" onClick={() => handleListingsSort('price')}>
+                    <div className="flex items-center gap-1">
+                      Price
+                      {listingsSortColumn === 'price' ? (
+                        <ArrowDown className={`h-3 w-3 ${listingsSortDirection === 'asc' ? 'rotate-180' : ''}`} />
+                      ) : (
+                        <ArrowUpDown className="h-3 w-3 opacity-50" />
+                      )}
+                    </div>
+                  </TableHead>
+                  <TableHead className="cursor-pointer hover:bg-gray-50" onClick={() => handleListingsSort('listingType')}>
+                    <div className="flex items-center gap-1">
+                      Listing Type
+                      {listingsSortColumn === 'listingType' ? (
+                        <ArrowDown className={`h-3 w-3 ${listingsSortDirection === 'asc' ? 'rotate-180' : ''}`} />
+                      ) : (
+                        <ArrowUpDown className="h-3 w-3 opacity-50" />
+                      )}
+                    </div>
+                  </TableHead>
+                  <TableHead className="cursor-pointer hover:bg-gray-50" onClick={() => handleListingsSort('totalLeads')}>
+                    <div className="flex items-center gap-1">
+                      Total Leads
+                      {listingsSortColumn === 'totalLeads' ? (
+                        <ArrowDown className={`h-3 w-3 ${listingsSortDirection === 'asc' ? 'rotate-180' : ''}`} />
+                      ) : (
+                        <ArrowUpDown className="h-3 w-3 opacity-50" />
+                      )}
+                    </div>
+                  </TableHead>
+                  <TableHead className="cursor-pointer hover:bg-gray-50" onClick={() => handleListingsSort('amountSpent')}>
+                    <div className="flex items-center gap-1">
+                      Amount Spent
+                      {listingsSortColumn === 'amountSpent' ? (
+                        <ArrowDown className={`h-3 w-3 ${listingsSortDirection === 'asc' ? 'rotate-180' : ''}`} />
+                      ) : (
+                        <ArrowUpDown className="h-3 w-3 opacity-50" />
+                      )}
+                    </div>
+                  </TableHead>
+                  <TableHead className="cursor-pointer hover:bg-gray-50" onClick={() => handleListingsSort('cpl')}>
+                    <div className="flex items-center gap-1">
+                      CPL
+                      {listingsSortColumn === 'cpl' ? (
+                        <ArrowDown className={`h-3 w-3 ${listingsSortDirection === 'asc' ? 'rotate-180' : ''}`} />
+                      ) : (
+                        <ArrowUpDown className="h-3 w-3 opacity-50" />
+                      )}
+                    </div>
+                  </TableHead>
+                  <TableHead className="cursor-pointer hover:bg-gray-50" onClick={() => handleListingsSort('daysOnMarket')}>
+                    <div className="flex items-center gap-1">
+                      Time on Market
+                      {listingsSortColumn === 'daysOnMarket' ? (
+                        <ArrowDown className={`h-3 w-3 ${listingsSortDirection === 'asc' ? 'rotate-180' : ''}`} />
+                      ) : (
+                        <ArrowUpDown className="h-3 w-3 opacity-50" />
+                      )}
+                    </div>
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredListings.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={11} className="text-center py-8 text-gray-500">
+                      No listings found matching the current filters.
+                      <br />
+                      <Button 
+                        variant="link" 
+                        onClick={clearFilters}
+                        className="mt-2 text-teal-600 hover:text-teal-700"
+                      >
+                        Clear all filters to see all listings
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredListings.map((listing) => (
+                    <TableRow 
+                      key={listing.id} 
+                      className="hover:bg-gray-50 cursor-pointer"
+                      onClick={() => handleListingRowClick(listing)}
+                    >
+                      <TableCell className="font-medium text-teal-600">
+                        {listing.listingCode}
+                      </TableCell>
+                      <TableCell>{listing.datePublished}</TableCell>
+                      <TableCell className="max-w-xs">
+                        <div className="truncate" title={listing.listingName}>
+                          {listing.listingName}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {listing.propertyType}
+                      </TableCell>
+                      <TableCell>{listing.area}</TableCell>
+                      <TableCell className="font-medium">
+                        {formatPrice(listing.price)}
+                      </TableCell>
+                      <TableCell>
+                        <Badge 
+                          variant={
+                            listing.listingType === 'Exclusive' ? 'default' :
+                            listing.listingType === 'A List' ? 'secondary' : 'outline'
+                          }
+                          className={
+                            listing.listingType === 'Exclusive' ? 'bg-purple-100 text-purple-800 border-purple-300' :
+                            listing.listingType === 'A List' ? 'bg-blue-100 text-blue-800 border-blue-300' : 
+                            'bg-gray-100 text-gray-800 border-gray-300'
+                          }
+                        >
+                          {listing.listingType}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-300">
+                          {listing.totalLeads}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        ฿{(listing.amountSpent / 1000).toFixed(0)}K
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        ฿{listing.cpl.toLocaleString()}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Badge 
+                          variant="outline" 
+                          className={
+                            listing.daysOnMarket <= 30 ? 'bg-green-50 text-green-700 border-green-300' :
+                            listing.daysOnMarket <= 60 ? 'bg-yellow-50 text-yellow-700 border-yellow-300' :
+                            listing.daysOnMarket <= 90 ? 'bg-orange-50 text-orange-700 border-orange-300' :
+                            'bg-red-50 text-red-700 border-red-300'
+                          }
+                        >
+                          {listing.daysOnMarket} days
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+          
+          {/* Table Summary */}
+          {filteredListings.length > 0 && (
+            <div className="mt-4 pt-4 border-t bg-gray-50 rounded-lg p-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+                <div className="text-center">
+                  <div className="font-semibold text-gray-700">Total Listings</div>
+                  <div className="text-lg font-bold text-teal-600">{filteredListings.length}</div>
+                </div>
+                <div className="text-center">
+                  <div className="font-semibold text-gray-700">Total Leads</div>
+                  <div className="text-lg font-bold text-green-600">
+                    {filteredListings.reduce((sum, listing) => sum + listing.totalLeads, 0)}
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="font-semibold text-gray-700">Total Spent</div>
+                  <div className="text-lg font-bold text-blue-600">
+                    ฿{(filteredListings.reduce((sum, listing) => sum + listing.amountSpent, 0) / 1000).toFixed(0)}K
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="font-semibold text-gray-700">Avg CPL</div>
+                  <div className="text-lg font-bold text-orange-600">
+                    ฿{Math.round(filteredListings.reduce((sum, listing) => sum + listing.cpl, 0) / filteredListings.length).toLocaleString()}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Performance Heatmap Matrix with Integrated Filters */}
       <Card>
         <CardHeader>
@@ -830,6 +2003,14 @@ const MarketingDashboard = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Listing Details Drawer */}
+      <ListingDetailsDrawer 
+        isOpen={isListingDrawerOpen}
+        onClose={handleListingDrawerClose}
+        listing={selectedListingForDrawer}
+        onStarToggle={handleStarToggle}
+      />
     </div>
   );
 };
