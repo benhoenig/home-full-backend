@@ -20,6 +20,8 @@ import AllListings from "@/pages/AllListings";
 import OwnerFocus from "@/pages/OwnerFocus";
 import MasterDataPage from "@/pages/MasterDataPage";
 import MarketingBudget from "@/pages/MarketingBudget";
+import Inbox from "@/pages/Inbox";
+import MyTeam from "@/pages/MyTeam";
 
 const App = () => {
   // Create a new QueryClient instance inside the component
@@ -33,7 +35,7 @@ const App = () => {
           <Sonner />
           <Routes>
             <Route path="/" element={<RoleDashboard />} />
-            <Route path="/inbox" element={<RoleDashboard />} /> 
+            <Route path="/inbox" element={<Inbox />} /> 
             <Route path="/client-process" element={<ClientProcess />} />
             <Route path="/lead-manager" element={<LeadManager />} />
             <Route path="/lead-submission" element={<LeadSubmissionPage />} />
@@ -47,6 +49,7 @@ const App = () => {
             <Route path="/owner-focus" element={<OwnerFocus />} />
             <Route path="/master-data" element={<MasterDataPage />} />
             <Route path="/marketing-budget" element={<MarketingBudget />} />
+            <Route path="/my-team" element={<MyTeam />} />
 
             <Route path="/action-tracker-demo" element={<ActionTrackerDemo />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

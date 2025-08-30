@@ -293,6 +293,10 @@ export function Sidebar() {
                   Manager
                 </h3>
                 <div className="mt-2 space-y-1">
+                  <NavLink to="/my-team" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                    <Users2 className="h-5 w-5" />
+                    <span>My Team</span>
+                  </NavLink>
                   <NavLink to="/lead-manager" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
                     <Users className="h-5 w-5" />
                     <span>Lead Manager</span>
@@ -319,6 +323,9 @@ export function Sidebar() {
             
             {isCollapsed && (
               <div className="space-y-1">
+                <NavLink to="/my-team" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                  <Users2 className="h-5 w-5" />
+                </NavLink>
                 <NavLink to="/lead-manager" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
                   <Users className="h-5 w-5" />
                 </NavLink>

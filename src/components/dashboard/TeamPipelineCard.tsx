@@ -120,13 +120,15 @@ export default function TeamPipelineCard({
             {/* Time Period Selector */}
             {showTimePeriodSelector && (
               <Select value={timePeriod} onValueChange={handleTimePeriodChange}>
-                <SelectTrigger className="w-[100px] h-8 text-xs">
+                <SelectTrigger className="w-[130px] h-8 text-xs">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="monthly">Monthly</SelectItem>
-                  <SelectItem value="quarterly">Quarterly</SelectItem>
-                  <SelectItem value="annually">Annually</SelectItem>
+                  <SelectItem value="last_month">Last Month</SelectItem>
+                  <SelectItem value="past_3_months">Past 3 Months</SelectItem>
+                  <SelectItem value="past_6_months">Past 6 Months</SelectItem>
+                  <SelectItem value="past_9_months">Past 9 Months</SelectItem>
+                  <SelectItem value="past_12_months">Past 12 Months</SelectItem>
                 </SelectContent>
               </Select>
             )}

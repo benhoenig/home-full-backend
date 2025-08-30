@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 
 export type ComparisonTarget = 'current' | 'myself' | 'top_1' | 'top_2' | 'top_3' | 'top_3_average';
 export type ComparisonType = 'average' | 'best_complete' | 'best_peak';
-export type TimePeriod = 'monthly' | 'quarterly' | 'annually';
+export type TimePeriod = 'last_month' | 'past_3_months' | 'past_6_months' | 'past_9_months' | 'past_12_months';
 
 export type PipelineStageComparison = {
   name: string;
@@ -226,7 +226,7 @@ const mockTopPerformersData = {
 export function usePipelineComparison() {
   const [comparisonTarget, setComparisonTarget] = useState<ComparisonTarget>('current');
   const [comparisonType, setComparisonType] = useState<ComparisonType>('best_complete');
-  const [timePeriod, setTimePeriod] = useState<TimePeriod>('monthly');
+  const [timePeriod, setTimePeriod] = useState<TimePeriod>('last_month');
   const [showAnonymous, setShowAnonymous] = useState(true);
 
   // Current pipeline data (this would come from props or another hook in real app)
@@ -365,17 +365,28 @@ export function usePipelineComparison() {
         break;
     }
     
+    const getTimePeriodLabel = (period: TimePeriod) => {
+      switch (period) {
+        case 'last_month': return 'Last Month';
+        case 'past_3_months': return 'Past 3 Months';
+        case 'past_6_months': return 'Past 6 Months';
+        case 'past_9_months': return 'Past 9 Months';
+        case 'past_12_months': return 'Past 12 Months';
+        default: return period;
+      }
+    };
+
     let typeText = '';
     if (comparisonTarget === 'myself') {
       switch (comparisonType) {
         case 'average':
-          typeText = `Average (${timePeriod})`;
+          typeText = `Average (${getTimePeriodLabel(timePeriod)})`;
           break;
         case 'best_complete':
-          typeText = `Best Complete Pipeline (${timePeriod})`;
+          typeText = `Best Complete Pipeline (${getTimePeriodLabel(timePeriod)})`;
           break;
         case 'best_peak':
-          typeText = `Best Peak Potential (${timePeriod})`;
+          typeText = `Best Peak Potential (${getTimePeriodLabel(timePeriod)})`;
           break;
       }
     } else if (comparisonTarget.startsWith('top_')) {

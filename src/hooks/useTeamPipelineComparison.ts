@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 
 export type TeamComparisonTarget = 'current' | 'my_team' | 'best_team' | 'company';
 export type ComparisonType = 'average' | 'best_complete' | 'best_peak';
-export type TimePeriod = 'monthly' | 'quarterly' | 'annually';
+export type TimePeriod = 'last_month' | 'past_3_months' | 'past_6_months' | 'past_9_months' | 'past_12_months';
 
 export type TeamPipelineStageComparison = {
   name: string;
@@ -175,7 +175,7 @@ const mockCompanyData = {
 export function useTeamPipelineComparison() {
   const [comparisonTarget, setComparisonTarget] = useState<TeamComparisonTarget>('current');
   const [comparisonType, setComparisonType] = useState<ComparisonType>('best_complete');
-  const [timePeriod, setTimePeriod] = useState<TimePeriod>('monthly');
+  const [timePeriod, setTimePeriod] = useState<TimePeriod>('last_month');
 
   // Current team pipeline data (this would come from props or another hook in real app)
   const currentStages = [
@@ -261,16 +261,27 @@ export function useTeamPipelineComparison() {
         break;
     }
     
+    const getTimePeriodLabel = (period: TimePeriod) => {
+      switch (period) {
+        case 'last_month': return 'Last Month';
+        case 'past_3_months': return 'Past 3 Months';
+        case 'past_6_months': return 'Past 6 Months';
+        case 'past_9_months': return 'Past 9 Months';
+        case 'past_12_months': return 'Past 12 Months';
+        default: return period;
+      }
+    };
+
     let typeText = '';
     switch (comparisonType) {
       case 'average':
-        typeText = comparisonTarget === 'my_team' ? `Average (${timePeriod})` : 'Average';
+        typeText = comparisonTarget === 'my_team' ? `Average (${getTimePeriodLabel(timePeriod)})` : 'Average';
         break;
       case 'best_complete':
-        typeText = comparisonTarget === 'my_team' ? `Best Complete Pipeline (${timePeriod})` : 'Best Complete Pipeline';
+        typeText = comparisonTarget === 'my_team' ? `Best Complete Pipeline (${getTimePeriodLabel(timePeriod)})` : 'Best Complete Pipeline';
         break;
       case 'best_peak':
-        typeText = comparisonTarget === 'my_team' ? `Best Peak Potential (${timePeriod})` : 'Best Peak Potential';
+        typeText = comparisonTarget === 'my_team' ? `Best Peak Potential (${getTimePeriodLabel(timePeriod)})` : 'Best Peak Potential';
         break;
     }
     

@@ -591,12 +591,14 @@ const MarketingDashboard = () => {
   };
 
   // Get sorted areas based on the selected column and metric
-  const getSortedAreas = () => {
+  const getSortedAreas = (useExtendedMatrix = false) => {
+    const matrix = useExtendedMatrix ? extendedPerformanceMatrix : currentPerformanceMatrix;
+    
     if (!sortedColumn) {
-      return Object.entries(currentPerformanceMatrix);
+      return Object.entries(matrix);
     }
 
-    const sortedEntries = Object.entries(currentPerformanceMatrix).sort((a, b) => {
+    const sortedEntries = Object.entries(matrix).sort((a, b) => {
       const aData = a[1][sortedColumn as keyof typeof a[1]];
       const bData = b[1][sortedColumn as keyof typeof b[1]];
       
@@ -2188,7 +2190,7 @@ const MarketingDashboard = () => {
                 </div>
 
                 {/* All Areas Data - Using Extended Matrix */}
-                {Object.entries(extendedPerformanceMatrix).map(([areaId, areaData]) => {
+                {getSortedAreas(true).map(([areaId, areaData]) => {
                   const areaName = areas.find(a => a.id === areaId)?.name || areaId;
                   
                   return (
