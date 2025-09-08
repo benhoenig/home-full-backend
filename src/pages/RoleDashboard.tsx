@@ -5,14 +5,14 @@ import ListingSupportDashboard from './ListingSupportDashboard';
 import ManagerDashboard from './ManagerDashboard';
 
 const RoleDashboard = () => {
-  const [userRole, setUserRole] = useState<'Sales' | 'Admin' | 'Listing Support' | 'Manager'>(() =>
-    (localStorage.getItem('user-role') as 'Sales' | 'Admin' | 'Listing Support' | 'Manager') || 'Sales'
+  const [userRole, setUserRole] = useState<'Sales' | 'Admin' | 'Listing Support' | 'Manager' | 'HR'>(() =>
+    (localStorage.getItem('user-role') as 'Sales' | 'Admin' | 'Listing Support' | 'Manager' | 'HR') || 'Sales'
   );
 
   // Listen for role changes
   useEffect(() => {
     const handleRoleChange = () => {
-      const newRole = (localStorage.getItem('user-role') as 'Sales' | 'Admin' | 'Listing Support' | 'Manager') || 'Sales';
+      const newRole = (localStorage.getItem('user-role') as 'Sales' | 'Admin' | 'Listing Support' | 'Manager' | 'HR') || 'Sales';
       setUserRole(newRole);
     };
     
@@ -30,6 +30,8 @@ const RoleDashboard = () => {
       return <ListingSupportDashboard />;
     case 'Manager':
       return <ManagerDashboard />;
+    case 'HR':
+      return <Dashboard />; // HR users get the standard dashboard
     case 'Sales':
     default:
       return <Dashboard />;

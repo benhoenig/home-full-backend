@@ -14,7 +14,11 @@ import {
   ChevronLeft,
   ChevronRight,
   Users2,
-  Database
+  Database,
+  BarChart3,
+  UserCheck,
+  Heart,
+  Gift
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
@@ -25,8 +29,8 @@ export function Sidebar() {
   const location = useLocation();
   const [isOpen, setIsOpen] = React.useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [role, setRole] = useState<'Sales' | 'Admin' | 'Listing Support' | 'Manager'>(() =>
-    (localStorage.getItem('user-role') as 'Sales' | 'Admin' | 'Listing Support' | 'Manager') || 'Sales'
+  const [role, setRole] = useState<'Sales' | 'Admin' | 'Listing Support' | 'Manager' | 'HR'>(() =>
+    (localStorage.getItem('user-role') as 'Sales' | 'Admin' | 'Listing Support' | 'Manager' | 'HR') || 'Sales'
   );
   if (role === 'Admin') {
     console.log('[Sidebar] Current role: Admin (Admin sidebar)');
@@ -34,6 +38,8 @@ export function Sidebar() {
     console.log('[Sidebar] Current role: Listing Support (Listing Support sidebar)');
   } else if (role === 'Manager') {
     console.log('[Sidebar] Current role: Manager (Manager sidebar)');
+  } else if (role === 'HR') {
+    console.log('[Sidebar] Current role: HR (HR sidebar)');
   } else {
     console.log('[Sidebar] Current role: Sales (Sales sidebar)');
   }
@@ -52,7 +58,7 @@ export function Sidebar() {
 
   useEffect(() => {
     const handleRoleChange = () => {
-      setRole((localStorage.getItem('user-role') as 'Sales' | 'Admin' | 'Listing Support' | 'Manager') || 'Sales');
+      setRole((localStorage.getItem('user-role') as 'Sales' | 'Admin' | 'Listing Support' | 'Manager' | 'HR') || 'Sales');
     };
     window.addEventListener('role-changed', handleRoleChange);
     return () => {
@@ -105,11 +111,23 @@ export function Sidebar() {
       { label: 'Contacts', to: '/contacts', icon: <Users className="h-5 w-5" /> },
       { label: 'Settings', to: '/settings', icon: <Settings className="h-5 w-5" /> },
     ],
+    'HR': [
+      { label: 'Dashboard', to: '/', icon: <LayoutDashboard className="h-5 w-5" /> },
+      { label: 'Inbox', to: '/inbox', icon: <Inbox className="h-5 w-5" /> },
+      { label: 'Goals & Target', to: '/goals', icon: <Target className="h-5 w-5" /> },
+      { label: 'Leaderboard', to: '/leaderboard', icon: <Trophy className="h-5 w-5" /> },
+      { label: 'KPI', to: '/kpi', icon: <BarChart3 className="h-5 w-5" /> },
+      { label: 'Roles', to: '/roles', icon: <UserCheck className="h-5 w-5" /> },
+      { label: 'Rewards', to: '/rewards', icon: <Gift className="h-5 w-5" /> },
+      { label: 'Welfare Benefit', to: '/welfare-benefit', icon: <Heart className="h-5 w-5" /> },
+      { label: 'Settings', to: '/settings', icon: <Settings className="h-5 w-5" /> },
+    ],
   };
 
-  // Show custom menu for Admin and Listing Support, grouped menu for Manager, default (Sales) sidebar for Sales
+  // Show custom menu for Admin and Listing Support, grouped menu for Manager, simple menu for HR, default (Sales) sidebar for Sales
   const isCustomRole = role === 'Admin' || role === 'Listing Support';
   const isManagerRole = role === 'Manager';
+  const isHRRole = role === 'HR';
 
   const sidebarContent = (
     <>
@@ -369,6 +387,71 @@ export function Sidebar() {
                 </NavLink>
                 <NavLink to="/agreement" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
                   <FileText className="h-5 w-5" />
+                </NavLink>
+              </div>
+            )}
+          </>
+        ) : isHRRole ? (
+          <>
+            {/* HR Role Navigation */}
+            <div className="space-y-1">
+              <NavLink to="/" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                <LayoutDashboard className="h-5 w-5" />
+                {!isCollapsed && <span>Dashboard</span>}
+              </NavLink>
+              <NavLink to="/inbox" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                <Inbox className="h-5 w-5" />
+                {!isCollapsed && <span>Inbox</span>}
+              </NavLink>
+              <NavLink to="/goals" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                <Target className="h-5 w-5" />
+                {!isCollapsed && <span>Goals & Target</span>}
+              </NavLink>
+              <NavLink to="/leaderboard" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                <Trophy className="h-5 w-5" />
+                {!isCollapsed && <span>Leaderboard</span>}
+              </NavLink>
+            </div>
+            
+            {!isCollapsed && (
+              <div>
+                <h3 className="px-3 text-xs uppercase text-sidebar-foreground/50 font-semibold tracking-wider">
+                  Main
+                </h3>
+                <div className="mt-2 space-y-1">
+                  <NavLink to="/kpi" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                    <BarChart3 className="h-5 w-5" />
+                    <span>KPI</span>
+                  </NavLink>
+                  <NavLink to="/roles" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                    <UserCheck className="h-5 w-5" />
+                    <span>Roles</span>
+                  </NavLink>
+                  <NavLink to="/rewards" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                    <Gift className="h-5 w-5" />
+                    <span>Rewards</span>
+                  </NavLink>
+                  <NavLink to="/welfare-benefit" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                    <Heart className="h-5 w-5" />
+                    <span>Welfare Benefit</span>
+                  </NavLink>
+                </div>
+              </div>
+            )}
+            
+            {isCollapsed && (
+              <div className="space-y-1">
+                <NavLink to="/kpi" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                  <BarChart3 className="h-5 w-5" />
+                </NavLink>
+                <NavLink to="/roles" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                  <UserCheck className="h-5 w-5" />
+                </NavLink>
+                <NavLink to="/rewards" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                  <Gift className="h-5 w-5" />
+                </NavLink>
+                <NavLink to="/welfare-benefit" className={({ isActive }) => `sidebar-item ${isCollapsed ? 'justify-center px-2' : ''}${isActive ? ' active' : ''}`}>
+                  <Heart className="h-5 w-5" />
                 </NavLink>
               </div>
             )}

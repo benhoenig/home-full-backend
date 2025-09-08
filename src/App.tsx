@@ -22,6 +22,10 @@ import MasterDataPage from "@/pages/MasterDataPage";
 import MarketingBudget from "@/pages/MarketingBudget";
 import Inbox from "@/pages/Inbox";
 import MyTeam from "@/pages/MyTeam";
+import KPI from "@/pages/KPI";
+import Roles from "@/pages/Roles";
+import WelfareBenefit from "@/pages/WelfareBenefit";
+import Rewards from "@/pages/Rewards";
 
 const App = () => {
   // Create a new QueryClient instance inside the component
@@ -50,6 +54,10 @@ const App = () => {
             <Route path="/master-data" element={<MasterDataPage />} />
             <Route path="/marketing-budget" element={<MarketingBudget />} />
             <Route path="/my-team" element={<MyTeam />} />
+            <Route path="/kpi" element={<KPI />} />
+            <Route path="/roles" element={<Roles />} />
+            <Route path="/welfare-benefit" element={<WelfareBenefit />} />
+            <Route path="/rewards" element={<Rewards />} />
 
             <Route path="/action-tracker-demo" element={<ActionTrackerDemo />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
