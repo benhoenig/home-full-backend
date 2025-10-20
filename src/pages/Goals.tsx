@@ -376,11 +376,11 @@ const Goals = () => {
                 
                 <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
                   <DialogTrigger asChild>
-                    <Button>Create Goal</Button>
+                    <Button style={{ fontFamily: "'IBM Plex Sans Thai', sans-serif" }}>สร้างเป้าหมาย</Button>
                   </DialogTrigger>
                   <DialogContent className="max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
-                      <DialogTitle>Create New Goal</DialogTitle>
+                      <DialogTitle style={{ fontFamily: "'IBM Plex Sans Thai', sans-serif" }}>สร้างเป้าหมายใหม่</DialogTitle>
                     </DialogHeader>
                     <GoalForm onSubmit={handleCreateGoal} onCancel={() => setIsCreateModalOpen(false)} />
                   </DialogContent>
@@ -583,7 +583,7 @@ const Goals = () => {
         <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
           <DialogContent className="max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Notification Settings</DialogTitle>
+              <DialogTitle style={{ fontFamily: "'IBM Plex Sans Thai', sans-serif" }}>ตั้งค่าการแจ้งเตือน</DialogTitle>
             </DialogHeader>
             {selectedGoal && (
               <GoalForm 

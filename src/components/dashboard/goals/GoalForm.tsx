@@ -79,68 +79,68 @@ import RewardBetting from './RewardBetting';
 const goalTypes = [
   {
     id: 'target-revenue',
-    name: 'Target Revenue',
+    name: 'เป้าหมายรายได้',
     icon: 'target',
-    description: 'Set a revenue target to achieve within a specific timeframe.',
+    description: 'ตั้งเป้าหมายรายได้ที่ต้องการบรรลุภายในระยะเวลาที่กำหนด',
     defaultTarget: '5,000,000',
-    defaultReward: 'Bonus Commission',
+    defaultReward: 'โบนัสค่าคอมมิชชั่น',
   },
   {
     id: 'kpi',
-    name: 'KPI',
+    name: 'ตัวชี้วัดผลงาน (KPI)',
     icon: 'chart',
-    description: 'Set a key performance indicator goal to track and improve.',
+    description: 'ตั้งเป้าหมายตัวชี้วัดหลักเพื่อติดตามและปรับปรุงประสิทธิภาพ',
     defaultTarget: '100',
-    defaultReward: 'Performance Recognition',
+    defaultReward: 'รางวัลยกย่องผลงาน',
   },
   {
     id: 'custom',
-    name: 'Custom',
+    name: 'กำหนดเอง',
     icon: 'star',
-    description: 'Create a custom goal with your own metrics and targets.',
+    description: 'สร้างเป้าหมายของคุณเองด้วยตัวชี้วัดและเป้าหมายที่กำหนดเอง',
     defaultTarget: '',
-    defaultReward: 'Custom Reward',
+    defaultReward: 'รางวัลตามที่กำหนด',
   },
 ];
 
 // Define KPI types
 const kpiTypes = [
-  { id: 'new-list', name: 'New List' },
-  { id: 'consult', name: 'Consult' },
-  { id: 'survey', name: 'Survey' },
-  { id: 'buyer-review', name: 'Buyer Review' },
-  { id: 'owner-review', name: 'Owner Review' },
-  { id: 'skillset', name: 'Skillset' },
-  { id: 'action-score', name: 'Action Score' },
+  { id: 'new-list', name: 'รายการใหม่' },
+  { id: 'consult', name: 'การให้คำปรึกษา' },
+  { id: 'survey', name: 'การสำรวจ' },
+  { id: 'buyer-review', name: 'รีวิวผู้ซื้อ' },
+  { id: 'owner-review', name: 'รีวิวเจ้าของ' },
+  { id: 'skillset', name: 'ทักษะความสามารถ' },
+  { id: 'action-score', name: 'คะแนนการดำเนินงาน' },
 ];
 
 // Define setting types
 const settingTypes = [
   { 
     id: 'maintain', 
-    name: 'Maintain', 
-    description: 'Maintain your current performance level for the selected period.',
+    name: 'รักษาระดับ', 
+    description: 'รักษาระดับผลงานปัจจุบันของคุณสำหรับช่วงเวลาที่เลือก',
     icon: 'Shield'
   },
   { 
     id: 'boost', 
-    name: 'Boost', 
-    description: 'Boost your performance with a specific percentage increase.',
+    name: 'เพิ่มประสิทธิภาพ', 
+    description: 'เพิ่มประสิทธิภาพของคุณด้วยการกำหนดเปอร์เซ็นต์การเติบโต',
     icon: 'ArrowUp'
   },
   { 
     id: 'supercharge', 
-    name: 'Supercharge', 
-    description: 'Double your performance with an ambitious target.',
+    name: 'ท้าทายสูงสุด', 
+    description: 'เพิ่มผลงานของคุณเป็นสองเท่าด้วยเป้าหมายที่ท้าทาย',
     icon: 'Zap'
   },
 ];
 
 // Timeline type options
 const timelineTypes = [
-  { id: 'monthly', name: 'Monthly' },
-  { id: 'quarterly', name: 'Quarterly' },
-  { id: 'annually', name: 'Annually' },
+  { id: 'monthly', name: 'รายเดือน' },
+  { id: 'quarterly', name: 'รายไตรมาส' },
+  { id: 'annually', name: 'รายปี' },
 ];
 
 // Icon options with colors
@@ -174,7 +174,7 @@ const getColorClass = (color: string) => {
 // Define the form schema with validation rules
 const formSchema = z.object({
   title: z.string().min(3, {
-    message: "Title must be at least 3 characters.",
+    message: "ชื่อเป้าหมายต้องมีอย่างน้อย 3 ตัวอักษร",
   }),
   type: z.enum(['personal', 'team']),
   goalType: z.enum(['target-revenue', 'kpi', 'custom']),
@@ -183,16 +183,16 @@ const formSchema = z.object({
   boostPercentage: z.string().optional(),
   timelineType: z.enum(['monthly', 'quarterly', 'annually']),
   timelinePeriod: z.string().min(1, {
-    message: "Timeline period is required.",
+    message: "กรุณาเลือกช่วงเวลา",
   }),
   notificationFrequency: z.enum(['none', 'daily', 'weekly', 'monthly']).default('weekly'),
   description: z.string().optional(),
   target: z.string().min(1, {
-    message: "Target is required.",
+    message: "กรุณากรอกเป้าหมาย",
   }),
   current: z.string().default('0'),
   reward: z.string().min(1, {
-    message: "Reward is required.",
+    message: "กรุณากรอกรางวัล",
   }),
   icon: z.string().default('target'),
   iconColor: z.string().default('blue'),
@@ -203,7 +203,7 @@ const formSchema = z.object({
   }
   return true;
 }, {
-  message: "KPI Type is required for KPI goals",
+  message: "กรุณาเลือกประเภทตัวชี้วัด KPI สำหรับเป้าหมายประเภทนี้",
   path: ["kpiType"]
 });
 
@@ -462,14 +462,14 @@ const GoalForm: React.FC<GoalFormProps> = ({
   // If editing, only show notification settings
   if (isEditing) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6" style={{ fontFamily: "'IBM Plex Sans Thai', sans-serif" }}>
         <div className="flex items-center gap-2 mb-4">
           <Bell className="h-5 w-5 text-primary" />
-          <h3 className="text-lg font-medium">Notification Settings</h3>
+          <h3 className="text-lg font-medium">ตั้งค่าการแจ้งเตือน</h3>
         </div>
         
         <p className="text-muted-foreground mb-6">
-          You can only modify the notification settings for this goal. Other goal details cannot be changed once a goal is created.
+          คุณสามารถแก้ไขการตั้งค่าการแจ้งเตือนสำหรับเป้าหมายนี้เท่านั้น รายละเอียดเป้าหมายอื่นๆ ไม่สามารถเปลี่ยนแปลงได้หลังจากสร้างเป้าหมายแล้ว
         </p>
         
         <Form {...form}>
@@ -479,25 +479,25 @@ const GoalForm: React.FC<GoalFormProps> = ({
               name="notificationFrequency"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Notification Reminder</FormLabel>
+                  <FormLabel>ความถี่ในการแจ้งเตือน</FormLabel>
                   <Select 
                     onValueChange={field.onChange} 
                     defaultValue={field.value}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select reminder frequency" />
+                        <SelectValue placeholder="เลือกความถี่ในการแจ้งเตือน" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="none">No reminders</SelectItem>
-                      <SelectItem value="daily">Daily</SelectItem>
-                      <SelectItem value="weekly">Weekly</SelectItem>
-                      <SelectItem value="monthly">Monthly</SelectItem>
+                      <SelectItem value="none">ไม่ต้องการแจ้งเตือน</SelectItem>
+                      <SelectItem value="daily">รายวัน</SelectItem>
+                      <SelectItem value="weekly">รายสัปดาห์</SelectItem>
+                      <SelectItem value="monthly">รายเดือน</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormDescription>
-                    How often would you like to receive reminders about this goal?
+                    คุณต้องการรับการแจ้งเตือนเกี่ยวกับเป้าหมายนี้บ่อยแค่ไหน?
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -510,13 +510,13 @@ const GoalForm: React.FC<GoalFormProps> = ({
                 variant="outline" 
                 onClick={onCancel}
               >
-                Cancel
+                ยกเลิก
               </Button>
               <Button 
                 type="button"
                 onClick={form.handleSubmit(handleSubmit)}
               >
-                Update Settings
+                อัปเดตการตั้งค่า
               </Button>
             </div>
           </form>
@@ -526,17 +526,17 @@ const GoalForm: React.FC<GoalFormProps> = ({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" style={{ fontFamily: "'IBM Plex Sans Thai', sans-serif" }}>
       <Form {...form}>
         <Tabs defaultValue="details" value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="details">Goal Details</TabsTrigger>
-            <TabsTrigger value="rewards">Rewards</TabsTrigger>
+            <TabsTrigger value="details">รายละเอียดเป้าหมาย</TabsTrigger>
+            <TabsTrigger value="rewards">รางวัล</TabsTrigger>
           </TabsList>
           
           <TabsContent value="details" className="space-y-6 pt-4">
             <div className="space-y-2">
-              <h4 className="text-sm font-medium">Select Goal Type</h4>
+              <h4 className="text-sm font-medium">เลือกประเภทเป้าหมาย</h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {goalTypes.map((goalType) => (
                   <div 
@@ -564,14 +564,14 @@ const GoalForm: React.FC<GoalFormProps> = ({
                   name="timelineType"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Timeline Type</FormLabel>
+                      <FormLabel>ประเภทช่วงเวลา</FormLabel>
                       <Select 
                         onValueChange={(value) => handleTimelineTypeChange(value)} 
                         defaultValue={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select timeline type" />
+                            <SelectValue placeholder="เลือกประเภทช่วงเวลา" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -590,14 +590,14 @@ const GoalForm: React.FC<GoalFormProps> = ({
                   name="timelinePeriod"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Timeline Period</FormLabel>
+                      <FormLabel>ช่วงเวลา</FormLabel>
                       <Select 
                         onValueChange={field.onChange} 
                         defaultValue={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select period" />
+                            <SelectValue placeholder="เลือกช่วงเวลา" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -618,7 +618,7 @@ const GoalForm: React.FC<GoalFormProps> = ({
                   name="kpiType"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>KPI Type</FormLabel>
+                      <FormLabel>ประเภทตัวชี้วัด KPI</FormLabel>
                       <Select 
                         onValueChange={(value) => {
                           field.onChange(value);
@@ -631,7 +631,7 @@ const GoalForm: React.FC<GoalFormProps> = ({
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select KPI type" />
+                            <SelectValue placeholder="เลือกประเภทตัวชี้วัด KPI" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -649,14 +649,14 @@ const GoalForm: React.FC<GoalFormProps> = ({
               {/* Performance Graph Section */}
               {selectedGoalType && selectedGoalType !== 'custom' && (
                 <div className="mt-4 mb-6">
-                  <h4 className="text-sm font-medium mb-2">Previous Performance</h4>
+                  <h4 className="text-sm font-medium mb-2">ผลงานย้อนหลัง</h4>
                   <PerformanceGraph 
                     goalType={selectedGoalType}
                     kpiType={form.getValues('kpiType')}
                     onPreviousValueChange={setPreviousPerformanceValue}
                   />
                   <p className="text-sm text-muted-foreground mt-2">
-                    Review your past performance to help set appropriate goals for the future.
+                    ทบทวนผลงานที่ผ่านมาของคุณเพื่อช่วยในการตั้งเป้าหมายที่เหมาะสมสำหรับอนาคต
                   </p>
                 </div>
               )}
@@ -664,7 +664,7 @@ const GoalForm: React.FC<GoalFormProps> = ({
               {/* Setting Type Section - Only shown for non-custom goals */}
               {selectedGoalType && selectedGoalType !== 'custom' && (
                 <div className="space-y-2">
-                  <h4 className="text-sm font-medium">Select Setting Type</h4>
+                  <h4 className="text-sm font-medium">เลือกประเภทการตั้งค่า</h4>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {settingTypes.map((settingType) => {
                       // Determine which icon component to use
@@ -723,7 +723,7 @@ const GoalForm: React.FC<GoalFormProps> = ({
                     name="boostPercentage"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Boost Percentage</FormLabel>
+                        <FormLabel>เปอร์เซ็นต์การเพิ่มประสิทธิภาพ</FormLabel>
                         <Select 
                           onValueChange={(value) => {
                             field.onChange(value);
@@ -764,21 +764,21 @@ const GoalForm: React.FC<GoalFormProps> = ({
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select boost percentage" />
+                              <SelectValue placeholder="เลือกเปอร์เซ็นต์การเพิ่มประสิทธิภาพ" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="5">5% increase</SelectItem>
-                            <SelectItem value="10">10% increase</SelectItem>
-                            <SelectItem value="15">15% increase</SelectItem>
-                            <SelectItem value="20">20% increase</SelectItem>
-                            <SelectItem value="25">25% increase</SelectItem>
-                            <SelectItem value="30">30% increase</SelectItem>
-                            <SelectItem value="50">50% increase</SelectItem>
+                            <SelectItem value="5">เพิ่ม 5%</SelectItem>
+                            <SelectItem value="10">เพิ่ม 10%</SelectItem>
+                            <SelectItem value="15">เพิ่ม 15%</SelectItem>
+                            <SelectItem value="20">เพิ่ม 20%</SelectItem>
+                            <SelectItem value="25">เพิ่ม 25%</SelectItem>
+                            <SelectItem value="30">เพิ่ม 30%</SelectItem>
+                            <SelectItem value="50">เพิ่ม 50%</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormDescription>
-                          Select the percentage increase you want to achieve over your current performance.
+                          เลือกเปอร์เซ็นต์การเพิ่มขึ้นที่คุณต้องการบรรลุเมื่อเทียบกับผลงานปัจจุบันของคุณ
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -794,9 +794,9 @@ const GoalForm: React.FC<GoalFormProps> = ({
                     name="title"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Goal Title</FormLabel>
+                        <FormLabel>ชื่อเป้าหมาย</FormLabel>
                         <FormControl>
-                          <Input placeholder="Enter goal title" {...field} />
+                          <Input placeholder="กรอกชื่อเป้าหมาย" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -808,10 +808,10 @@ const GoalForm: React.FC<GoalFormProps> = ({
                     name="description"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Description</FormLabel>
+                        <FormLabel>คำอธิบาย</FormLabel>
                         <FormControl>
                           <Textarea 
-                            placeholder="Describe your goal" 
+                            placeholder="อธิบายเป้าหมายของคุณ" 
                             className="min-h-[100px]" 
                             {...field} 
                           />
@@ -828,16 +828,16 @@ const GoalForm: React.FC<GoalFormProps> = ({
                 name="target"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Target</FormLabel>
+                    <FormLabel>เป้าหมาย</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter target value" {...field} />
+                      <Input placeholder="กรอกค่าเป้าหมาย" {...field} />
                     </FormControl>
                     <FormDescription>
                       {selectedGoalType === 'target-revenue' 
-                        ? 'Enter the revenue target amount.'
+                        ? 'กรอกจำนวนเป้าหมายรายได้'
                         : selectedGoalType === 'kpi'
-                          ? 'Enter the KPI target value.'
-                          : 'Enter your custom target value.'}
+                          ? 'กรอกค่าเป้าหมาย KPI'
+                          : 'กรอกค่าเป้าหมายที่คุณกำหนด'}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -850,9 +850,9 @@ const GoalForm: React.FC<GoalFormProps> = ({
                   name="current"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Current Progress</FormLabel>
+                      <FormLabel>ความคืบหน้าปัจจุบัน</FormLabel>
                       <FormControl>
-                        <Input placeholder="Current progress" {...field} />
+                        <Input placeholder="ความคืบหน้าปัจจุบัน" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -866,7 +866,7 @@ const GoalForm: React.FC<GoalFormProps> = ({
                   variant="outline" 
                   onClick={() => setActiveTab("rewards")}
                 >
-                  Next: Set Rewards
+                  ถัดไป: ตั้งค่ารางวัล
                 </Button>
               </div>
             </form>
@@ -874,7 +874,7 @@ const GoalForm: React.FC<GoalFormProps> = ({
           
           <TabsContent value="rewards" className="space-y-6 pt-4 overflow-y-auto">
             <div className="space-y-6">
-              <h4 className="text-lg font-medium">Set Your Goal Rewards</h4>
+              <h4 className="text-lg font-medium">ตั้งค่ารางวัลสำหรับเป้าหมายของคุณ</h4>
               
               {/* Tiered rewards based on setting type */}
               <FormField
@@ -921,25 +921,25 @@ const GoalForm: React.FC<GoalFormProps> = ({
                   name="notificationFrequency"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Notification Reminder</FormLabel>
+                      <FormLabel>ความถี่ในการแจ้งเตือน</FormLabel>
                       <Select 
                         onValueChange={field.onChange} 
                         defaultValue={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select reminder frequency" />
+                            <SelectValue placeholder="เลือกความถี่ในการแจ้งเตือน" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="none">No reminders</SelectItem>
-                          <SelectItem value="daily">Daily</SelectItem>
-                          <SelectItem value="weekly">Weekly</SelectItem>
-                          <SelectItem value="monthly">Monthly</SelectItem>
+                          <SelectItem value="none">ไม่ต้องการแจ้งเตือน</SelectItem>
+                          <SelectItem value="daily">รายวัน</SelectItem>
+                          <SelectItem value="weekly">รายสัปดาห์</SelectItem>
+                          <SelectItem value="monthly">รายเดือน</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormDescription>
-                        How often would you like to receive reminders about this goal?
+                        คุณต้องการรับการแจ้งเตือนเกี่ยวกับเป้าหมายนี้บ่อยแค่ไหน?
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -953,7 +953,7 @@ const GoalForm: React.FC<GoalFormProps> = ({
                   variant="outline" 
                   onClick={() => setActiveTab("details")}
                 >
-                  Back to Details
+                  กลับไปรายละเอียด
                 </Button>
                 
                 <div className="flex gap-2">
@@ -962,13 +962,13 @@ const GoalForm: React.FC<GoalFormProps> = ({
                     variant="outline" 
                     onClick={onCancel}
                   >
-                    Cancel
+                    ยกเลิก
                   </Button>
                   <Button 
                     type="button"
                     onClick={handleCreateGoalClick}
                   >
-                    {isEditing ? 'Update Goal' : 'Create Goal'}
+                    {isEditing ? 'อัปเดตเป้าหมาย' : 'สร้างเป้าหมาย'}
                   </Button>
                 </div>
               </div>
@@ -979,38 +979,38 @@ const GoalForm: React.FC<GoalFormProps> = ({
 
       {/* Confirmation Dialog */}
       <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent style={{ fontFamily: "'IBM Plex Sans Thai', sans-serif" }}>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-amber-500" />
-              Confirm Goal Creation
+              ยืนยันการสร้างเป้าหมาย
             </AlertDialogTitle>
             <AlertDialogDescription className="space-y-3">
               <p>
-                You are about to create a goal with the following settings:
+                คุณกำลังจะสร้างเป้าหมายด้วยการตั้งค่าดังต่อไปนี้:
               </p>
               <div className="bg-muted p-3 rounded-md text-sm">
-                <p><strong>Title:</strong> {form.getValues('title')}</p>
-                <p><strong>Type:</strong> {form.getValues('type') === 'personal' ? 'Personal Goal' : 'Team Goal'}</p>
-                <p><strong>Target:</strong> {form.getValues('target')}</p>
-                <p><strong>Timeline:</strong> {getTimelinePeriodLabel(form.getValues('timelineType'), form.getValues('timelinePeriod'))}</p>
-                <p><strong>Reward:</strong> {form.getValues('reward')}</p>
+                <p><strong>ชื่อ:</strong> {form.getValues('title')}</p>
+                <p><strong>ประเภท:</strong> {form.getValues('type') === 'personal' ? 'เป้าหมายส่วนตัว' : 'เป้าหมายทีม'}</p>
+                <p><strong>เป้าหมาย:</strong> {form.getValues('target')}</p>
+                <p><strong>ช่วงเวลา:</strong> {getTimelinePeriodLabel(form.getValues('timelineType'), form.getValues('timelinePeriod'))}</p>
+                <p><strong>รางวัล:</strong> {form.getValues('reward')}</p>
               </div>
               <p className="font-medium text-destructive">
-                Important: Once created, this goal cannot be edited or deleted until completion and will be tracked as part of your lifetime statistics.
+                สำคัญ: เมื่อสร้างแล้ว เป้าหมายนี้จะไม่สามารถแก้ไขหรือลบได้จนกว่าจะเสร็จสมบูรณ์ และจะถูกติดตามเป็นส่วนหนึ่งของสถิติตลอดชีวิตของคุณ
               </p>
               <p>
-                Are you sure you want to proceed with creating this goal?
+                คุณแน่ใจหรือไม่ว่าต้องการสร้างเป้าหมายนี้?
               </p>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
             <AlertDialogAction 
               onClick={form.handleSubmit(handleSubmit)}
               className="bg-primary hover:bg-primary/90"
             >
-              Yes, Create Goal
+              ใช่ สร้างเป้าหมาย
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

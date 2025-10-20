@@ -65,10 +65,11 @@ const config: Config = {
 					light: '#6950c1'  // Slightly lighter version of sidebar purple
 				}
 			},
-			fontFamily: {
-				sans: ['Inter', 'sans-serif'],
-				mono: ['JetBrains Mono', 'monospace'],
-			},
+		fontFamily: {
+			sans: ['Inter', 'sans-serif'],
+			mono: ['JetBrains Mono', 'monospace'],
+			thai: ['IBM Plex Sans Thai', 'sans-serif'],
+		},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
